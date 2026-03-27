@@ -1,0 +1,16 @@
+services:
+  mcp-fiscal-brasil:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - CNPJ_API_KEY=${CNPJ_API_KEY:-}
+      - NFE_API_KEY=${NFE_API_KEY:-}
+      - NFSE_API_KEY=${NFSE_API_KEY:-}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import mcp_fiscal_brasil; print('ok')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
