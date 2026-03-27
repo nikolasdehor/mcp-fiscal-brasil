@@ -174,10 +174,14 @@ async def consultar_nfse(
             "NFSe nao possui API publica padronizada nacional. "
             "Cada municipio gerencia seu proprio sistema de emissao e consulta."
         ),
-        "portal_municipio": portal_info.get("portal", f"Acesse o portal da prefeitura de {municipio}/{uf_upper}")
+        "portal_municipio": portal_info.get(
+            "portal", f"Acesse o portal da prefeitura de {municipio}/{uf_upper}"
+        )
         if portal_info
         else f"Acesse o portal da prefeitura de {municipio}/{uf_upper}",
-        "sistema_nfse": portal_info.get("sistema", "ABRASF/Proprietario") if portal_info else "ABRASF/Proprietario",
+        "sistema_nfse": portal_info.get("sistema", "ABRASF/Proprietario")
+        if portal_info
+        else "ABRASF/Proprietario",
         "alternativa": (
             "Para integracao automatizada, contrate um emissor NFSe como "
             "Omie, ContaAzul, NFe.io ou Enotas que suportam multiplos municipios."
