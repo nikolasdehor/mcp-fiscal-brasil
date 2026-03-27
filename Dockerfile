@@ -19,4 +19,7 @@ RUN pip install --no-cache-dir *.whl && \
 
 EXPOSE 8000
 
-CMD ["mcp-fiscal-brasil"]
+# PORT pode ser sobrescrito pelo ambiente (Smithery injeta PORT=8081)
+ENV PORT=8000
+
+CMD ["mcp-fiscal-brasil", "--transport", "http"]

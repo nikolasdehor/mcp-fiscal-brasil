@@ -1,0 +1,21 @@
+# Smithery configuration — https://smithery.ai/docs/config#smitheryyaml
+# Deploy via Docker container with HTTP (streamable-http) transport.
+
+build:
+  dockerfile: Dockerfile
+  dockerBuildPath: .
+
+startCommand:
+  type: http
+  configSchema:
+    type: object
+    required: []
+    properties:
+      cnpjApiKey:
+        type: string
+        description: "Chave de API para consultas CNPJ avancadas (opcional)."
+      nfeApiKey:
+        type: string
+        description: "Chave de API para consultas NFe (opcional)."
+  # commandFunction nao e necessario para type: http — Smithery usa o CMD do Dockerfile.
+  # A variavel PORT e injetada automaticamente pelo Smithery (valor: 8081).

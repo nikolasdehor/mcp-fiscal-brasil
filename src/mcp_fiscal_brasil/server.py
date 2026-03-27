@@ -265,9 +265,42 @@ async def tool_consultar_certidao_fgts(cnpj: str) -> dict[str, str]:
 
 
 def main() -> None:
-    """Inicia o servidor MCP via stdio (modo padrao para clientes MCP)."""
-    logger.info("Iniciando MCP Fiscal Brasil v%s", __version__)
-    app.run()
+    """Inicia o servidor MCP.
+
+    Modo de transporte configuravel via argumento --transport ou variavel de ambiente
+    FASTMCP_TRANSPORT. Valores aceitos: stdio (padrao), sse, http, streamable-http.
+
+    Para HTTP/SSE, a porta e configurada via variavel PORT (padrao: 8000).
+    """
+    import argparse
+    import os
+
+    parser = argparse.ArgumentParser(description="MCP Fiscal Brasil")
+    parser.add_argument(
+        "--transport",
+        choices=["stdio", "sse", "http", "streamable-http"],
+        default=os.environ.get("FASTMCP_TRANSPORT", "stdio"),
+        help="Protocolo de transporte (padrao: stdio)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.environ.get("PORT", "8000")),
+        help="Porta HTTP/SSE (padrao: 8000, ou valor da variavel PORT)",
+    )
+    parser.add_argument(
+        "--host",
+        default=os.environ.get("HOST", "0.0.0.0"),
+        help="Host para HTTP/SSE (padrao: 0.0.0.0)",
+    )
+    args = parser.parse_args()
+
+    logger.info("Iniciando MCP Fiscal Brasil v%s (transport=%s)", __version__, args.transport)
+
+    if args.transport == "stdio":
+        app.run(transport="stdio")
+    else:
+        app.run(transport=args.transport, host=args.host, port=args.port)
 
 
 if __name__ == "__main__":
