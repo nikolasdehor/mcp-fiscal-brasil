@@ -23,33 +23,161 @@ async def consultar_nfse(
     Returns:
         Dicionario com orientacoes de consulta para o municipio.
     """
-    # Portais de consulta por municipio/sistema
-    portais_conhecidos: dict[str, str] = {
-        "SAO PAULO": "https://nfe.prefeitura.sp.gov.br/contribuinte/notasfiscais.aspx",
-        "RIO DE JANEIRO": "https://notacarioca.rio.gov.br/",
-        "BELO HORIZONTE": "https://bhiss.pbh.gov.br/nfse/",
-        "CURITIBA": "https://nfse.curitiba.pr.gov.br/",
-        "PORTO ALEGRE": "https://nfse.portoalegre.rs.gov.br/",
-        "SALVADOR": "https://nfse.salvador.ba.gov.br/",
-        "FORTALEZA": "https://www.sefin.fortaleza.ce.gov.br/",
-        "BRASILIA": "https://www.nfse.df.gov.br/",
-        "MANAUS": "https://nfse.manaus.am.gov.br/",
-        "RECIFE": "https://nfse.recife.pe.gov.br/",
+    # Portais de consulta por municipio/sistema (50+ capitais e grandes cidades)
+    # Formato: "CIDADE/UF": {"portal": "url", "sistema": "tipo_sistema"}
+    portais_conhecidos: dict[str, dict[str, str]] = {
+        # Capitais Estaduais
+        "SAO PAULO/SP": {
+            "portal": "https://nfe.prefeitura.sp.gov.br/contribuinte/notasfiscais.aspx",
+            "sistema": "ABRASF",
+        },
+        "RIO DE JANEIRO/RJ": {
+            "portal": "https://notacarioca.rio.gov.br/",
+            "sistema": "Nota Carioca",
+        },
+        "BELO HORIZONTE/MG": {"portal": "https://bhiss.pbh.gov.br/nfse/", "sistema": "BHISS"},
+        "CURITIBA/PR": {
+            "portal": "https://nfse.curitiba.pr.gov.br/",
+            "sistema": "Curitiba Proprietary",
+        },
+        "PORTO ALEGRE/RS": {"portal": "https://nfse.portoalegre.rs.gov.br/", "sistema": "ABRASF"},
+        "SALVADOR/BA": {"portal": "https://nfse.salvador.ba.gov.br/", "sistema": "ABRASF"},
+        "FORTALEZA/CE": {"portal": "https://www.sefin.fortaleza.ce.gov.br/", "sistema": "ABRASF"},
+        "BRASILIA/DF": {"portal": "https://www.nfse.df.gov.br/", "sistema": "ABRASF Nacional"},
+        "MANAUS/AM": {"portal": "https://nota.manaus.am.gov.br/", "sistema": "ABRASF Nacional"},
+        "RECIFE/PE": {"portal": "https://nfse.recife.pe.gov.br/", "sistema": "ABRASF"},
+        "BELEM/PA": {"portal": "https://nfse.belem.pa.gov.br/", "sistema": "ABRASF"},
+        "GOIANIA/GO": {"portal": "https://nfse.goiania.go.gov.br/", "sistema": "ABRASF"},
+        "SAO LUIS/MA": {"portal": "https://nfse.saoluis.ma.gov.br/", "sistema": "ABRASF"},
+        "MACEIO/AL": {"portal": "https://nfse.maceio.al.gov.br/", "sistema": "ISS.net"},
+        "CAMPO GRANDE/MS": {"portal": "https://nfse.campogrande.ms.gov.br/", "sistema": "ABRASF"},
+        "TERESINA/PI": {"portal": "https://nfse.teresina.pi.gov.br/", "sistema": "ABRASF"},
+        "JOAO PESSOA/PB": {"portal": "https://nfse.joaopessoa.pb.gov.br/", "sistema": "ABRASF"},
+        "NATAL/RN": {"portal": "https://nfse.natal.rn.gov.br/", "sistema": "ABRASF"},
+        "CUIABA/MT": {"portal": "https://nfse.cuiaba.mt.gov.br/", "sistema": "ABRASF"},
+        "ARACAJU/SE": {"portal": "https://nfse.aracaju.se.gov.br/", "sistema": "ABRASF"},
+        "FLORIANOPOLIS/SC": {
+            "portal": "https://nfse.florianopolis.sc.gov.br/",
+            "sistema": "ISS.net",
+        },
+        "VITORIA/ES": {"portal": "https://nfse.vitoria.es.gov.br/", "sistema": "ABRASF"},
+        "PORTO VELHO/RO": {"portal": "https://nfse.portovelho.ro.gov.br/", "sistema": "ABRASF"},
+        "MACAPA/AP": {"portal": "https://nfse.macapa.ap.gov.br/", "sistema": "ABRASF"},
+        "BOA VISTA/RR": {"portal": "https://nfse.boavista.rr.gov.br/", "sistema": "ABRASF"},
+        "PALMAS/TO": {"portal": "https://nfse.palmas.to.gov.br/", "sistema": "ABRASF"},
+        "RIO BRANCO/AC": {"portal": "https://nfse.riobranco.ac.gov.br/", "sistema": "ABRASF"},
+        # Grandes Cidades Sao Paulo
+        "GUARULHOS/SP": {"portal": "https://nfse.guarulhos.sp.gov.br/", "sistema": "ABRASF"},
+        "CAMPINAS/SP": {
+            "portal": "https://novanfse.campinas.sp.gov.br/",
+            "sistema": "Campinas Sistema",
+        },
+        "SANTOS/SP": {"portal": "https://nfse.santos.sp.gov.br/", "sistema": "ABRASF"},
+        "OSASCO/SP": {
+            "portal": "https://nfe.osasco.sp.gov.br/EissnfeWebApp/Portal/Default.aspx",
+            "sistema": "ISS.net",
+        },
+        "SAO BERNARDO DO CAMPO/SP": {"portal": "https://nfse.sbc.sp.gov.br/", "sistema": "ABRASF"},
+        "SANTO ANDRE/SP": {"portal": "https://nfse.santoandre.sp.gov.br/", "sistema": "ABRASF"},
+        "SOROCABA/SP": {"portal": "https://nfse.sorocaba.sp.gov.br/", "sistema": "ABRASF"},
+        "RIBEIRAO PRETO/SP": {
+            "portal": "https://nfse.ribeiraopreto.sp.gov.br/",
+            "sistema": "ABRASF",
+        },
+        "JUNDIAI/SP": {"portal": "https://nfse.jundiai.sp.gov.br/", "sistema": "ABRASF"},
+        # Grandes Cidades Rio de Janeiro
+        "NITEROI/RJ": {"portal": "https://nfse.niteroi.rj.gov.br/", "sistema": "ABRASF Nacional"},
+        "DUQUE DE CAXIAS/RJ": {
+            "portal": "https://portalcontribuinte.duquedecaxias.rj.gov.br/nfse",
+            "sistema": "ABRASF 2.04",
+        },
+        "NOVA IGUACU/RJ": {"portal": "https://nfse.novaiguacu.rj.gov.br/", "sistema": "ABRASF"},
+        # Grandes Cidades Minas Gerais
+        "CONTAGEM/MG": {"portal": "https://nfse.contagem.mg.gov.br/", "sistema": "ABRASF"},
+        "BETIM/MG": {"portal": "https://nfse.betim.mg.gov.br/", "sistema": "ABRASF"},
+        "UBERLANDIA/MG": {"portal": "https://nfse.uberlandia.mg.gov.br/", "sistema": "ABRASF"},
+        "JUIZ DE FORA/MG": {"portal": "https://nfse.juizdefora.mg.gov.br/", "sistema": "ABRASF"},
+        # Cidades Santa Catarina
+        "JOINVILLE/SC": {"portal": "https://nfse.joinville.sc.gov.br/", "sistema": "ISS.net"},
+        "BLUMENAU/SC": {"portal": "https://nfse.blumenau.sc.gov.br/", "sistema": "Simpliss"},
+        # Cidades Parana
+        "LONDRINA/PR": {"portal": "https://nfse.londrina.pr.gov.br/", "sistema": "ABRASF"},
+        "MARINGA/PR": {"portal": "https://nfse.maringa.pr.gov.br/", "sistema": "ABRASF"},
+        # Cidades Rio Grande do Sul
+        "CANOAS/RS": {"portal": "https://nfse.canoas.rs.gov.br/", "sistema": "ABRASF"},
+        "CAXIAS DO SUL/RS": {"portal": "https://nfse.caxiasdosul.rs.gov.br/", "sistema": "ABRASF"},
+        # Cidades Bahia
+        "FEIRA DE SANTANA/BA": {
+            "portal": "https://nfse.feirasantana.ba.gov.br/",
+            "sistema": "ABRASF",
+        },
+        "ILHEUS/BA": {"portal": "https://nfse.ilheus.ba.gov.br/", "sistema": "ABRASF"},
+        # Cidades Ceara
+        "CAUCAIA/CE": {"portal": "https://nfse.caucaia.ce.gov.br/", "sistema": "ABRASF"},
+        "JUAZEIRO DO NORTE/CE": {
+            "portal": "https://nfse.juazeirodOnorte.ce.gov.br/",
+            "sistema": "ABRASF",
+        },
+        # Cidades Pernambuco
+        "JABOATAO DOS GUARARAPES/PE": {
+            "portal": "https://nfse.jaboatao.pe.gov.br/",
+            "sistema": "ABRASF",
+        },
+        "CARUARU/PE": {"portal": "https://nfse.caruaru.pe.gov.br/", "sistema": "ABRASF"},
+        # Cidades Paraiba
+        "CAMPINA GRANDE/PB": {"portal": "https://nfse.campinagde.pb.gov.br/", "sistema": "ABRASF"},
+        # Cidades Rio Grande do Norte
+        "PARNAMIRIM/RN": {"portal": "https://nfse.parnamirim.rn.gov.br/", "sistema": "ABRASF"},
+        # Cidades Alagoas
+        "RIO LARGO/AL": {"portal": "https://nfse.riolargo.al.gov.br/", "sistema": "ISS.net"},
+        # Cidades Piauí
+        "PICOS/PI": {"portal": "https://nfse.picos.pi.gov.br/", "sistema": "ABRASF"},
+        # Cidades Maranhão
+        "IMPERATRIZ/MA": {"portal": "https://nfse.imperatriz.ma.gov.br/", "sistema": "ABRASF"},
+        # Cidades Mato Grosso do Sul
+        "DOURADOS/MS": {"portal": "https://nfse.dourados.ms.gov.br/", "sistema": "ABRASF"},
+        # Cidades Mato Grosso
+        "VARIOS/MT": {
+            "portal": "https://www.nfse.gov.br/consultapublica",
+            "sistema": "ABRASF Nacional",
+        },
+        # Cidades Goias
+        "ANAPOLIS/GO": {"portal": "https://nfse.anapolis.go.gov.br/", "sistema": "ABRASF"},
+        # Portal Nacional Unificado
+        "BRASIL": {
+            "portal": "https://www.nfse.gov.br/consultapublica",
+            "sistema": "ABRASF Nacional",
+        },
     }
 
     municipio_upper = municipio.upper().strip()
-    portal = portais_conhecidos.get(municipio_upper)
+    uf_upper = uf.upper().strip()
+
+    # Tenta buscar com formato "MUNICIPIO/UF"
+    chave = f"{municipio_upper}/{uf_upper}"
+    portal_info = portais_conhecidos.get(chave)
+
+    # Se nao encontrar, tenta apenas o municipio
+    if not portal_info:
+        portal_info = portais_conhecidos.get(municipio_upper)
+
+    # Se ainda nao encontrar, tenta fallback para portal nacional
+    if not portal_info:
+        portal_info = portais_conhecidos.get("BRASIL")
 
     return {
         "numero": numero,
         "municipio": municipio,
-        "uf": uf.upper(),
+        "uf": uf_upper,
         "status": "consulta_manual_necessaria",
         "motivo": (
             "NFSe nao possui API publica padronizada nacional. "
             "Cada municipio gerencia seu proprio sistema de emissao e consulta."
         ),
-        "portal_municipio": portal or f"Acesse o portal da prefeitura de {municipio}/{uf.upper()}",
+        "portal_municipio": portal_info.get("portal", f"Acesse o portal da prefeitura de {municipio}/{uf_upper}")
+        if portal_info
+        else f"Acesse o portal da prefeitura de {municipio}/{uf_upper}",
+        "sistema_nfse": portal_info.get("sistema", "ABRASF/Proprietario") if portal_info else "ABRASF/Proprietario",
         "alternativa": (
             "Para integracao automatizada, contrate um emissor NFSe como "
             "Omie, ContaAzul, NFe.io ou Enotas que suportam multiplos municipios."

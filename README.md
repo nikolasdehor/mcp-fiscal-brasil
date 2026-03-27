@@ -81,53 +81,48 @@ IA:    Status SEFAZ SP: OPERACIONAL
 
 ## 🛠 Ferramentas Disponiveis
 
-**14 ferramentas** cobrindo os principais modulos do sistema fiscal brasileiro:
+**14 ferramentas** cobrindo os principais modulos do sistema fiscal brasileiro.
 
-### 🏢 CNPJ
-| Ferramenta | O que faz |
-|------------|-----------|
-| `consultar_cnpj` | Dados cadastrais completos: razao social, endereco, CNAE, socios (QSA), situacao e porte |
-| `listar_cnpjs_por_nome` | Busca empresas por nome ou razao social |
+---
 
-### 👤 CPF
-| Ferramenta | O que faz |
-|------------|-----------|
-| `validar_cpf` | Valida digito verificador matematicamente (offline, sem API externa) |
+### ✅ Ferramentas Funcionais (usaveis agora)
 
-### 📄 NFe - Nota Fiscal Eletronica
-| Ferramenta | O que faz |
-|------------|-----------|
-| `consultar_nfe` | Consulta NFe pela chave de 44 digitos: emitente, destinatario, itens e totais |
-| `validar_chave_nfe` | Valida formato e digito verificador; extrai UF, data, CNPJ emitente e numero |
-| `consultar_status_sefaz` | Status em tempo real do webservice SEFAZ de qualquer estado |
+Funcionam 100% sem chaves de API. Instale e use imediatamente.
 
-### 📋 NFSe - Nota Fiscal de Servicos
-| Ferramenta | O que faz |
-|------------|-----------|
-| `consultar_nfse` | Orienta sobre o portal correto para cada municipio |
+| Modulo | Ferramenta | Descricao | API |
+|--------|-----------|-----------|-----|
+| CNPJ | `consultar_cnpj` | Dados completos: razao social, socios, CNAE, endereco | BrasilAPI (gratis) |
+| CNPJ | `consultar_simples_nacional` | Optante Simples/MEI com datas de entrada e exclusao | BrasilAPI (gratis) |
+| NFe | `validar_chave_nfe` | Valida digito + extrai UF, CNPJ, data, numero | Offline |
+| NFe | `consultar_status_sefaz` | Status do webservice SEFAZ por estado | BrasilAPI (gratis) |
+| NFe | `consultar_nfe` | Consulta NFe completa pela chave de 44 digitos | BrasilAPI (gratis) |
+| CPF | `validar_cpf` | Validacao de digito verificador | Offline |
+| SPED | `analisar_sped` | Analisa arquivo EFD/ECD/ECF: periodo, empresa, erros | Offline |
+| SPED | `listar_registros_sped` | Filtra registros por tipo (C100, E110, etc.) | Offline |
+| eSocial | `listar_eventos_esocial` | Catalogo de eventos filtravel por grupo | Offline |
+| eSocial | `validar_evento_esocial` | Validacao basica de estrutura XML | Offline |
 
-### 📊 Simples Nacional
-| Ferramenta | O que faz |
-|------------|-----------|
-| `consultar_simples_nacional` | Situacao atual: opcao Simples/MEI, datas de entrada e exclusao |
+---
 
-### 📁 SPED
-| Ferramenta | O que faz |
-|------------|-----------|
-| `analisar_sped` | Analisa arquivo EFD-ICMS/IPI, EFD-Contribuicoes, ECD ou ECF: periodo, empresa e erros |
-| `listar_registros_sped` | Extrai todas as ocorrencias de um tipo de registro (ex: C100, E110) |
+### 🧭 Ferramentas de Orientacao
 
-### 👥 eSocial
-| Ferramenta | O que faz |
-|------------|-----------|
-| `listar_eventos_esocial` | Lista eventos com nome, grupo e descricao; filtravel por grupo |
-| `validar_evento_esocial` | Valida estrutura basica de XML: elemento raiz, codigo e versao do leiaute |
+Retornam URLs e instrucoes - exigem acao manual nos portais governamentais.
 
-### 📜 Certidoes
-| Ferramenta | O que faz |
-|------------|-----------|
-| `consultar_certidao_federal` | URLs e orientacoes para emissao da CND na Receita Federal e PGFN |
-| `consultar_certidao_fgts` | URL e orientacoes para consulta da CRF do FGTS na Caixa |
+| Modulo | Ferramenta | O que retorna |
+|--------|-----------|--------------|
+| NFSe | `consultar_nfse` | URL do portal NFSe do municipio + sistema utilizado |
+| Certidoes | `consultar_certidao_federal` | URL do e-CAC para emissao de CND federal |
+| Certidoes | `consultar_certidao_fgts` | URL do portal Caixa para consulta do CRF |
+
+---
+
+### 🧪 Ferramentas Experimentais
+
+Requerem APIs pagas ou tem cobertura limitada.
+
+| Modulo | Ferramenta | Limitacao |
+|--------|-----------|-----------|
+| CNPJ | `listar_cnpjs_por_nome` | Receita Federal nao disponibiliza busca por nome em API publica |
 
 ---
 
@@ -259,10 +254,10 @@ ReceitaWS       estaduais municipais Federal  local   local  governamentais
 
 ## 📍 Roadmap
 
-- [x] **v0.1** - Consultas read-only: CNPJ, CPF, NFe, NFSe, Simples Nacional, SPED, eSocial, Certidoes
-- [ ] **v0.2** - NFSe completo (municipios principais), SPED layouts detalhados, certidoes automatizadas
-- [ ] **v0.3** - Emissao de NFe/NFSe (operacoes de escrita), integracao com certificado digital A1/A3
-- [ ] **v1.0** - eSocial completo, auditoria LGPD, suite de compliance fiscal full
+- [x] **v0.1.0** - Consultas CNPJ, CPF, NFe, Simples, SPED (atual)
+- [ ] **v0.2.0** - NFSe 50+ municipios, eSocial catalogo completo
+- [ ] **v0.3.0** - Emissao NFe/NFSe (requer certificado digital A1)
+- [ ] **v1.0.0** - eSocial completo, LGPD audit, compliance suite
 
 ---
 
