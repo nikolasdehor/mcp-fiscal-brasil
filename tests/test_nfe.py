@@ -2,8 +2,8 @@
 
 import pytest
 
+from mcp_fiscal_brasil.nfe.tools import consultar_status_sefaz, validar_chave_nfe
 from mcp_fiscal_brasil.shared.exceptions import ValidationError
-from mcp_fiscal_brasil.nfe.tools import validar_chave_nfe, consultar_status_sefaz
 
 
 class TestValidarChaveNFe:
@@ -20,12 +20,12 @@ class TestValidarChaveNFe:
         # Gera uma chave valida para teste
         # cUF=35 AAMM=2301 CNPJ=12345678901234 mod=55 serie=001 nNF=000000001 tpEmis=1 cNF=00000001
         # DV calculado via modulo 11
-        base = "35230112345678901234550010000000011000000001"
+        base = "3523011234567890123455001000000001100000001"
         assert len(base) == 43
 
-        # Calcula DV
-        pesos = list(range(2, 10)) * 6
-        soma = sum(int(d) * pesos[i % len(pesos)] for i, d in enumerate(base))
+        # Calcula DV conforme algoritmo SEFAZ (modulo 11, pesos de 2 a 9 da direita p/ esquerda)
+        pesos_ciclo = list(range(2, 10))
+        soma = sum(int(d) * pesos_ciclo[i % len(pesos_ciclo)] for i, d in enumerate(reversed(base)))
         resto = soma % 11
         dv = 0 if resto in (0, 1) else 11 - resto
         chave = base + str(dv)

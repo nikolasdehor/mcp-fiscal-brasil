@@ -1,7 +1,5 @@
 """Testes para o modulo CPF."""
 
-import pytest
-
 from mcp_fiscal_brasil.cpf.tools import validar_cpf_tool
 
 

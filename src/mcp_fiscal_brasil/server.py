@@ -10,16 +10,16 @@ from typing import Any
 from fastmcp import FastMCP
 
 from . import __version__
+from .certidoes.tools import consultar_certidao_federal, consultar_certidao_fgts
 
 # Importa todas as ferramentas dos modulos fiscais
 from .cnpj.tools import consultar_cnpj, listar_cnpjs_por_nome
 from .cpf.tools import validar_cpf_tool
+from .esocial.tools import listar_eventos_esocial, validar_evento_esocial
 from .nfe.tools import consultar_nfe, consultar_status_sefaz, validar_chave_nfe
 from .nfse.tools import consultar_nfse
 from .simples.tools import consultar_simples_nacional
 from .sped.tools import analisar_sped, listar_registros_sped
-from .esocial.tools import listar_eventos_esocial, validar_evento_esocial
-from .certidoes.tools import consultar_certidao_federal, consultar_certidao_fgts
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 app = FastMCP(
     name="MCP Fiscal Brasil",
     version=__version__,
-    description=(
+    instructions=(
         "Servidor MCP para integrar IAs com o sistema fiscal brasileiro. "
         "Consulte CNPJ, NFe, NFSe, SPED, eSocial e certidoes via linguagem natural. "
         "Dados obtidos de fontes publicas: BrasilAPI, ReceitaWS, SEFAZ."
@@ -37,6 +37,7 @@ app = FastMCP(
 # ---------------------------------------------------------------------------
 # CNPJ
 # ---------------------------------------------------------------------------
+
 
 @app.tool(
     name="consultar_cnpj",
@@ -69,6 +70,7 @@ async def tool_listar_cnpjs_por_nome(nome: str, uf: str | None = None) -> list[d
 # CPF
 # ---------------------------------------------------------------------------
 
+
 @app.tool(
     name="validar_cpf",
     description=(
@@ -86,6 +88,7 @@ async def tool_validar_cpf(cpf: str) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # NFe
 # ---------------------------------------------------------------------------
+
 
 @app.tool(
     name="consultar_nfe",
@@ -132,6 +135,7 @@ async def tool_consultar_status_sefaz(uf: str) -> dict[str, Any]:
 # NFSe
 # ---------------------------------------------------------------------------
 
+
 @app.tool(
     name="consultar_nfse",
     description=(
@@ -154,6 +158,7 @@ async def tool_consultar_nfse(
 # Simples Nacional
 # ---------------------------------------------------------------------------
 
+
 @app.tool(
     name="consultar_simples_nacional",
     description=(
@@ -170,6 +175,7 @@ async def tool_consultar_simples_nacional(cnpj: str) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # SPED
 # ---------------------------------------------------------------------------
+
 
 @app.tool(
     name="analisar_sped",
@@ -201,6 +207,7 @@ async def tool_listar_registros_sped(conteudo: str, tipo_registro: str) -> list[
 # eSocial
 # ---------------------------------------------------------------------------
 
+
 @app.tool(
     name="listar_eventos_esocial",
     description=(
@@ -231,6 +238,7 @@ async def tool_validar_evento_esocial(xml_conteudo: str) -> dict[str, Any]:
 # Certidoes
 # ---------------------------------------------------------------------------
 
+
 @app.tool(
     name="consultar_certidao_federal",
     description=(
@@ -258,7 +266,6 @@ async def tool_consultar_certidao_fgts(cnpj: str) -> dict[str, str]:
 
 def main() -> None:
     """Inicia o servidor MCP via stdio (modo padrao para clientes MCP)."""
-    import asyncio
     logger.info("Iniciando MCP Fiscal Brasil v%s", __version__)
     app.run()
 

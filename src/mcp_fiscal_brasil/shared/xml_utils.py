@@ -1,5 +1,6 @@
 """Utilitarios para parse e geracao de XML fiscal (NFe, NFSe, SPED)."""
 
+import re
 from typing import Any
 
 from lxml import etree
@@ -20,22 +21,36 @@ NS_CTE = {"cte": "http://www.portalfiscal.inf.br/cte"}
 NS_MDFE = {"mdfe": "http://www.portalfiscal.inf.br/mdfe"}
 
 
+_SAFE_PARSER = etree.XMLParser(
+    resolve_entities=False,
+    no_network=True,
+    load_dtd=False,
+)
+
+
 def parse_xml(content: str | bytes) -> etree._Element:
     """
     Parseia XML e retorna o elemento raiz.
 
+    Usa parser seguro contra XXE (resolve_entities=False, no_network=True).
     Lanca XMLParseError em caso de XML invalido.
     """
     try:
         if isinstance(content, str):
             content = content.encode("utf-8")
-        return etree.fromstring(content)
+        return etree.fromstring(content, parser=_SAFE_PARSER)
     except etree.XMLSyntaxError as e:
-        raw = content.decode("utf-8", errors="replace")[:500] if isinstance(content, bytes) else str(content)[:500]
+        raw = (
+            content.decode("utf-8", errors="replace")[:500]
+            if isinstance(content, bytes)
+            else str(content)[:500]
+        )
         raise XMLParseError(f"XML invalido: {e}", raw_content=raw) from e
 
 
-def xpath_text(element: etree._Element, xpath: str, namespaces: dict[str, str] | None = None) -> str | None:
+def xpath_text(
+    element: etree._Element, xpath: str, namespaces: dict[str, str] | None = None
+) -> str | None:
     """Extrai o texto do primeiro elemento encontrado pelo XPath."""
     results = element.xpath(xpath, namespaces=namespaces or NS_NFE)
     if not results:
@@ -44,11 +59,13 @@ def xpath_text(element: etree._Element, xpath: str, namespaces: dict[str, str] |
     if isinstance(node, str):
         return node
     if hasattr(node, "text"):
-        return node.text
+        return str(node.text) if node.text is not None else None
     return str(node)
 
 
-def xpath_all_text(element: etree._Element, xpath: str, namespaces: dict[str, str] | None = None) -> list[str]:
+def xpath_all_text(
+    element: etree._Element, xpath: str, namespaces: dict[str, str] | None = None
+) -> list[str]:
     """Extrai o texto de todos os elementos encontrados pelo XPath."""
     results = element.xpath(xpath, namespaces=namespaces or NS_NFE)
     texts = []
@@ -60,7 +77,7 @@ def xpath_all_text(element: etree._Element, xpath: str, namespaces: dict[str, st
     return texts
 
 
-def element_to_dict(element: etree._Element) -> dict[str, Any]:
+def element_to_dict(element: etree._Element) -> dict[str, Any] | str:
     """
     Converte um elemento XML para dicionario Python.
 
@@ -73,10 +90,11 @@ def element_to_dict(element: etree._Element) -> dict[str, Any]:
         result["@attrs"] = dict(element.attrib)
 
     # Texto direto do elemento
-    if element.text and element.text.strip():
+    element_text: str | None = element.text
+    if element_text and element_text.strip():
         if not list(element):  # folha sem filhos
-            return element.text.strip()  # type: ignore[return-value]
-        result["#text"] = element.text.strip()
+            return element_text.strip()
+        result["#text"] = element_text.strip()
 
     # Filhos recursivos
     for child in element:
@@ -97,7 +115,6 @@ def element_to_dict(element: etree._Element) -> dict[str, Any]:
 
 def strip_namespace(xml_string: str) -> str:
     """Remove declaracoes de namespace do XML para facilitar parsing simples."""
-    import re
     xml_string = re.sub(r'\s+xmlns(?::\w+)?="[^"]*"', "", xml_string)
     xml_string = re.sub(r"<(\w+):", "<", xml_string)
     xml_string = re.sub(r"</(\w+):", "</", xml_string)
@@ -135,7 +152,9 @@ def extract_soap_body(soap_response: str) -> etree._Element:
         "soap11": "http://schemas.xmlsoap.org/soap/envelope/",
     }
     # Tenta SOAP 1.2 e depois 1.1
-    body = root.xpath("//soap:Body/*[1]", namespaces=ns) or root.xpath("//soap11:Body/*[1]", namespaces=ns)
+    body = root.xpath("//soap:Body/*[1]", namespaces=ns) or root.xpath(
+        "//soap11:Body/*[1]", namespaces=ns
+    )
     if not body:
         raise XMLParseError("Nao foi possivel encontrar o Body na resposta SOAP")
     return body[0]

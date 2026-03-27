@@ -75,7 +75,9 @@ class FiscalHTTPClient:
         rate_limit_key: str | None = None,
     ) -> dict[str, Any] | list[Any] | str:
         """Executa GET com retry e rate limiting."""
-        return await self._request("GET", path, params=params, headers=headers, rate_limit_key=rate_limit_key)
+        return await self._request(
+            "GET", path, params=params, headers=headers, rate_limit_key=rate_limit_key
+        )
 
     async def post(
         self,
@@ -116,9 +118,11 @@ class FiscalHTTPClient:
 
             try:
                 client = await self._get_client()
+                # Remove leading slash so httpx preserves the base_url path component.
+                # httpx treats paths starting with "/" as absolute (drops base_url path).
                 response = await client.request(
                     method,
-                    path,
+                    path.lstrip("/"),
                     params=params,
                     json=json,
                     content=data,
@@ -127,43 +131,60 @@ class FiscalHTTPClient:
 
                 logger.debug(
                     "HTTP %s %s -> %d (tentativa %d/%d)",
-                    method, url, response.status_code, tentativa + 1, self.max_retries,
+                    method,
+                    url,
+                    response.status_code,
+                    tentativa + 1,
+                    self.max_retries,
                 )
 
                 return self._handle_response(response, url)
 
             except httpx.TimeoutException as e:
                 last_error = TimeoutError(endpoint=url, timeout_seconds=self.timeout.read or 30.0)
-                logger.warning("Timeout em %s (tentativa %d/%d): %s", url, tentativa + 1, self.max_retries, e)
+                logger.warning(
+                    "Timeout em %s (tentativa %d/%d): %s", url, tentativa + 1, self.max_retries, e
+                )
 
             except httpx.HTTPStatusError as e:
                 # Erros 5xx sao retriaveis; 4xx nao
                 if e.response.status_code < 500:
-                    raise self._map_http_error(e, url)
+                    raise self._map_http_error(e, url) from e
                 last_error = self._map_http_error(e, url)
                 logger.warning(
                     "HTTP %d em %s (tentativa %d/%d)",
-                    e.response.status_code, url, tentativa + 1, self.max_retries,
+                    e.response.status_code,
+                    url,
+                    tentativa + 1,
+                    self.max_retries,
                 )
 
             except httpx.RequestError as e:
                 last_error = APIError(message=f"Erro de rede: {e}", endpoint=url)
-                logger.warning("Erro de rede em %s (tentativa %d/%d): %s", url, tentativa + 1, self.max_retries, e)
+                logger.warning(
+                    "Erro de rede em %s (tentativa %d/%d): %s",
+                    url,
+                    tentativa + 1,
+                    self.max_retries,
+                    e,
+                )
 
             # Backoff exponencial antes da proxima tentativa
             if tentativa < self.max_retries - 1:
-                sleep_time = self.backoff_factor ** tentativa
+                sleep_time = self.backoff_factor**tentativa
                 logger.debug("Aguardando %.1fs antes de retentar...", sleep_time)
                 await asyncio.sleep(sleep_time)
 
         raise last_error or APIError(message="Numero maximo de tentativas excedido", endpoint=url)
 
-    def _handle_response(self, response: httpx.Response, url: str) -> dict[str, Any] | list[Any] | str:
+    def _handle_response(
+        self, response: httpx.Response, url: str
+    ) -> dict[str, Any] | list[Any] | str:
         """Processa a resposta HTTP e lanca excecoes para erros."""
         try:
             response.raise_for_status()
         except httpx.HTTPStatusError as e:
-            raise self._map_http_error(e, url)
+            raise self._map_http_error(e, url) from e
 
         content_type = response.headers.get("content-type", "")
         if "json" in content_type:

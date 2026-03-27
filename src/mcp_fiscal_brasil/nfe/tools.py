@@ -13,9 +13,33 @@ _client = NFEClient()
 
 # UFs validas para consulta SEFAZ
 UFS_VALIDAS = {
-    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
-    "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI",
-    "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RJ",
+    "RN",
+    "RS",
+    "RO",
+    "RR",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
 }
 
 
@@ -66,20 +90,25 @@ async def validar_chave_nfe(chave_acesso: str) -> dict[str, object]:
 
     resultado: dict[str, object] = {
         "valido": valido,
-        "chave_formatada": " ".join(chave_limpa[i:i+4] for i in range(0, 44, 4)) if len(chave_limpa) == 44 else None,
+        "chave_formatada": " ".join(chave_limpa[i : i + 4] for i in range(0, 44, 4))
+        if len(chave_limpa) == 44
+        else None,
     }
 
     if valido and len(chave_limpa) == 44:
         from ..shared.constants import CODIGO_UF
+
         cod_uf = int(chave_limpa[:2])
-        resultado.update({
-            "uf": CODIGO_UF.get(cod_uf, f"UF {cod_uf}"),
-            "ano_mes_emissao": f"{chave_limpa[4:6]}/{chave_limpa[2:4]}",
-            "cnpj_emitente": chave_limpa[6:20],
-            "modelo": chave_limpa[20:22],
-            "serie": chave_limpa[22:25],
-            "numero": chave_limpa[25:34],
-        })
+        resultado.update(
+            {
+                "uf": CODIGO_UF.get(cod_uf, f"UF {cod_uf}"),
+                "ano_mes_emissao": f"{chave_limpa[4:6]}/{chave_limpa[2:4]}",
+                "cnpj_emitente": chave_limpa[6:20],
+                "modelo": chave_limpa[20:22],
+                "serie": chave_limpa[22:25],
+                "numero": chave_limpa[25:34],
+            }
+        )
 
     return resultado
 

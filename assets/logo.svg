@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="58" fill="#009c3b"/>
+  <circle cx="60" cy="60" r="46" fill="#FFDF00"/>
+  <circle cx="60" cy="60" r="34" fill="#002776"/>
+
+  <!-- Document icon (fiscal/receipt) -->
+  <rect x="44" y="36" width="26" height="34" rx="3" ry="3" fill="white" opacity="0.95"/>
+  <line x1="49" y1="45" x2="65" y2="45" stroke="#002776" stroke-width="2" stroke-linecap="round"/>
+  <line x1="49" y1="51" x2="65" y2="51" stroke="#002776" stroke-width="2" stroke-linecap="round"/>
+  <line x1="49" y1="57" x2="59" y2="57" stroke="#002776" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- AI nodes (connected dots at bottom of document) -->
+  <circle cx="49" cy="66" r="3" fill="#FFDF00"/>
+  <circle cx="57" cy="66" r="3" fill="#FFDF00"/>
+  <circle cx="65" cy="66" r="3" fill="#FFDF00"/>
+  <line x1="52" y1="66" x2="54" y2="66" stroke="#FFDF00" stroke-width="1.5"/>
+  <line x1="60" y1="66" x2="62" y2="66" stroke="#FFDF00" stroke-width="1.5"/>
+  <!-- Connecting line from doc to nodes -->
+  <line x1="57" y1="70" x2="57" y2="73" stroke="#FFDF00" stroke-width="1.2" opacity="0.6"/>
+
+  <!-- Stars on the blue circle (small, like Brazil flag) -->
+  <circle cx="60" cy="50" r="1.2" fill="white" opacity="0.5"/>
+  <circle cx="52" cy="58" r="1" fill="white" opacity="0.4"/>
+  <circle cx="68" cy="56" r="1" fill="white" opacity="0.4"/>
+</svg>

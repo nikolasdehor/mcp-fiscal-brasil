@@ -1,5 +1,5 @@
 """Modulo eSocial: orientacoes e validacao de eventos eSocial."""
 
-from .tools import validar_evento_esocial, listar_eventos_esocial
+from .tools import listar_eventos_esocial, validar_evento_esocial
 
-__all__ = ["validar_evento_esocial", "listar_eventos_esocial"]
+__all__ = ["listar_eventos_esocial", "validar_evento_esocial"]

@@ -2,9 +2,12 @@
 
 from datetime import datetime
 
-import pytest
-
-from mcp_fiscal_brasil.shared.schemas import BaseResponse, ErrorResponse, Endereco, PaginatedResponse
+from mcp_fiscal_brasil.shared.schemas import (
+    BaseResponse,
+    Endereco,
+    ErrorResponse,
+    PaginatedResponse,
+)
 
 
 class TestBaseResponse:

@@ -2,8 +2,6 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
-
 from ..shared.schemas import BaseResponse
 
 

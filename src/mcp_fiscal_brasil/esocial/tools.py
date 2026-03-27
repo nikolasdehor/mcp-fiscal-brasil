@@ -1,5 +1,8 @@
 """Ferramentas MCP para eSocial."""
 
+from lxml import etree
+
+from ..shared.xml_utils import parse_xml
 from .schemas import EventoESocial, ValidacaoESocialResponse
 
 # Catalogo dos principais eventos eSocial (v2.5 e S-1.0)
@@ -168,10 +171,8 @@ async def validar_evento_esocial(xml_conteudo: str) -> ValidacaoESocialResponse:
     Returns:
         ValidacaoESocialResponse com resultado da validacao.
     """
-    from ..shared.xml_utils import parse_xml
-
-    erros = []
-    avisos = []
+    erros: list[str] = []
+    avisos: list[str] = []
     evento_codigo = "Desconhecido"
     versao = None
 
@@ -179,18 +180,15 @@ async def validar_evento_esocial(xml_conteudo: str) -> ValidacaoESocialResponse:
         root = parse_xml(xml_conteudo)
 
         # Extrai o nome do elemento raiz (sem namespace)
-        from lxml import etree
         tag_local = etree.QName(root.tag).localname
 
         # Tenta identificar o evento pelo nome do elemento raiz
         # Ex: "eSocial" com filho "evtAdmissao" = S-2200
-        ns = {"e": "http://www.esocial.gov.br/schema/evt/evtAdmissao/v02_05_00"}
-
         # Verifica versao no atributo ou elemento
         versao = root.get("versao") or root.get("version")
         if versao is None:
             # Tenta extrair do namespace
-            for key, val in root.nsmap.items() if hasattr(root, "nsmap") else {}.items():
+            for _key, val in root.nsmap.items() if hasattr(root, "nsmap") else {}.items():
                 if val and "esocial" in val.lower():
                     partes = val.rstrip("/").split("/")
                     if partes:
@@ -210,7 +208,9 @@ async def validar_evento_esocial(xml_conteudo: str) -> ValidacaoESocialResponse:
             if tag_local.startswith("evt"):
                 evento_codigo = tag_local
             else:
-                avisos.append(f"Elemento raiz '{tag_local}' - nao foi possivel identificar o evento automaticamente")
+                avisos.append(
+                    f"Elemento raiz '{tag_local}' - nao foi possivel identificar o evento automaticamente"
+                )
 
         # Verifica se o evento e conhecido
         evento_conhecido = any(
@@ -218,7 +218,9 @@ async def validar_evento_esocial(xml_conteudo: str) -> ValidacaoESocialResponse:
             for e in EVENTOS_ESOCIAL.values()
         )
         if not evento_conhecido and evento_codigo != "Desconhecido":
-            avisos.append(f"Evento '{evento_codigo}' nao encontrado no catalogo de eventos conhecidos")
+            avisos.append(
+                f"Evento '{evento_codigo}' nao encontrado no catalogo de eventos conhecidos"
+            )
 
         valido = len(erros) == 0
 

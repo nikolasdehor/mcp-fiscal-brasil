@@ -92,10 +92,11 @@ def validate_chave_nfe(chave: str) -> bool:
         return False
 
     # Calcula digito verificador pelo modulo 11
-    pesos = list(range(2, 10)) * 6  # ciclo de 2 a 9
+    # Pesos ciclo de 2 a 9 aplicados da direita para a esquerda (conforme NT SEFAZ 2011.002)
+    pesos_ciclo = list(range(2, 10))  # [2, 3, 4, 5, 6, 7, 8, 9]
     soma = 0
-    for i, digito in enumerate(numeros[:43]):
-        soma += int(digito) * pesos[i % len(pesos)]
+    for i, digito in enumerate(reversed(numeros[:43])):
+        soma += int(digito) * pesos_ciclo[i % len(pesos_ciclo)]
 
     resto = soma % 11
     if resto == 0 or resto == 1:

@@ -2,7 +2,6 @@
 
 from ..shared.exceptions import ValidationError
 from ..shared.validators import validate_cnpj, validate_cpf
-from .schemas import CertidaoResponse
 
 
 async def consultar_certidao_federal(cnpj_cpf: str) -> dict[str, str]:
@@ -28,15 +27,21 @@ async def consultar_certidao_federal(cnpj_cpf: str) -> dict[str, str]:
             raise ValidationError("cnpj", cnpj_cpf, "CNPJ invalido")
         tipo_doc = "CNPJ"
         url_emissao = "https://solucoes.receita.fazenda.gov.br/Servicos/certidaointernet/PJ/Emitir"
-        url_verificacao = "https://solucoes.receita.fazenda.gov.br/Servicos/certidaointernet/PJ/Verificar"
+        url_verificacao = (
+            "https://solucoes.receita.fazenda.gov.br/Servicos/certidaointernet/PJ/Verificar"
+        )
     elif len(digitos) == 11:
         if not validate_cpf(cnpj_cpf):
             raise ValidationError("cpf", cnpj_cpf, "CPF invalido")
         tipo_doc = "CPF"
         url_emissao = "https://solucoes.receita.fazenda.gov.br/Servicos/certidaointernet/PF/Emitir"
-        url_verificacao = "https://solucoes.receita.fazenda.gov.br/Servicos/certidaointernet/PF/Verificar"
+        url_verificacao = (
+            "https://solucoes.receita.fazenda.gov.br/Servicos/certidaointernet/PF/Verificar"
+        )
     else:
-        raise ValidationError("cnpj_cpf", cnpj_cpf, "Informe um CPF (11 digitos) ou CNPJ (14 digitos)")
+        raise ValidationError(
+            "cnpj_cpf", cnpj_cpf, "Informe um CPF (11 digitos) ou CNPJ (14 digitos)"
+        )
 
     return {
         "tipo_documento": tipo_doc,

@@ -2,8 +2,8 @@
 
 import pytest
 
-from mcp_fiscal_brasil.shared.exceptions import ValidationError
 from mcp_fiscal_brasil.cnpj.tools import consultar_cnpj
+from mcp_fiscal_brasil.shared.exceptions import ValidationError
 
 
 class TestConsultarCNPJ:

@@ -6,7 +6,9 @@ from typing import Any
 class MCPFiscalError(Exception):
     """Excecao base para todos os erros do MCP Fiscal Brasil."""
 
-    def __init__(self, message: str, code: str | None = None, details: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self, message: str, code: str | None = None, details: dict[str, Any] | None = None
+    ) -> None:
         super().__init__(message)
         self.message = message
         self.code = code or "FISCAL_ERROR"
@@ -59,7 +61,9 @@ class NotFoundError(MCPFiscalError):
 
     def __init__(self, resource: str, identifier: str) -> None:
         message = f"{resource} nao encontrado: {identifier}"
-        super().__init__(message, code="NOT_FOUND", details={"resource": resource, "identifier": identifier})
+        super().__init__(
+            message, code="NOT_FOUND", details={"resource": resource, "identifier": identifier}
+        )
         self.resource = resource
         self.identifier = identifier
 

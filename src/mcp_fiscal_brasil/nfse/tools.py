@@ -1,7 +1,5 @@
 """Ferramentas MCP para NFSe."""
 
-from .schemas import NFSeResponse
-
 
 async def consultar_nfse(
     numero: str,

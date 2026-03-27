@@ -1,6 +1,6 @@
 """Schemas Pydantic base para respostas de API."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field
@@ -12,7 +12,7 @@ class BaseResponse(BaseModel):
     """Resposta base para todas as ferramentas MCP."""
 
     sucesso: bool = True
-    consultado_em: datetime = Field(default_factory=datetime.utcnow)
+    consultado_em: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     model_config = {"json_encoders": {datetime: lambda v: v.isoformat()}}
 

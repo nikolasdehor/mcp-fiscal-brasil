@@ -6,7 +6,8 @@ from typing import Any
 
 from ..shared.http_client import FiscalHTTPClient
 from ..shared.rate_limiter import brasil_api_limiter, receita_limiter
-from .schemas import AtividadeCNAE, CNPJResponse, Endereco, QSASocio
+from ..shared.schemas import Endereco
+from .schemas import AtividadeCNAE, CNPJResponse, QSASocio
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,9 @@ class CNPJClient:
         try:
             return await self._consultar_brasil_api(cnpj_limpo)
         except Exception as e:
-            logger.warning("BrasilAPI falhou para CNPJ %s: %s. Tentando ReceitaWS...", cnpj_limpo, e)
+            logger.warning(
+                "BrasilAPI falhou para CNPJ %s: %s. Tentando ReceitaWS...", cnpj_limpo, e
+            )
             return await self._consultar_receita_ws(cnpj_limpo)
 
     async def _consultar_brasil_api(self, cnpj: str) -> CNPJResponse:

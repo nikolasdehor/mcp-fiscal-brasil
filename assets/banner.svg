@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200">
+  <defs>
+    <!-- Green to dark blue gradient background -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#003d1a;stop-opacity:1"/>
+      <stop offset="40%" style="stop-color:#005a2b;stop-opacity:1"/>
+      <stop offset="70%" style="stop-color:#001a4d;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#002776;stop-opacity:1"/>
+    </linearGradient>
+    <!-- Yellow glow for logo circle -->
+    <radialGradient id="yellowGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFDF00;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#FFDF00;stop-opacity:0"/>
+    </radialGradient>
+    <!-- Subtle grid pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse" opacity="0.05">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="200" fill="url(#bgGrad)"/>
+  <rect width="800" height="200" fill="url(#grid)"/>
+
+  <!-- Glow behind logo -->
+  <circle cx="100" cy="100" r="80" fill="url(#yellowGlow)"/>
+
+  <!-- Logo group (centered at 100,100) -->
+  <!-- Outer green circle -->
+  <circle cx="100" cy="100" r="68" fill="#009c3b"/>
+  <circle cx="100" cy="100" r="55" fill="#FFDF00"/>
+  <circle cx="100" cy="100" r="40" fill="#002776"/>
+
+  <!-- Document icon -->
+  <rect x="84" y="70" width="32" height="42" rx="3" ry="3" fill="white" opacity="0.95"/>
+  <line x1="90" y1="80" x2="110" y2="80" stroke="#002776" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="90" y1="87" x2="110" y2="87" stroke="#002776" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="90" y1="94" x2="103" y2="94" stroke="#002776" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- AI nodes at bottom of document -->
+  <circle cx="90" cy="104" r="3.5" fill="#FFDF00"/>
+  <circle cx="100" cy="104" r="3.5" fill="#FFDF00"/>
+  <circle cx="110" cy="104" r="3.5" fill="#FFDF00"/>
+  <line x1="93.5" y1="104" x2="96.5" y2="104" stroke="#FFDF00" stroke-width="1.5"/>
+  <line x1="103.5" y1="104" x2="106.5" y2="104" stroke="#FFDF00" stroke-width="1.5"/>
+
+  <!-- Decorative line separator -->
+  <line x1="180" y1="40" x2="180" y2="160" stroke="#FFDF00" stroke-width="1" opacity="0.3"/>
+
+  <!-- Main title -->
+  <text x="210" y="88" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="42" font-weight="700" fill="white" letter-spacing="-1">MCP Fiscal Brasil</text>
+
+  <!-- Yellow accent bar under title -->
+  <rect x="210" y="98" width="310" height="3" rx="1.5" fill="#FFDF00" opacity="0.8"/>
+
+  <!-- Tagline -->
+  <text x="212" y="132" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="17" fill="white" opacity="0.85" letter-spacing="0.3">Conectando IAs ao sistema fiscal brasileiro</text>
+
+  <!-- Tech badges row -->
+  <!-- MCP badge -->
+  <rect x="212" y="148" width="60" height="22" rx="11" fill="#FFDF00" opacity="0.15"/>
+  <text x="242" y="163" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#FFDF00" text-anchor="middle" font-weight="600">MCP</text>
+
+  <!-- Python badge -->
+  <rect x="280" y="148" width="72" height="22" rx="11" fill="#FFDF00" opacity="0.15"/>
+  <text x="316" y="163" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#FFDF00" text-anchor="middle" font-weight="600">Python 3.10+</text>
+
+  <!-- NFe badge -->
+  <rect x="360" y="148" width="46" height="22" rx="11" fill="#FFDF00" opacity="0.15"/>
+  <text x="383" y="163" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#FFDF00" text-anchor="middle" font-weight="600">NFe</text>
+
+  <!-- CNPJ badge -->
+  <rect x="414" y="148" width="52" height="22" rx="11" fill="#FFDF00" opacity="0.15"/>
+  <text x="440" y="163" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#FFDF00" text-anchor="middle" font-weight="600">CNPJ</text>
+
+  <!-- SPED badge -->
+  <rect x="474" y="148" width="48" height="22" rx="11" fill="#FFDF00" opacity="0.15"/>
+  <text x="498" y="163" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#FFDF00" text-anchor="middle" font-weight="600">SPED</text>
+
+  <!-- Decorative dots top-right -->
+  <circle cx="720" cy="40" r="3" fill="#FFDF00" opacity="0.2"/>
+  <circle cx="740" cy="30" r="2" fill="#FFDF00" opacity="0.15"/>
+  <circle cx="760" cy="50" r="4" fill="#009c3b" opacity="0.3"/>
+  <circle cx="780" cy="35" r="2.5" fill="#FFDF00" opacity="0.2"/>
+  <circle cx="750" cy="65" r="1.5" fill="white" opacity="0.15"/>
+
+  <!-- Decorative dots bottom-right -->
+  <circle cx="710" cy="160" r="2" fill="#FFDF00" opacity="0.15"/>
+  <circle cx="740" cy="170" r="3" fill="#009c3b" opacity="0.2"/>
+  <circle cx="770" cy="155" r="2" fill="white" opacity="0.1"/>
+  <circle cx="790" cy="145" r="1.5" fill="#FFDF00" opacity="0.15"/>
+
+  <!-- Connected nodes decoration (AI visual, right side) -->
+  <circle cx="660" cy="80" r="5" fill="#FFDF00" opacity="0.25"/>
+  <circle cx="690" cy="60" r="4" fill="#FFDF00" opacity="0.2"/>
+  <circle cx="700" cy="100" r="6" fill="#009c3b" opacity="0.3"/>
+  <circle cx="670" cy="130" r="4" fill="#FFDF00" opacity="0.2"/>
+  <circle cx="640" cy="110" r="3" fill="white" opacity="0.15"/>
+  <!-- Connecting lines between nodes -->
+  <line x1="660" y1="80" x2="690" y2="60" stroke="#FFDF00" stroke-width="1" opacity="0.2"/>
+  <line x1="660" y1="80" x2="700" y2="100" stroke="#FFDF00" stroke-width="1" opacity="0.2"/>
+  <line x1="700" y1="100" x2="670" y2="130" stroke="#FFDF00" stroke-width="1" opacity="0.2"/>
+  <line x1="670" y1="130" x2="640" y2="110" stroke="#FFDF00" stroke-width="1" opacity="0.15"/>
+  <line x1="640" y1="110" x2="660" y2="80" stroke="#FFDF00" stroke-width="1" opacity="0.15"/>
+</svg>

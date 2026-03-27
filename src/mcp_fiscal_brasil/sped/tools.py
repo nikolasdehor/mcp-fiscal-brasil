@@ -1,6 +1,5 @@
 """Ferramentas MCP para analise de arquivos SPED."""
 
-import io
 import logging
 from datetime import date
 
@@ -39,6 +38,7 @@ def _to_date(valor: str) -> date | None:
 
 def _parse_abertura(campos: list[str]) -> InfoAberturaSPED:
     """Parseia o registro 0000 (abertura) do arquivo SPED."""
+
     # Leiaute EFD ICMS/IPI e EFD Contribuicoes:
     # |REG|COD_VER|TIP_ESCRIT|IND_SIT|NUM_REC_SCP|NOME|CNPJ|CPF|UF|IE|COD_MUN|SUFRAMA|IND_PERFIL|IND_ATIV|
     def get(i: int) -> str | None:
@@ -86,7 +86,7 @@ async def analisar_sped(conteudo: str, nome_arquivo: str | None = None) -> SPEDA
     linhas = conteudo.strip().splitlines()
     total = len(linhas)
 
-    for num_linha, linha in enumerate(linhas, 1):
+    for _num_linha, linha in enumerate(linhas, 1):
         linha = linha.strip()
         if not linha:
             continue
@@ -154,6 +154,8 @@ async def listar_registros_sped(conteudo: str, tipo_registro: str) -> list[dict[
             continue
         campos = _parse_linha_sped(linha)
         if campos and campos[0] == tipo_registro:
-            resultado.append({"registro": tipo_registro, "campos": "|".join(campos[1:]), "raw": linha})
+            resultado.append(
+                {"registro": tipo_registro, "campos": "|".join(campos[1:]), "raw": linha}
+            )
 
     return resultado

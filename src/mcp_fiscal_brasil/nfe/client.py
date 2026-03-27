@@ -4,7 +4,7 @@ import logging
 from typing import Any
 
 from ..shared.http_client import FiscalHTTPClient
-from ..shared.rate_limiter import brasil_api_limiter, sefaz_limiter
+from ..shared.rate_limiter import brasil_api_limiter
 from .schemas import NFeResponse, StatusSEFAZResponse
 from .xml_parser import parse_nfe_xml
 
@@ -54,7 +54,9 @@ class NFEClient:
             situacao=data.get("situacao"),
         )
 
-    async def consultar_status_servico(self, uf: str, ambiente: str = "producao") -> StatusSEFAZResponse:
+    async def consultar_status_servico(
+        self, uf: str, ambiente: str = "producao"
+    ) -> StatusSEFAZResponse:
         """
         Consulta o status do servico SEFAZ de uma UF.
 
