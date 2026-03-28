@@ -27,9 +27,9 @@
 
 ## Por que este projeto existe?
 
-O Brasil tem o sistema fiscal mais complexo do mundo. Sao **27 SEFAZs** estaduais, **NFe + NFSe + SPED + eSocial**, cada municipio com seu proprio portal de servicos, e mais de **500 mil PMEs** tentando manter conformidade fiscal todos os dias.
+O Brasil tem o sistema fiscal mais complexo do mundo. São **27 SEFAZs** estaduais, **NFe + NFSe + SPED + eSocial**, cada município com seu próprio portal de serviços, e mais de **500 mil PMEs** tentando manter conformidade fiscal todos os dias.
 
-Antes deste projeto, integrar IA com qualquer dado fiscal brasileiro exigia desenvolvimento customizado, autenticacao em multiplos portais, e conhecimento profundo de cada API governamental. Cada consulta era um projeto.
+Antes deste projeto, integrar IA com qualquer dado fiscal brasileiro exigia desenvolvimento customizado, autenticação em múltiplos portais, e conhecimento profundo de cada API governamental. Cada consulta era um projeto.
 
 **MCP Fiscal Brasil** resolve isso em uma linha: instale o servidor, conecte ao seu assistente de IA, e comece a fazer perguntas em linguagem natural. O servidor cuida de tudo, consultando diretamente Receita Federal, BrasilAPI e SEFAZs estaduais.
 
@@ -38,97 +38,97 @@ Antes deste projeto, integrar IA com qualquer dado fiscal brasileiro exigia dese
 ## 🎬 Demonstracao
 
 ```
-Voce:  "Consulte o CNPJ 00.000.000/0001-91 e liste os socios"
+Você:  "Consulte o CNPJ 00.000.000/0001-91 e liste os sócios"
 
 IA:    Empresa: Banco do Brasil S.A.
        Fundada em: 12/10/1808
-       Situacao: ATIVA
-       CNAE principal: 6422100 - Bancos multiplos com carteira comercial
+       Situação: ATIVA
+       CNAE principal: 6422100 - Bancos múltiplos com carteira comercial
 
-       Socios (QSA):
-       - Uniao Federal - Socio-Administrador (60,82%)
-       - BNDESPar - Socio (10,32%)
+       Sócios (QSA):
+       - União Federal - Sócio-Administrador (60,82%)
+       - BNDESPar - Sócio (10,32%)
 ```
 
 ```
-Voce:  "A chave NFe 35240300623904000197550010000012341234567890 e valida?"
+Você:  "A chave NFe 35240300623904000197550010000012341234567890 é válida?"
 
-IA:    Chave valida!
-       Estado de origem: SP (Sao Paulo)
-       Data de emissao: marco/2024
+IA:    Chave válida!
+       Estado de origem: SP (São Paulo)
+       Data de emissão: março/2024
        CNPJ emitente: 00.623.904/0001-97
-       Numero da nota: 000001234
-       Digito verificador: correto (modulo 11)
+       Número da nota: 000001234
+       Dígito verificador: correto (módulo 11)
 ```
 
 ```
-Voce:  "A empresa 12.345.678/0001-90 e do Simples Nacional?"
+Você:  "A empresa 12.345.678/0001-90 é do Simples Nacional?"
 
 IA:    Sim! Empresa optante do Simples Nacional.
-       Data de opcao: 01/01/2020
+       Data de opção: 01/01/2020
        Modalidade: MEI - Microempreendedor Individual
 ```
 
 ```
-Voce:  "O SEFAZ de Sao Paulo esta online agora?"
+Você:  "O SEFAZ de São Paulo está online agora?"
 
 IA:    Status SEFAZ SP: OPERACIONAL
-       Servico de autorizacao de NFe funcionando normalmente.
-       Ultima verificacao: agora.
+       Serviço de autorização de NFe funcionando normalmente.
+       Última verificação: agora.
 ```
 
 ---
 
 ## 🛠 Ferramentas Disponiveis
 
-**14 ferramentas** cobrindo os principais modulos do sistema fiscal brasileiro.
+**14 ferramentas** cobrindo os principais módulos do sistema fiscal brasileiro.
 
 ---
 
-### ✅ Ferramentas Funcionais (usaveis agora)
+### ✅ Ferramentas Funcionais (usáveis agora)
 
 Funcionam 100% sem chaves de API. Instale e use imediatamente.
 
-| Modulo | Ferramenta | Descricao | API |
+| Módulo | Ferramenta | Descrição | API |
 |--------|-----------|-----------|-----|
-| CNPJ | `consultar_cnpj` | Dados completos: razao social, socios, CNAE, endereco | BrasilAPI (gratis) |
-| CNPJ | `consultar_simples_nacional` | Optante Simples/MEI com datas de entrada e exclusao | BrasilAPI (gratis) |
-| NFe | `validar_chave_nfe` | Valida digito + extrai UF, CNPJ, data, numero | Offline |
-| NFe | `consultar_status_sefaz` | Status do webservice SEFAZ por estado | BrasilAPI (gratis) |
-| NFe | `consultar_nfe` | Consulta NFe completa pela chave de 44 digitos | BrasilAPI (gratis) |
-| CPF | `validar_cpf` | Validacao de digito verificador | Offline |
-| SPED | `analisar_sped` | Analisa arquivo EFD/ECD/ECF: periodo, empresa, erros | Offline |
+| CNPJ | `consultar_cnpj` | Dados completos: razão social, sócios, CNAE, endereço | BrasilAPI (grátis) |
+| CNPJ | `consultar_simples_nacional` | Optante Simples/MEI com datas de entrada e exclusão | BrasilAPI (grátis) |
+| NFe | `validar_chave_nfe` | Valida dígito + extrai UF, CNPJ, data, número | Offline |
+| NFe | `consultar_status_sefaz` | Status do webservice SEFAZ por estado | BrasilAPI (grátis) |
+| NFe | `consultar_nfe` | Consulta NFe completa pela chave de 44 dígitos | BrasilAPI (grátis) |
+| CPF | `validar_cpf` | Validação de dígito verificador | Offline |
+| SPED | `analisar_sped` | Analisa arquivo EFD/ECD/ECF: período, empresa, erros | Offline |
 | SPED | `listar_registros_sped` | Filtra registros por tipo (C100, E110, etc.) | Offline |
-| eSocial | `listar_eventos_esocial` | Catalogo de eventos filtravel por grupo | Offline |
-| eSocial | `validar_evento_esocial` | Validacao basica de estrutura XML | Offline |
+| eSocial | `listar_eventos_esocial` | Catálogo de eventos filtrável por grupo | Offline |
+| eSocial | `validar_evento_esocial` | Validação básica de estrutura XML | Offline |
 
 ---
 
-### 🧭 Ferramentas de Orientacao
+### 🧭 Ferramentas de Orientação
 
-Retornam URLs e instrucoes - exigem acao manual nos portais governamentais.
+Retornam URLs e instruções - exigem ação manual nos portais governamentais.
 
-| Modulo | Ferramenta | O que retorna |
+| Módulo | Ferramenta | O que retorna |
 |--------|-----------|--------------|
-| NFSe | `consultar_nfse` | URL do portal NFSe do municipio + sistema utilizado |
-| Certidoes | `consultar_certidao_federal` | URL do e-CAC para emissao de CND federal |
-| Certidoes | `consultar_certidao_fgts` | URL do portal Caixa para consulta do CRF |
+| NFSe | `consultar_nfse` | URL do portal NFSe do município + sistema utilizado |
+| Certidões | `consultar_certidao_federal` | URL do e-CAC para emissão de CND federal |
+| Certidões | `consultar_certidao_fgts` | URL do portal Caixa para consulta do CRF |
 
 ---
 
 ### 🧪 Ferramentas Experimentais
 
-Requerem APIs pagas ou tem cobertura limitada.
+Requerem APIs pagas ou têm cobertura limitada.
 
-| Modulo | Ferramenta | Limitacao |
+| Módulo | Ferramenta | Limitação |
 |--------|-----------|-----------|
-| CNPJ | `listar_cnpjs_por_nome` | Receita Federal nao disponibiliza busca por nome em API publica |
+| CNPJ | `listar_cnpjs_por_nome` | Receita Federal não disponibiliza busca por nome em API pública |
 
 ---
 
-## 🚀 Instalacao
+## 🚀 Instalação
 
-Tres linhas para comecar:
+Três linhas para começar:
 
 ```bash
 pip install mcp-fiscal-brasil
@@ -147,7 +147,7 @@ from mcp_fiscal_brasil import FiscalBrasil
 uv add mcp-fiscal-brasil
 ```
 
-### A partir do codigo-fonte
+### A partir do código-fonte
 
 ```bash
 git clone https://github.com/nikolasdehor/mcp-fiscal-brasil.git
@@ -157,7 +157,7 @@ pip install -e .
 
 ---
 
-## ⚙️ Configuracao Detalhada
+## ⚙️ Configuração Detalhada
 
 ### Claude Desktop
 
@@ -219,13 +219,13 @@ docker run --rm -i \
 
 ---
 
-## 🔑 Variaveis de Ambiente
+## 🔑 Variáveis de Ambiente
 
-Todas as variaveis sao opcionais. O servidor funciona sem nenhuma configuracao.
+Todas as variáveis são opcionais. O servidor funciona sem nenhuma configuração.
 
-| Variavel | Descricao | Padrao |
+| Variável | Descrição | Padrão |
 |----------|-----------|--------|
-| `MCP_FISCAL_LOG_LEVEL` | Nivel de log: `DEBUG`, `INFO`, `WARNING` | `INFO` |
+| `MCP_FISCAL_LOG_LEVEL` | Nível de log: `DEBUG`, `INFO`, `WARNING` | `INFO` |
 | `BRASILAPI_BASE_URL` | URL base da BrasilAPI (para ambientes customizados) | `https://brasilapi.com.br/api` |
 | `HTTP_TIMEOUT` | Timeout em segundos para chamadas HTTP | `30` |
 
@@ -237,16 +237,16 @@ O mcp-fiscal-brasil funciona de **duas formas**:
 
 | Modo | Para quem | Como |
 |------|-----------|------|
-| **MCP Server** | Usuarios de IA (Claude, Cursor, GPT) | Instala e configura no assistente |
-| **SDK Python** | Desenvolvedores de apps fiscais/contabeis | Importa e usa no codigo |
+| **MCP Server** | Usuários de IA (Claude, Cursor, GPT) | Instala e configura no assistente |
+| **SDK Python** | Desenvolvedores de apps fiscais/contábeis | Importa e usa no código |
 
 ---
 
 ## 🐍 Uso como Biblioteca Python (SDK)
 
-Alem de funcionar como servidor MCP, voce pode importar e usar diretamente no seu codigo Python - sem servidor, sem configuracao extra.
+Além de funcionar como servidor MCP, você pode importar e usar diretamente no seu código Python - sem servidor, sem configuração extra.
 
-### Inicio Rapido
+### Início Rápido
 
 ```python
 import asyncio
@@ -261,20 +261,20 @@ async def main():
 asyncio.run(main())
 ```
 
-### Validacoes Offline (sem API, instantaneo)
+### Validações Offline (sem API, instantâneo)
 
 ```python
 from mcp_fiscal_brasil import FiscalBrasil
 
 fiscal = FiscalBrasil()
 
-# Validacoes locais - sem chamada de rede
+# Validações locais - sem chamada de rede
 print(fiscal.validate_cpf("529.982.247-25"))       # True
 print(fiscal.validate_cnpj("11.222.333/0001-81"))  # True / False
 print(fiscal.validate_chave_nfe("3524...44 digitos..."))  # dict com detalhes
 ```
 
-### Integracao com FastAPI
+### Integração com FastAPI
 
 ```python
 from fastapi import FastAPI
@@ -289,7 +289,7 @@ async def consultar(cnpj: str):
         return await fiscal.consultar_cnpj(cnpj)
 ```
 
-### Integracao com Django
+### Integração com Django
 
 ```python
 # views.py
@@ -305,7 +305,7 @@ def consulta_cnpj(request, cnpj):
     return JsonResponse(dados)
 ```
 
-### Cadastro Automatico de Fornecedor (exemplo ERP)
+### Cadastro Automático de Fornecedor (exemplo ERP)
 
 ```python
 import asyncio
@@ -314,7 +314,7 @@ from mcp_fiscal_brasil import FiscalBrasil
 async def cadastrar_fornecedor(cnpj: str, db_session):
     async with FiscalBrasil() as fiscal:
         if not fiscal.validate_cnpj(cnpj):
-            raise ValueError("CNPJ invalido")
+            raise ValueError("CNPJ inválido")
 
         dados = await fiscal.consultar_cnpj(cnpj)
         simples = await fiscal.consultar_simples_nacional(cnpj)
@@ -325,7 +325,7 @@ async def cadastrar_fornecedor(cnpj: str, db_session):
         )
 ```
 
-### Validacao em Lote
+### Validação em Lote
 
 ```python
 import asyncio
@@ -355,40 +355,40 @@ Claude / GPT / Cursor / qualquer cliente MCP
            |
     +------+-------+--------+--------+--------+-------+--------+
     |      |       |        |        |        |       |        |
-   CNPJ   CPF    NFe      NFSe   Simples    SPED  eSocial Certidoes
+   CNPJ   CPF    NFe      NFSe   Simples    SPED  eSocial Certidões
     |      |       |        |        |        |       |        |
     v      v       v        v        v        v       v        v
-BrasilAPI  --   SEFAZ   Portais   Receita  Parser  Catalogo  URLs
+BrasilAPI  --   SEFAZ   Portais   Receita  Parser  Catálogo  URLs
 ReceitaWS       estaduais municipais Federal  local   local  governamentais
 ```
 
 **Fontes de dados:**
-- [BrasilAPI](https://brasilapi.com.br) - CNPJ, CEP, bancos (open source, sem autenticacao)
+- [BrasilAPI](https://brasilapi.com.br) - CNPJ, CEP, bancos (open source, sem autenticação)
 - [ReceitaWS](https://www.receitaws.com.br) - CNPJ (fallback)
-- SEFAZs estaduais - Status de servico e consulta de NFe
-- Receita Federal - Simples Nacional e certidoes (orientacao de acesso)
+- SEFAZs estaduais - Status de serviço e consulta de NFe
+- Receita Federal - Simples Nacional e certidões (orientação de acesso)
 
 ---
 
 ## 📍 Roadmap
 
 - [x] **v0.1.0** - Consultas CNPJ, CPF, NFe, Simples, SPED (atual)
-- [ ] **v0.2.0** - NFSe 50+ municipios, eSocial catalogo completo
-- [ ] **v0.3.0** - Emissao NFe/NFSe (requer certificado digital A1)
+- [ ] **v0.2.0** - NFSe 50+ municípios, eSocial catálogo completo
+- [ ] **v0.3.0** - Emissão NFe/NFSe (requer certificado digital A1)
 - [ ] **v1.0.0** - eSocial completo, LGPD audit, compliance suite
 
 ---
 
 ## 🤝 Contribuindo
 
-Contribuicoes sao bem-vindas!
+Contribuições são bem-vindas!
 
 ```bash
 # 1. Fork e clone
 git clone https://github.com/SEU_USUARIO/mcp-fiscal-brasil.git
 cd mcp-fiscal-brasil
 
-# 2. Instale dependencias de desenvolvimento
+# 2. Instale dependências de desenvolvimento
 pip install -e ".[dev]"
 pre-commit install
 
@@ -405,11 +405,11 @@ mypy src/
 
 Veja as [issues abertas](https://github.com/nikolasdehor/mcp-fiscal-brasil/issues) - especialmente as marcadas com `good first issue`.
 
-Cada modulo segue o padrao `client.py` + `schemas.py` + `tools.py`, o que torna simples adicionar novos modulos fiscais.
+Cada módulo segue o padrão `client.py` + `schemas.py` + `tools.py`, o que torna simples adicionar novos módulos fiscais.
 
 ---
 
-## 📄 Licenca
+## 📄 Licença
 
 MIT - veja [LICENSE](LICENSE) para detalhes.
 
@@ -418,5 +418,5 @@ MIT - veja [LICENSE](LICENSE) para detalhes.
 <p align="center">
   Feito com 💚💛 para o Brasil
   <br>
-  <sub>Conectando inteligencia artificial ao sistema fiscal mais complexo do mundo</sub>
+  <sub>Conectando inteligência artificial ao sistema fiscal mais complexo do mundo</sub>
 </p>

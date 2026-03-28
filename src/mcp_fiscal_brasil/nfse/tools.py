@@ -8,22 +8,22 @@ async def consultar_nfse(
     cnpj_prestador: str | None = None,
 ) -> dict[str, str]:
     """
-    Consulta dados de uma NFSe (Nota Fiscal de Servico Eletronica).
+    Consulta dados de uma NFSe (Nota Fiscal de Serviço Eletrônica).
 
-    IMPORTANTE: NFSe nao possui padrao nacional. Cada municipio tem seu proprio
+    IMPORTANTE: NFSe não possui padrão nacional. Cada município tem seu próprio
     sistema (ABRASF, ISS.net, Betha, Curitiba, etc.). Esta ferramenta fornece
-    orientacoes sobre como consultar a NFSe no municipio informado.
+    orientações sobre como consultar a NFSe no município informado.
 
     Args:
-        numero: Numero da NFSe
-        municipio: Nome do municipio (ex: 'Sao Paulo', 'Belo Horizonte')
+        numero: Número da NFSe
+        municipio: Nome do município (ex: 'Sao Paulo', 'Belo Horizonte')
         uf: Sigla do estado (ex: 'SP', 'MG')
-        cnpj_prestador: CNPJ do prestador de servico (opcional)
+        cnpj_prestador: CNPJ do prestador de serviço (opcional)
 
     Returns:
-        Dicionario com orientacoes de consulta para o municipio.
+        Dicionário com orientações de consulta para o município.
     """
-    # Portais de consulta por municipio/sistema (50+ capitais e grandes cidades)
+    # Portais de consulta por município/sistema (50+ capitais e grandes cidades)
     # Formato: "CIDADE/UF": {"portal": "url", "sistema": "tipo_sistema"}
     portais_conhecidos: dict[str, dict[str, str]] = {
         # Capitais Estaduais
@@ -66,7 +66,7 @@ async def consultar_nfse(
         "BOA VISTA/RR": {"portal": "https://nfse.boavista.rr.gov.br/", "sistema": "ABRASF"},
         "PALMAS/TO": {"portal": "https://nfse.palmas.to.gov.br/", "sistema": "ABRASF"},
         "RIO BRANCO/AC": {"portal": "https://nfse.riobranco.ac.gov.br/", "sistema": "ABRASF"},
-        # Grandes Cidades Sao Paulo
+        # Grandes Cidades São Paulo
         "GUARULHOS/SP": {"portal": "https://nfse.guarulhos.sp.gov.br/", "sistema": "ABRASF"},
         "CAMPINAS/SP": {
             "portal": "https://novanfse.campinas.sp.gov.br/",
@@ -97,51 +97,51 @@ async def consultar_nfse(
         "BETIM/MG": {"portal": "https://nfse.betim.mg.gov.br/", "sistema": "ABRASF"},
         "UBERLANDIA/MG": {"portal": "https://nfse.uberlandia.mg.gov.br/", "sistema": "ABRASF"},
         "JUIZ DE FORA/MG": {"portal": "https://nfse.juizdefora.mg.gov.br/", "sistema": "ABRASF"},
-        # Cidades Santa Catarina
+        # Cidades de Santa Catarina
         "JOINVILLE/SC": {"portal": "https://nfse.joinville.sc.gov.br/", "sistema": "ISS.net"},
         "BLUMENAU/SC": {"portal": "https://nfse.blumenau.sc.gov.br/", "sistema": "Simpliss"},
-        # Cidades Parana
+        # Cidades do Paraná
         "LONDRINA/PR": {"portal": "https://nfse.londrina.pr.gov.br/", "sistema": "ABRASF"},
         "MARINGA/PR": {"portal": "https://nfse.maringa.pr.gov.br/", "sistema": "ABRASF"},
-        # Cidades Rio Grande do Sul
+        # Cidades do Rio Grande do Sul
         "CANOAS/RS": {"portal": "https://nfse.canoas.rs.gov.br/", "sistema": "ABRASF"},
         "CAXIAS DO SUL/RS": {"portal": "https://nfse.caxiasdosul.rs.gov.br/", "sistema": "ABRASF"},
-        # Cidades Bahia
+        # Cidades da Bahia
         "FEIRA DE SANTANA/BA": {
             "portal": "https://nfse.feirasantana.ba.gov.br/",
             "sistema": "ABRASF",
         },
         "ILHEUS/BA": {"portal": "https://nfse.ilheus.ba.gov.br/", "sistema": "ABRASF"},
-        # Cidades Ceara
+        # Cidades do Ceará
         "CAUCAIA/CE": {"portal": "https://nfse.caucaia.ce.gov.br/", "sistema": "ABRASF"},
         "JUAZEIRO DO NORTE/CE": {
             "portal": "https://nfse.juazeirodOnorte.ce.gov.br/",
             "sistema": "ABRASF",
         },
-        # Cidades Pernambuco
+        # Cidades de Pernambuco
         "JABOATAO DOS GUARARAPES/PE": {
             "portal": "https://nfse.jaboatao.pe.gov.br/",
             "sistema": "ABRASF",
         },
         "CARUARU/PE": {"portal": "https://nfse.caruaru.pe.gov.br/", "sistema": "ABRASF"},
-        # Cidades Paraiba
+        # Cidades da Paraíba
         "CAMPINA GRANDE/PB": {"portal": "https://nfse.campinagde.pb.gov.br/", "sistema": "ABRASF"},
-        # Cidades Rio Grande do Norte
+        # Cidades do Rio Grande do Norte
         "PARNAMIRIM/RN": {"portal": "https://nfse.parnamirim.rn.gov.br/", "sistema": "ABRASF"},
-        # Cidades Alagoas
+        # Cidades de Alagoas
         "RIO LARGO/AL": {"portal": "https://nfse.riolargo.al.gov.br/", "sistema": "ISS.net"},
-        # Cidades Piauí
+        # Cidades do Piauí
         "PICOS/PI": {"portal": "https://nfse.picos.pi.gov.br/", "sistema": "ABRASF"},
-        # Cidades Maranhão
+        # Cidades do Maranhão
         "IMPERATRIZ/MA": {"portal": "https://nfse.imperatriz.ma.gov.br/", "sistema": "ABRASF"},
-        # Cidades Mato Grosso do Sul
+        # Cidades do Mato Grosso do Sul
         "DOURADOS/MS": {"portal": "https://nfse.dourados.ms.gov.br/", "sistema": "ABRASF"},
-        # Cidades Mato Grosso
+        # Cidades do Mato Grosso
         "VARIOS/MT": {
             "portal": "https://www.nfse.gov.br/consultapublica",
             "sistema": "ABRASF Nacional",
         },
-        # Cidades Goias
+        # Cidades de Goiás
         "ANAPOLIS/GO": {"portal": "https://nfse.anapolis.go.gov.br/", "sistema": "ABRASF"},
         # Portal Nacional Unificado
         "BRASIL": {
@@ -157,11 +157,11 @@ async def consultar_nfse(
     chave = f"{municipio_upper}/{uf_upper}"
     portal_info = portais_conhecidos.get(chave)
 
-    # Se nao encontrar, tenta apenas o municipio
+    # Se não encontrar, tenta apenas o município
     if not portal_info:
         portal_info = portais_conhecidos.get(municipio_upper)
 
-    # Se ainda nao encontrar, tenta fallback para portal nacional
+    # Se ainda não encontrar, usa fallback para portal nacional
     if not portal_info:
         portal_info = portais_conhecidos.get("BRASIL")
 
@@ -171,8 +171,8 @@ async def consultar_nfse(
         "uf": uf_upper,
         "status": "consulta_manual_necessaria",
         "motivo": (
-            "NFSe nao possui API publica padronizada nacional. "
-            "Cada municipio gerencia seu proprio sistema de emissao e consulta."
+            "NFSe não possui API pública padronizada nacional. "
+            "Cada município gerencia seu próprio sistema de emissão e consulta."
         ),
         "portal_municipio": portal_info.get(
             "portal", f"Acesse o portal da prefeitura de {municipio}/{uf_upper}"
@@ -183,7 +183,7 @@ async def consultar_nfse(
         if portal_info
         else "ABRASF/Proprietario",
         "alternativa": (
-            "Para integracao automatizada, contrate um emissor NFSe como "
-            "Omie, ContaAzul, NFe.io ou Enotas que suportam multiplos municipios."
+            "Para integração automatizada, contrate um emissor NFSe como "
+            "Omie, ContaAzul, NFe.io ou Enotas que suportam múltiplos municípios."
         ),
     }

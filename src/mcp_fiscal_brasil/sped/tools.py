@@ -7,7 +7,7 @@ from .schemas import InfoAberturaSPED, ResumoPeriodoSPED, SPEDAnaliseResponse
 
 logger = logging.getLogger(__name__)
 
-# Identificacao do tipo de SPED pelo registro 0000 campo tipo_escrituracao
+# Identificação do tipo de SPED pelo registro 0000 campo tipo_escrituracao
 TIPOS_SPED: dict[str, str] = {
     "0": "EFD-ICMS-IPI",
     "1": "EFD-Contribuicoes",
@@ -17,7 +17,7 @@ TIPOS_SPED: dict[str, str] = {
 
 
 def _parse_linha_sped(linha: str) -> list[str]:
-    """Parseia uma linha SPED (delimitada por '|') e remove os pipes externos."""
+    """Analisa uma linha SPED (delimitada por '|') e remove os pipes externos."""
     if linha.startswith("|"):
         linha = linha[1:]
     if linha.endswith("|"):
@@ -26,7 +26,7 @@ def _parse_linha_sped(linha: str) -> list[str]:
 
 
 def _to_date(valor: str) -> date | None:
-    """Converte data SPED (DDMMAAAA) para objeto date."""
+    """Converte data SPED (DDMMAAAA) em objeto date."""
     valor = valor.strip()
     if len(valor) == 8 and valor.isdigit():
         try:
@@ -37,9 +37,9 @@ def _to_date(valor: str) -> date | None:
 
 
 def _parse_abertura(campos: list[str]) -> InfoAberturaSPED:
-    """Parseia o registro 0000 (abertura) do arquivo SPED."""
+    """Analisa o registro 0000 (abertura) do arquivo SPED."""
 
-    # Leiaute EFD ICMS/IPI e EFD Contribuicoes:
+    # Leiaute EFD ICMS/IPI e EFD Contribuições:
     # |REG|COD_VER|TIP_ESCRIT|IND_SIT|NUM_REC_SCP|NOME|CNPJ|CPF|UF|IE|COD_MUN|SUFRAMA|IND_PERFIL|IND_ATIV|
     def get(i: int) -> str | None:
         return campos[i].strip() if i < len(campos) and campos[i].strip() else None
@@ -63,16 +63,16 @@ def _parse_abertura(campos: list[str]) -> InfoAberturaSPED:
 
 async def analisar_sped(conteudo: str, nome_arquivo: str | None = None) -> SPEDAnaliseResponse:
     """
-    Analisa um arquivo SPED e extrai informacoes sobre o periodo, empresa e tipos de registros.
+    Analisa um arquivo SPED e extrai informações sobre o período, empresa e tipos de registros.
 
-    Suporta EFD-ICMS/IPI, EFD-Contribuicoes, ECD e ECF.
+    Suporta EFD-ICMS/IPI, EFD-Contribuições, ECD e ECF.
 
     Args:
-        conteudo: Conteudo do arquivo SPED como string (formato pipe-delimitado)
-        nome_arquivo: Nome do arquivo (opcional, para informacao)
+        conteudo: Conteúdo do arquivo SPED como string (formato pipe-delimitado)
+        nome_arquivo: Nome do arquivo (opcional, para informação)
 
     Returns:
-        SPEDAnaliseResponse com resumo do arquivo, informacoes da empresa e contagem de registros.
+        SPEDAnaliseResponse com resumo do arquivo, informações da empresa e contagem de registros.
     """
     logger.info("Analisando arquivo SPED: %s", nome_arquivo or "desconhecido")
 
@@ -100,7 +100,7 @@ async def analisar_sped(conteudo: str, nome_arquivo: str | None = None) -> SPEDA
         # Registro de abertura
         if registro == "0000" and abertura is None:
             abertura = _parse_abertura(campos)
-            # Periodo fica no proximo campo apos ind_ativ (indice 14 e 15)
+            # Período fica no próximo campo após ind_ativ (índice 14 e 15)
             if len(campos) > 15:
                 periodo_inicial = _to_date(campos[14])
                 periodo_final = _to_date(campos[15])
@@ -109,11 +109,11 @@ async def analisar_sped(conteudo: str, nome_arquivo: str | None = None) -> SPEDA
     if abertura and abertura.tipo_escrituracao:
         tipo_sped = TIPOS_SPED.get(abertura.tipo_escrituracao, f"Tipo {abertura.tipo_escrituracao}")
 
-    # Verifica presenca de registros obrigatorios
+    # Verifica presença de registros obrigatórios
     if "0000" not in tipos_registros:
-        erros.append("Registro 0000 (abertura) nao encontrado - arquivo possivelmente invalido")
+        erros.append("Registro 0000 (abertura) não encontrado - arquivo possivelmente inválido")
     if "9999" not in tipos_registros:
-        avisos.append("Registro 9999 (encerramento) nao encontrado - arquivo pode estar incompleto")
+        avisos.append("Registro 9999 (encerramento) não encontrado - arquivo pode estar incompleto")
 
     resumo = ResumoPeriodoSPED(
         periodo_inicial=periodo_inicial,
@@ -139,11 +139,11 @@ async def listar_registros_sped(conteudo: str, tipo_registro: str) -> list[dict[
     Lista todos os registros de um determinado tipo em um arquivo SPED.
 
     Args:
-        conteudo: Conteudo do arquivo SPED
-        tipo_registro: Codigo do registro a buscar (ex: 'C100', 'E110', '0140')
+        conteudo: Conteúdo do arquivo SPED
+        tipo_registro: Código do registro a buscar (ex: 'C100', 'E110', '0140')
 
     Returns:
-        Lista de dicionarios com os campos de cada ocorrencia do registro.
+        Lista de dicionários com os campos de cada ocorrência do registro.
     """
     tipo_registro = tipo_registro.upper().strip()
     resultado = []

@@ -6,16 +6,16 @@ from .schemas import CPFValidacaoResponse
 
 async def validar_cpf_tool(cpf: str) -> CPFValidacaoResponse:
     """
-    Valida o digito verificador de um CPF brasileiro.
+    Valida o dígito verificador de um CPF brasileiro.
 
-    Nao consulta APIs externas - apenas verifica o calculo matematico.
-    A Receita Federal nao disponibiliza API publica para consulta de dados de CPF.
+    Não consulta APIs externas - apenas verifica o cálculo matemático.
+    A Receita Federal não disponibiliza API pública para consulta de dados de CPF.
 
     Args:
-        cpf: Numero do CPF com ou sem formatacao (ex: '123.456.789-09' ou '12345678909')
+        cpf: Número do CPF com ou sem formatação (ex: '123.456.789-09' ou '12345678909')
 
     Returns:
-        CPFValidacaoResponse indicando se o CPF e matematicamente valido.
+        CPFValidacaoResponse indicando se o CPF é matematicamente válido.
     """
     valido = validate_cpf(cpf)
 
@@ -30,11 +30,11 @@ async def validar_cpf_tool(cpf: str) -> CPFValidacaoResponse:
     if not valido:
         digitos = "".join(c for c in cpf if c.isdigit())
         if len(digitos) != 11:
-            motivo = f"CPF deve ter 11 digitos, recebeu {len(digitos)}"
+            motivo = f"CPF deve ter 11 dígitos, recebeu {len(digitos)}"
         elif len(set(digitos)) == 1:
-            motivo = "CPF com todos os digitos iguais e invalido"
+            motivo = "CPF com todos os dígitos iguais é inválido"
         else:
-            motivo = "Digito verificador invalido"
+            motivo = "Dígito verificador inválido"
 
     return CPFValidacaoResponse(
         cpf_informado=cpf,

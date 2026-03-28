@@ -1,7 +1,7 @@
 """
 Servidor MCP Fiscal Brasil.
 
-Registra todas as ferramentas fiscais e expoe via protocolo MCP (Model Context Protocol).
+Registra todas as ferramentas fiscais e expõe via protocolo MCP (Model Context Protocol).
 """
 
 import logging
@@ -29,8 +29,8 @@ app = FastMCP(
     version=__version__,
     instructions=(
         "Servidor MCP para integrar IAs com o sistema fiscal brasileiro. "
-        "Consulte CNPJ, NFe, NFSe, SPED, eSocial e certidoes via linguagem natural. "
-        "Dados obtidos de fontes publicas: BrasilAPI, ReceitaWS, SEFAZ."
+        "Consulte CNPJ, NFe, NFSe, SPED, eSocial e certidões via linguagem natural. "
+        "Dados obtidos de fontes públicas: BrasilAPI, ReceitaWS, SEFAZ."
     ),
 )
 
@@ -43,9 +43,9 @@ app = FastMCP(
     name="consultar_cnpj",
     description=(
         "Consulta os dados cadastrais completos de uma empresa pelo CNPJ. "
-        "Retorna razao social, endereco, atividades economicas (CNAE), "
-        "socios (QSA), situacao cadastral e porte da empresa. "
-        "Aceita CNPJ com ou sem formatacao (pontos, barra, traco)."
+        "Retorna razão social, endereço, atividades econômicas (CNAE), "
+        "sócios (QSA), situação cadastral e porte da empresa. "
+        "Aceita CNPJ com ou sem formatação (pontos, barra, traço)."
     ),
 )
 async def tool_consultar_cnpj(cnpj: str) -> dict[str, Any]:
@@ -57,8 +57,8 @@ async def tool_consultar_cnpj(cnpj: str) -> dict[str, Any]:
 @app.tool(
     name="listar_cnpjs_por_nome",
     description=(
-        "Busca empresas pelo nome ou razao social. "
-        "Nota: esta funcionalidade tem disponibilidade limitada em APIs publicas."
+        "Busca empresas pelo nome ou razão social. "
+        "Nota: esta funcionalidade tem disponibilidade limitada em APIs públicas."
     ),
 )
 async def tool_listar_cnpjs_por_nome(nome: str, uf: str | None = None) -> list[dict[str, str]]:
@@ -74,9 +74,9 @@ async def tool_listar_cnpjs_por_nome(nome: str, uf: str | None = None) -> list[d
 @app.tool(
     name="validar_cpf",
     description=(
-        "Valida o digito verificador de um CPF brasileiro. "
-        "Verificacao matematica offline - nao consulta APIs externas. "
-        "A Receita Federal nao disponibiliza API publica para dados de CPF."
+        "Valida o dígito verificador de um CPF brasileiro. "
+        "Verificação matemática offline - não consulta APIs externas. "
+        "A Receita Federal não disponibiliza API pública para dados de CPF."
     ),
 )
 async def tool_validar_cpf(cpf: str) -> dict[str, Any]:
@@ -93,9 +93,9 @@ async def tool_validar_cpf(cpf: str) -> dict[str, Any]:
 @app.tool(
     name="consultar_nfe",
     description=(
-        "Consulta os dados de uma Nota Fiscal Eletronica (NFe) pela chave de acesso de 44 digitos. "
+        "Consulta os dados de uma Nota Fiscal Eletrônica (NFe) pela chave de acesso de 44 dígitos. "
         "A chave pode ser encontrada no DANFE (documento impresso da nota). "
-        "Retorna emitente, destinatario, itens, valores e protocolo de autorizacao."
+        "Retorna emitente, destinatário, itens, valores e protocolo de autorização."
     ),
 )
 async def tool_consultar_nfe(chave_acesso: str) -> dict[str, Any]:
@@ -107,9 +107,9 @@ async def tool_consultar_nfe(chave_acesso: str) -> dict[str, Any]:
 @app.tool(
     name="validar_chave_nfe",
     description=(
-        "Valida o formato e o digito verificador de uma chave de acesso de NFe. "
-        "Nao consulta APIs - apenas verifica o calculo matematico (modulo 11). "
-        "Tambem extrai informacoes da chave: UF, data de emissao, CNPJ emitente e numero da nota."
+        "Valida o formato e o dígito verificador de uma chave de acesso de NFe. "
+        "Não consulta APIs - apenas verifica o cálculo matemático (módulo 11). "
+        "Também extrai informações da chave: UF, data de emissão, CNPJ emitente e número da nota."
     ),
 )
 async def tool_validar_chave_nfe(chave_acesso: str) -> dict[str, Any]:
@@ -120,9 +120,9 @@ async def tool_validar_chave_nfe(chave_acesso: str) -> dict[str, Any]:
 @app.tool(
     name="consultar_status_sefaz",
     description=(
-        "Consulta o status atual do servico SEFAZ de um estado brasileiro. "
-        "Verifica se o webservice da SEFAZ para emissao de NFe esta operacional. "
-        "Util para diagnosticar falhas de transmissao de notas fiscais."
+        "Consulta o status atual do serviço SEFAZ de um estado brasileiro. "
+        "Verifica se o webservice da SEFAZ para emissão de NFe está operacional. "
+        "Útil para diagnosticar falhas de transmissão de notas fiscais."
     ),
 )
 async def tool_consultar_status_sefaz(uf: str) -> dict[str, Any]:
@@ -139,9 +139,9 @@ async def tool_consultar_status_sefaz(uf: str) -> dict[str, Any]:
 @app.tool(
     name="consultar_nfse",
     description=(
-        "Consulta dados de uma NFSe (Nota Fiscal de Servico Eletronica). "
-        "ATENCAO: NFSe nao possui padrao nacional - cada municipio tem seu proprio sistema. "
-        "Esta ferramenta orienta sobre como acessar o portal correto do municipio."
+        "Consulta dados de uma NFSe (Nota Fiscal de Serviço Eletrônica). "
+        "ATENÇÃO: NFSe não possui padrão nacional - cada município tem seu próprio sistema. "
+        "Esta ferramenta orienta sobre como acessar o portal correto do município."
     ),
 )
 async def tool_consultar_nfse(
@@ -162,8 +162,8 @@ async def tool_consultar_nfse(
 @app.tool(
     name="consultar_simples_nacional",
     description=(
-        "Consulta se uma empresa e optante do Simples Nacional ou MEI. "
-        "Retorna situacao atual, datas de opcao e exclusao do regime simplificado."
+        "Consulta se uma empresa é optante do Simples Nacional ou MEI. "
+        "Retorna situação atual, datas de opção e exclusão do regime simplificado."
     ),
 )
 async def tool_consultar_simples_nacional(cnpj: str) -> dict[str, Any]:
@@ -180,9 +180,9 @@ async def tool_consultar_simples_nacional(cnpj: str) -> dict[str, Any]:
 @app.tool(
     name="analisar_sped",
     description=(
-        "Analisa um arquivo SPED (EFD-ICMS/IPI, EFD-Contribuicoes, ECD ou ECF) "
-        "e extrai informacoes sobre periodo, empresa, tipos de registros e possiveis erros. "
-        "Recebe o conteudo do arquivo como texto (formato pipe-delimitado)."
+        "Analisa um arquivo SPED (EFD-ICMS/IPI, EFD-Contribuições, ECD ou ECF) "
+        "e extrai informações sobre período, empresa, tipos de registros e possíveis erros. "
+        "Recebe o conteúdo do arquivo como texto (formato pipe-delimitado)."
     ),
 )
 async def tool_analisar_sped(conteudo: str, nome_arquivo: str | None = None) -> dict[str, Any]:
@@ -194,8 +194,8 @@ async def tool_analisar_sped(conteudo: str, nome_arquivo: str | None = None) -> 
 @app.tool(
     name="listar_registros_sped",
     description=(
-        "Lista todas as ocorrencias de um tipo de registro especifico em um arquivo SPED. "
-        "Exemplo: buscar todos os registros C100 (documentos fiscais) ou E110 (apuracao ICMS)."
+        "Lista todas as ocorrências de um tipo de registro específico em um arquivo SPED. "
+        "Exemplo: buscar todos os registros C100 (documentos fiscais) ou E110 (apuração ICMS)."
     ),
 )
 async def tool_listar_registros_sped(conteudo: str, tipo_registro: str) -> list[dict[str, str]]:
@@ -211,7 +211,7 @@ async def tool_listar_registros_sped(conteudo: str, tipo_registro: str) -> list[
 @app.tool(
     name="listar_eventos_esocial",
     description=(
-        "Lista os eventos do eSocial com nome, grupo e descricao. "
+        "Lista os eventos do eSocial com nome, grupo e descrição. "
         "Pode filtrar por grupo: 'Tabelas', 'Nao Periodicos', 'Periodicos' ou 'Exclusao'."
     ),
 )
@@ -224,8 +224,8 @@ async def tool_listar_eventos_esocial(grupo: str | None = None) -> list[dict[str
 @app.tool(
     name="validar_evento_esocial",
     description=(
-        "Realiza validacao basica de estrutura de um XML de evento eSocial. "
-        "Verifica presenca do elemento raiz correto, codigo do evento e versao do leiaute."
+        "Realiza validação básica de estrutura de um XML de evento eSocial. "
+        "Verifica presença do elemento raiz correto, código do evento e versão do leiaute."
     ),
 )
 async def tool_validar_evento_esocial(xml_conteudo: str) -> dict[str, Any]:
@@ -242,9 +242,9 @@ async def tool_validar_evento_esocial(xml_conteudo: str) -> dict[str, Any]:
 @app.tool(
     name="consultar_certidao_federal",
     description=(
-        "Orienta sobre como consultar a Certidao Negativa de Debitos (CND) "
+        "Orienta sobre como consultar a Certidão Negativa de Débitos (CND) "
         "da Receita Federal e PGFN para CNPJ ou CPF. "
-        "Fornece URLs de emissao e verificacao e alternativas para automacao."
+        "Fornece URLs de emissão e verificação e alternativas para automação."
     ),
 )
 async def tool_consultar_certidao_federal(cnpj_cpf: str) -> dict[str, str]:
@@ -255,8 +255,8 @@ async def tool_consultar_certidao_federal(cnpj_cpf: str) -> dict[str, str]:
 @app.tool(
     name="consultar_certidao_fgts",
     description=(
-        "Orienta sobre como consultar a Certidao de Regularidade do FGTS (CRF) "
-        "para um CNPJ. Fornece URL do portal da Caixa e alternativas para automacao."
+        "Orienta sobre como consultar a Certidão de Regularidade do FGTS (CRF) "
+        "para um CNPJ. Fornece URL do portal da Caixa e alternativas para automação."
     ),
 )
 async def tool_consultar_certidao_fgts(cnpj: str) -> dict[str, str]:
@@ -267,10 +267,10 @@ async def tool_consultar_certidao_fgts(cnpj: str) -> dict[str, str]:
 def main() -> None:
     """Inicia o servidor MCP.
 
-    Modo de transporte configuravel via argumento --transport ou variavel de ambiente
-    FASTMCP_TRANSPORT. Valores aceitos: stdio (padrao), sse, http, streamable-http.
+    Modo de transporte configurável via argumento --transport ou variável de ambiente
+    FASTMCP_TRANSPORT. Valores aceitos: stdio (padrão), sse, http, streamable-http.
 
-    Para HTTP/SSE, a porta e configurada via variavel PORT (padrao: 8000).
+    Para HTTP/SSE, a porta é configurada via variável PORT (padrão: 8000).
     """
     import argparse
     import os
@@ -280,18 +280,18 @@ def main() -> None:
         "--transport",
         choices=["stdio", "sse", "http", "streamable-http"],
         default=os.environ.get("FASTMCP_TRANSPORT", "stdio"),
-        help="Protocolo de transporte (padrao: stdio)",
+        help="Protocolo de transporte (padrão: stdio)",
     )
     parser.add_argument(
         "--port",
         type=int,
         default=int(os.environ.get("PORT", "8000")),
-        help="Porta HTTP/SSE (padrao: 8000, ou valor da variavel PORT)",
+        help="Porta HTTP/SSE (padrão: 8000, ou valor da variável PORT)",
     )
     parser.add_argument(
         "--host",
         default=os.environ.get("HOST", "0.0.0.0"),
-        help="Host para HTTP/SSE (padrao: 0.0.0.0)",
+        help="Host para HTTP/SSE (padrão: 0.0.0.0)",
     )
     args = parser.parse_args()
 

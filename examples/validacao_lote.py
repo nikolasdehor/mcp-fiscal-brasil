@@ -1,8 +1,8 @@
 """
-Exemplo: Validacao em lote de CNPJs e CPFs.
+Exemplo: Validação em lote de CNPJs e CPFs.
 
 Demonstra dois modos de uso:
-1. Validacao offline instantanea (sem internet) usando as funcoes avulsas.
+1. Validação offline instantânea (sem internet) usando as funções avulsas.
 2. Consulta em lote via API para obter dados completos.
 
 Executar:
@@ -17,7 +17,7 @@ from mcp_fiscal_brasil.shared.validators import format_cnpj, format_cpf
 
 def validar_cpfs_offline(cpfs: list[str]) -> None:
     """Valida uma lista de CPFs sem nenhuma chamada de API."""
-    print("=== Validacao CPF (offline) ===")
+    print("=== Validação CPF (offline) ===")
     for cpf in cpfs:
         valido = validate_cpf(cpf)
         status = "VALIDO" if valido else "INVALIDO"
@@ -32,7 +32,7 @@ def validar_cpfs_offline(cpfs: list[str]) -> None:
 
 def validar_cnpjs_offline(cnpjs: list[str]) -> None:
     """Valida uma lista de CNPJs sem nenhuma chamada de API."""
-    print("\n=== Validacao CNPJ (offline) ===")
+    print("\n=== Validação CNPJ (offline) ===")
     for cnpj in cnpjs:
         valido = validate_cnpj(cnpj)
         status = "VALIDO" if valido else "INVALIDO"
@@ -49,18 +49,18 @@ async def consultar_cnpjs_lote(
     parar_no_erro: bool = False,
 ) -> None:
     """
-    Consulta dados completos de multiplos CNPJs via API.
+    Consulta dados completos de múltiplos CNPJs via API.
 
     Args:
-        cnpjs: Lista de CNPJs (com ou sem mascara).
+        cnpjs: Lista de CNPJs (com ou sem máscara).
         parar_no_erro: Se True, interrompe o lote ao encontrar erro.
-                       Se False (padrao), registra o erro e continua.
+                       Se False (padrão), registra o erro e continua.
     """
     print("\n=== Consulta em lote via API ===")
 
     async with FiscalBrasil() as fiscal:
         for cnpj in cnpjs:
-            # Validacao offline primeiro (evita chamada de API desnecessaria)
+            # Validação offline primeiro (evita chamada de API desnecessária)
             if not fiscal.validar_cnpj(cnpj):
                 print(f"  {cnpj:20s}  [INVALIDO - pulado]")
                 continue
@@ -101,22 +101,22 @@ async def verificar_sefaz_todas_ufs() -> None:
 
 
 async def main() -> None:
-    # --- Validacao offline (sem internet) ---
+    # --- Validação offline (sem internet) ---
     cpfs = [
-        "529.982.247-25",  # valido
-        "111.111.111-11",  # invalido (sequencia repetida)
-        "000.000.000-00",  # invalido
-        "12345678909",  # valido
-        "98765432100",  # invalido
+        "529.982.247-25",  # válido
+        "111.111.111-11",  # inválido (sequência repetida)
+        "000.000.000-00",  # inválido
+        "12345678909",  # válido
+        "98765432100",  # inválido
     ]
     validar_cpfs_offline(cpfs)
 
     cnpjs = [
-        "33.000.167/0001-01",  # Petrobras - valido
-        "60.746.948/0001-12",  # Banco do Brasil - valido
-        "00.000.000/0000-00",  # invalido
-        "11.111.111/1111-11",  # invalido (sequencia repetida)
-        "abc",  # invalido (nao numerico)
+        "33.000.167/0001-01",  # Petrobras - válido
+        "60.746.948/0001-12",  # Banco do Brasil - válido
+        "00.000.000/0000-00",  # inválido
+        "11.111.111/1111-11",  # inválido (sequência repetida)
+        "abc",  # inválido (não numérico)
     ]
     validar_cnpjs_offline(cnpjs)
 
@@ -124,7 +124,7 @@ async def main() -> None:
     cnpjs_lote = [
         "33000167000101",  # Petrobras
         "60746948000112",  # Banco do Brasil
-        "00000000000191",  # invalido propositalmente
+        "00000000000191",  # inválido propositalmente
     ]
     await consultar_cnpjs_lote(cnpjs_lote)
 

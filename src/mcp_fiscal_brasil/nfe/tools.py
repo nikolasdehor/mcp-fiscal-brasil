@@ -45,29 +45,29 @@ UFS_VALIDAS = {
 
 async def consultar_nfe(chave_acesso: str) -> NFeResponse:
     """
-    Consulta os dados de uma NFe (Nota Fiscal Eletronica) pela chave de acesso.
+    Consulta os dados de uma NFe (Nota Fiscal Eletrônica) pela chave de acesso.
 
-    A chave de acesso tem 44 digitos e pode ser encontrada no DANFE (documento impresso da nota).
+    A chave de acesso tem 44 dígitos e pode ser encontrada no DANFE (documento impresso da nota).
 
     Args:
-        chave_acesso: Chave de acesso da NFe com 44 digitos (aceita com ou sem espacos)
+        chave_acesso: Chave de acesso da NFe com 44 dígitos (aceita com ou sem espaços)
 
     Returns:
-        NFeResponse com emitente, destinatario, itens e totais da nota.
+        NFeResponse com emitente, destinatário, itens e totais da nota.
 
     Raises:
-        ValidationError: Se a chave de acesso for invalida.
-        NotFoundError: Se a NFe nao for encontrada.
-        APIError: Em caso de falha no servico SEFAZ ou APIs consultadas.
+        ValidationError: Se a chave de acesso for inválida.
+        NotFoundError: Se a NFe não for encontrada.
+        APIError: Em caso de falha no serviço SEFAZ ou APIs consultadas.
     """
-    # Remove espacos e outros separadores
+    # Remove espaços e outros separadores
     chave_limpa = "".join(c for c in chave_acesso if c.isdigit())
 
     if not validate_chave_nfe(chave_limpa):
         raise ValidationError(
             field="chave_acesso",
             value=chave_acesso,
-            reason="Chave de acesso NFe invalida. Deve ter 44 digitos com digito verificador correto.",
+            reason="Chave de acesso NFe inválida. Deve ter 44 dígitos com dígito verificador correto.",
         )
 
     return await _client.consultar_por_chave(chave_limpa)
@@ -75,15 +75,15 @@ async def consultar_nfe(chave_acesso: str) -> NFeResponse:
 
 async def validar_chave_nfe(chave_acesso: str) -> dict[str, object]:
     """
-    Valida o formato e digito verificador de uma chave de acesso de NFe.
+    Valida o formato e dígito verificador de uma chave de acesso de NFe.
 
-    Nao consulta APIs - apenas verifica o calculo matematico (modulo 11).
+    Não consulta APIs - apenas verifica o cálculo matemático (módulo 11).
 
     Args:
-        chave_acesso: Chave de acesso com 44 digitos
+        chave_acesso: Chave de acesso com 44 dígitos
 
     Returns:
-        Dicionario com 'valido', 'chave_formatada', 'uf', 'data_emissao', 'cnpj_emitente', 'numero'
+        Dicionário com 'valido', 'chave_formatada', 'uf', 'data_emissao', 'cnpj_emitente', 'numero'
     """
     chave_limpa = "".join(c for c in chave_acesso if c.isdigit())
     valido = validate_chave_nfe(chave_limpa)
@@ -115,25 +115,25 @@ async def validar_chave_nfe(chave_acesso: str) -> dict[str, object]:
 
 async def consultar_status_sefaz(uf: str) -> StatusSEFAZResponse:
     """
-    Consulta o status atual do servico SEFAZ de um estado.
+    Consulta o status atual do serviço SEFAZ de um estado.
 
-    Verifica se o webservice da SEFAZ para emissao de NFe esta operacional.
+    Verifica se o webservice da SEFAZ para emissão de NFe está operacional.
 
     Args:
         uf: Sigla do estado (ex: 'SP', 'MG', 'RJ')
 
     Returns:
-        StatusSEFAZResponse com o status atual e descricao.
+        StatusSEFAZResponse com o status atual e descrição.
 
     Raises:
-        ValidationError: Se a UF for invalida.
+        ValidationError: Se a UF for inválida.
     """
     uf_upper = uf.upper().strip()
     if uf_upper not in UFS_VALIDAS:
         raise ValidationError(
             field="uf",
             value=uf,
-            reason=f"UF invalida. Use uma das siglas: {', '.join(sorted(UFS_VALIDAS))}",
+            reason=f"UF inválida. Use uma das siglas: {', '.join(sorted(UFS_VALIDAS))}",
         )
 
     return await _client.consultar_status_servico(uf_upper)

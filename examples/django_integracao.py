@@ -1,16 +1,16 @@
 """
 Exemplo: View Django usando mcp-fiscal-brasil.
 
-Como o Django e sincrono por padrao, este exemplo usa as versoes
-sincronas do SDK (consultar_cnpj_sync, consultar_simples_sync) ou
-asyncio.run() para adaptar corotinas async.
+Como o Django é síncrono por padrão, este exemplo usa as versões
+síncronas do SDK (consultar_cnpj_sync, consultar_simples_sync) ou
+asyncio.run() para adaptar corrotinas async.
 
-Para Django 4.1+ com views async nativos, use as versoes async diretamente.
+Para Django 4.1+ com views async nativos, use as versões async diretamente.
 
-Instalar dependencias extras:
+Instalar dependências extras:
     pip install django
 
-Configuracao minima no settings.py:
+Configuração mínima no settings.py:
     INSTALLED_APPS = [...]
     ROOT_URLCONF = "myproject.urls"
 
@@ -32,7 +32,7 @@ from typing import Any
 
 from mcp_fiscal_brasil import FiscalBrasil, validate_cnpj, validate_cpf
 
-# Instancia global reutilizada entre requests (sem recursos persistentes a fechar)
+# Instância global reutilizada entre requests (sem recursos persistentes a fechar)
 _fiscal = FiscalBrasil()
 
 
@@ -43,7 +43,7 @@ _fiscal = FiscalBrasil()
 
 def consultar_cnpj(request: Any, cnpj: str) -> Any:
     """
-    View Django sincrona para consultar CNPJ.
+    View Django síncrona para consultar CNPJ.
 
     URL: /cnpj/<cnpj>/
     Resposta: JSON com dados completos da empresa.
@@ -51,7 +51,7 @@ def consultar_cnpj(request: Any, cnpj: str) -> Any:
     from django.http import JsonResponse  # type: ignore[import-not-found]
 
     if not validate_cnpj(cnpj):
-        return JsonResponse({"erro": f"CNPJ invalido: {cnpj}"}, status=422)
+        return JsonResponse({"erro": f"CNPJ inválido: {cnpj}"}, status=422)
 
     try:
         empresa = asyncio.run(_fiscal.consultar_cnpj(cnpj))
@@ -62,14 +62,14 @@ def consultar_cnpj(request: Any, cnpj: str) -> Any:
 
 def consultar_simples(request: Any, cnpj: str) -> Any:
     """
-    View Django sincrona para consultar Simples Nacional.
+    View Django síncrona para consultar Simples Nacional.
 
     URL: /simples/<cnpj>/
     """
     from django.http import JsonResponse  # type: ignore[import-not-found]
 
     if not validate_cnpj(cnpj):
-        return JsonResponse({"erro": f"CNPJ invalido: {cnpj}"}, status=422)
+        return JsonResponse({"erro": f"CNPJ inválido: {cnpj}"}, status=422)
 
     try:
         resultado = asyncio.run(_fiscal.consultar_simples(cnpj))
@@ -80,7 +80,7 @@ def consultar_simples(request: Any, cnpj: str) -> Any:
 
 def validar_cpf(request: Any, cpf: str) -> Any:
     """
-    View Django sincrona para validar CPF (offline).
+    View Django síncrona para validar CPF (offline).
 
     URL: /validar/cpf/<cpf>/
     """
@@ -91,7 +91,7 @@ def validar_cpf(request: Any, cpf: str) -> Any:
 
 def validar_cnpj_view(request: Any, cnpj: str) -> Any:
     """
-    View Django sincrona para validar CNPJ (offline).
+    View Django síncrona para validar CNPJ (offline).
 
     URL: /validar/cnpj/<cnpj>/
     """
@@ -102,7 +102,7 @@ def validar_cnpj_view(request: Any, cnpj: str) -> Any:
 
 def status_sefaz(request: Any, uf: str) -> Any:
     """
-    View Django sincrona para status do SEFAZ.
+    View Django síncrona para status do SEFAZ.
 
     URL: /nfe/status/<uf>/
     """
@@ -124,12 +124,12 @@ async def consultar_cnpj_async(request: Any, cnpj: str) -> Any:
     """
     View Django async para consultar CNPJ (Django 4.1+).
 
-    Preferivel ao wrapper sincrono em projetos Django com ASGI.
+    Preferível ao wrapper síncrono em projetos Django com ASGI.
     """
     from django.http import JsonResponse  # type: ignore[import-not-found]
 
     if not validate_cnpj(cnpj):
-        return JsonResponse({"erro": f"CNPJ invalido: {cnpj}"}, status=422)
+        return JsonResponse({"erro": f"CNPJ inválido: {cnpj}"}, status=422)
 
     try:
         async with FiscalBrasil() as fiscal:
@@ -146,7 +146,7 @@ async def consultar_cnpj_async(request: Any, cnpj: str) -> Any:
 
 def exemplo_management_command() -> None:
     """
-    Exemplo de uso em um management command Django (handle method).
+    Exemplo de uso em um management command Django (método handle).
 
     class Command(BaseCommand):
         def handle(self, *args, **options):
@@ -168,6 +168,6 @@ def exemplo_management_command() -> None:
                     }
                     print(json.dumps(dados, ensure_ascii=False, default=str))
                 except Exception as e:
-                    print(f"Erro para CNPJ {cnpj}: {e}")
+                    print(f"Erro no CNPJ {cnpj}: {e}")
 
     asyncio.run(processar())

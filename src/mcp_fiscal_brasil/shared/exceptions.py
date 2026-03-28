@@ -1,10 +1,10 @@
-"""Hierarquia de excecoes do MCP Fiscal Brasil."""
+"""Hierarquia de exceções do MCP Fiscal Brasil."""
 
 from typing import Any
 
 
 class MCPFiscalError(Exception):
-    """Excecao base para todos os erros do MCP Fiscal Brasil."""
+    """Exceção base para todos os erros do MCP Fiscal Brasil."""
 
     def __init__(
         self, message: str, code: str | None = None, details: dict[str, Any] | None = None
@@ -34,10 +34,10 @@ class APIError(MCPFiscalError):
 
 
 class RateLimitError(MCPFiscalError):
-    """Limite de requisicoes excedido para um endpoint."""
+    """Limite de requisições excedido para um endpoint."""
 
     def __init__(self, endpoint: str, retry_after: float | None = None) -> None:
-        message = f"Limite de requisicoes excedido para {endpoint}"
+        message = f"Limite de requisições excedido para {endpoint}"
         if retry_after is not None:
             message += f". Tente novamente em {retry_after:.1f}s"
         super().__init__(message, code="RATE_LIMIT_ERROR")
@@ -46,10 +46,10 @@ class RateLimitError(MCPFiscalError):
 
 
 class ValidationError(MCPFiscalError):
-    """Dado invalido fornecido pelo usuario (CPF, CNPJ, chave NFe, etc.)."""
+    """Dado inválido fornecido pelo usuário (CPF, CNPJ, chave NFe, etc.)."""
 
     def __init__(self, field: str, value: str, reason: str) -> None:
-        message = f"Valor invalido para '{field}': {value!r}. {reason}"
+        message = f"Valor inválido para '{field}': {value!r}. {reason}"
         super().__init__(message, code="VALIDATION_ERROR", details={"field": field, "value": value})
         self.field = field
         self.value = value
@@ -57,10 +57,10 @@ class ValidationError(MCPFiscalError):
 
 
 class NotFoundError(MCPFiscalError):
-    """Recurso nao encontrado na API ou base de dados."""
+    """Recurso não encontrado na API ou base de dados."""
 
     def __init__(self, resource: str, identifier: str) -> None:
-        message = f"{resource} nao encontrado: {identifier}"
+        message = f"{resource} não encontrado: {identifier}"
         super().__init__(
             message, code="NOT_FOUND", details={"resource": resource, "identifier": identifier}
         )
@@ -69,7 +69,7 @@ class NotFoundError(MCPFiscalError):
 
 
 class TimeoutError(MCPFiscalError):
-    """Timeout ao comunicar com servico externo."""
+    """Timeout ao comunicar com serviço externo."""
 
     def __init__(self, endpoint: str, timeout_seconds: float) -> None:
         message = f"Timeout de {timeout_seconds}s ao acessar {endpoint}"
@@ -79,7 +79,7 @@ class TimeoutError(MCPFiscalError):
 
 
 class XMLParseError(MCPFiscalError):
-    """Erro ao parsear XML de NFe, NFSe ou SPED."""
+    """Erro ao processar XML de NFe, NFSe ou SPED."""
 
     def __init__(self, message: str, raw_content: str | None = None) -> None:
         super().__init__(message, code="XML_PARSE_ERROR")
@@ -87,10 +87,10 @@ class XMLParseError(MCPFiscalError):
 
 
 class AuthError(MCPFiscalError):
-    """Erro de autenticacao com servico externo (certificado digital, token, etc.)."""
+    """Erro de autenticação com serviço externo (certificado digital, token, etc.)."""
 
     def __init__(self, service: str, reason: str) -> None:
-        message = f"Falha de autenticacao com {service}: {reason}"
+        message = f"Falha de autenticação com {service}: {reason}"
         super().__init__(message, code="AUTH_ERROR", details={"service": service})
         self.service = service
         self.reason = reason

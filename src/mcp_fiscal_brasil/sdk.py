@@ -1,10 +1,10 @@
 """
-MCP Fiscal Brasil - SDK para integracao direta em aplicacoes Python.
+MCP Fiscal Brasil - SDK para integração direta em aplicações Python.
 
 Permite usar todas as funcionalidades fiscais como biblioteca Python,
 sem precisar rodar o servidor MCP.
 
-Uso basico:
+Uso básico:
 
     from mcp_fiscal_brasil import FiscalBrasil
 
@@ -20,7 +20,7 @@ Uso basico:
     # Status SEFAZ
     status = await fiscal.status_sefaz("SP")
 
-Uso como context manager (recomendado para multiplas consultas):
+Uso como context manager (recomendado para múltiplas consultas):
 
     async with FiscalBrasil() as fiscal:
         empresa = await fiscal.consultar_cnpj("33.000.167/0001-01")
@@ -47,16 +47,16 @@ class FiscalBrasil:
     Interface unificada para consultas fiscais brasileiras.
 
     Encapsula todos os clientes do pacote (CNPJ, NFe, Simples Nacional,
-    eSocial, SPED, NFSe) em um unico ponto de entrada.
+    eSocial, SPED, NFSe) em um único ponto de entrada.
 
-    Pode ser usada como context manager assincrono para garantir o
+    Pode ser usada como context manager assíncrono para garantir o
     encerramento correto de recursos de rede:
 
         async with FiscalBrasil() as fiscal:
             empresa = await fiscal.consultar_cnpj("33000167000101")
 
-    Ou instanciada diretamente quando o ciclo de vida e gerenciado
-    externamente (ex: variavel de modulo em FastAPI):
+    Ou instanciada diretamente quando o ciclo de vida é gerenciado
+    externamente (ex: variável de módulo em FastAPI):
 
         fiscal = FiscalBrasil()
         empresa = await fiscal.consultar_cnpj("33000167000101")
@@ -68,7 +68,7 @@ class FiscalBrasil:
         self._simples_client = SimplesClient()
 
     # ------------------------------------------------------------------
-    # Context manager assincrono
+    # Context manager assíncrono
     # ------------------------------------------------------------------
 
     async def __aenter__(self) -> FiscalBrasil:
@@ -83,10 +83,10 @@ class FiscalBrasil:
         await self.fechar()
 
     async def fechar(self) -> None:
-        """Encerra recursos de rede (conexoes HTTP). Opcional quando usado como variavel global."""
-        # Os clientes criam e fecham conexoes por chamada via context manager interno,
-        # portanto nao ha recursos persistentes a liberar nesta versao.
-        # Este metodo existe para compatibilidade futura e para uso explicito.
+        """Encerra recursos de rede (conexões HTTP). Opcional quando usado como variável global."""
+        # Os clientes criam e fecham conexões por chamada via context manager interno,
+        # portanto não há recursos persistentes a liberar nesta versão.
+        # Este método existe para compatibilidade futura e para uso explícito.
 
     # ------------------------------------------------------------------
     # CNPJ
@@ -97,16 +97,16 @@ class FiscalBrasil:
         Consulta os dados de um CNPJ na Receita Federal.
 
         Tenta BrasilAPI primeiro; em caso de falha, usa ReceitaWS como
-        fallback automatico.
+        fallback automático.
 
         Args:
-            cnpj: CNPJ com ou sem mascara (ex: "33.000.167/0001-01" ou "33000167000101").
+            cnpj: CNPJ com ou sem máscara (ex: "33.000.167/0001-01" ou "33000167000101").
 
         Returns:
-            CNPJResponse com razao social, endereco, CNAE, QSA e mais.
+            CNPJResponse com razão social, endereço, CNAE, QSA e mais.
 
         Raises:
-            ValueError: Se o CNPJ for invalido.
+            ValueError: Se o CNPJ for inválido.
             Exception: Se todas as APIs externas falharem.
 
         Exemplo:
@@ -114,18 +114,18 @@ class FiscalBrasil:
             print(empresa.razao_social)  # "PETROLEO BRASILEIRO S A PETROBRAS"
         """
         if not validate_cnpj(cnpj):
-            raise ValueError(f"CNPJ invalido: {cnpj}")
+            raise ValueError(f"CNPJ inválido: {cnpj}")
         return await self._cnpj_client.consultar(cnpj)
 
     def validar_cnpj(self, cnpj: str) -> bool:
         """
-        Valida o digito verificador de um CNPJ (offline, sem chamada de API).
+        Valida o dígito verificador de um CNPJ (offline, sem chamada de API).
 
         Args:
-            cnpj: CNPJ com ou sem mascara.
+            cnpj: CNPJ com ou sem máscara.
 
         Returns:
-            True se o CNPJ for matematicamente valido, False caso contrario.
+            True se o CNPJ for matematicamente válido, False caso contrário.
 
         Exemplo:
             fiscal.validar_cnpj("33.000.167/0001-01")  # True
@@ -139,20 +139,20 @@ class FiscalBrasil:
 
     def validar_cpf(self, cpf: str) -> bool:
         """
-        Valida o digito verificador de um CPF (offline, sem chamada de API).
+        Valida o dígito verificador de um CPF (offline, sem chamada de API).
 
-        A Receita Federal nao disponibiliza API publica para consulta de CPF.
-        Esta validacao verifica apenas o calculo do digito verificador.
+        A Receita Federal não disponibiliza API pública para consulta de CPF.
+        Esta validação verifica apenas o cálculo do dígito verificador.
 
         Args:
-            cpf: CPF com ou sem mascara (ex: "529.982.247-25" ou "52998224725").
+            cpf: CPF com ou sem máscara (ex: "529.982.247-25" ou "52998224725").
 
         Returns:
-            True se o CPF for matematicamente valido, False caso contrario.
+            True se o CPF for matematicamente válido, False caso contrário.
 
         Exemplo:
             fiscal.validar_cpf("529.982.247-25")  # True
-            fiscal.validar_cpf("111.111.111-11")  # False (sequencia repetida)
+            fiscal.validar_cpf("111.111.111-11")  # False (sequência repetida)
         """
         return validate_cpf(cpf)
 
@@ -162,49 +162,49 @@ class FiscalBrasil:
 
     async def consultar_nfe(self, chave: str) -> NFeResponse:
         """
-        Consulta os dados de uma NFe pela chave de acesso de 44 digitos.
+        Consulta os dados de uma NFe pela chave de acesso de 44 dígitos.
 
-        Cadeia de fallback automatica:
+        Cadeia de fallback automática:
           1. BrasilAPI
           2. Portal Nacional NFe (SEFAZ federal)
-          3. Dados parciais extraidos da propria chave
+          3. Dados parciais extraídos da própria chave
 
         Args:
-            chave: Chave de acesso da NFe com 44 digitos numericos.
+            chave: Chave de acesso da NFe com 44 dígitos numéricos.
 
         Returns:
-            NFeResponse com emitente, destinatario, itens, totais e situacao.
+            NFeResponse com emitente, destinatário, itens, totais e situação.
 
         Raises:
-            ValueError: Se a chave de acesso for invalida.
+            ValueError: Se a chave de acesso for inválida.
 
         Exemplo:
             nfe = await fiscal.consultar_nfe("35230112345678901234550010000000011000000018")
             print(nfe.situacao)
         """
         if not validate_chave_nfe(chave):
-            raise ValueError(f"Chave de acesso NFe invalida: {chave}")
+            raise ValueError(f"Chave de acesso NFe inválida: {chave}")
         return await self._nfe_client.consultar_por_chave(chave)
 
     def validar_chave_nfe(self, chave: str) -> dict[str, Any]:
         """
         Valida e extrai os campos estruturais de uma chave de acesso NFe/NFCe.
 
-        A validacao verifica o digito verificador pelo modulo 11 (offline).
-        A extracao decodifica os campos embutidos na chave (UF, CNPJ, serie, etc.).
+        A validação verifica o dígito verificador pelo módulo 11 (offline).
+        A extração decodifica os campos embutidos na chave (UF, CNPJ, série, etc.).
 
         Args:
-            chave: Chave de acesso com 44 digitos numericos.
+            chave: Chave de acesso com 44 dígitos numéricos.
 
         Returns:
-            Dicionario com campos extraidos:
-            - valida (bool): Se o digito verificador e correto.
-            - uf (str): UF de emissao.
-            - ano_mes (str): Ano/mes de emissao no formato MM/AAAA.
-            - cnpj_emitente (str): CNPJ do emitente (14 digitos).
+            Dicionário com campos extraídos:
+            - valida (bool): Se o dígito verificador é correto.
+            - uf (str): UF de emissão.
+            - ano_mes (str): Ano/mês de emissão no formato MM/AAAA.
+            - cnpj_emitente (str): CNPJ do emitente (14 dígitos).
             - modelo (str): Modelo do documento ("55"=NFe, "65"=NFCe).
-            - serie (str): Serie da nota.
-            - numero (str): Numero da nota fiscal.
+            - serie (str): Série da nota.
+            - numero (str): Número da nota fiscal.
 
         Exemplo:
             info = fiscal.validar_chave_nfe("35230112345678901234550010000000011000000018")
@@ -217,7 +217,7 @@ class FiscalBrasil:
         valida = validate_chave_nfe(chave)
 
         if len(numeros) != 44:
-            return {"valida": False, "erro": f"Chave deve ter 44 digitos, recebeu {len(numeros)}"}
+            return {"valida": False, "erro": f"Chave deve ter 44 dígitos, recebeu {len(numeros)}"}
 
         cod_uf = int(numeros[:2])
         return {
@@ -235,21 +235,21 @@ class FiscalBrasil:
 
     async def status_sefaz(self, uf: str, ambiente: str = "producao") -> StatusSEFAZResponse:
         """
-        Consulta o status do servico SEFAZ de uma UF.
+        Consulta o status do serviço SEFAZ de uma UF.
 
         Usa BrasilAPI como proxy para o webservice do SEFAZ estadual.
-        Em caso de falha, retorna status "Indisponivel".
+        Em caso de falha, retorna status "Indisponível".
 
         Args:
-            uf: Sigla do estado (ex: "SP", "RJ", "MG"). Nao diferencia maiusculas.
-            ambiente: "producao" ou "homologacao" (padrao: "producao").
+            uf: Sigla do estado (ex: "SP", "RJ", "MG"). Não diferencia maiúsculas.
+            ambiente: "producao" ou "homologacao" (padrão: "producao").
 
         Returns:
-            StatusSEFAZResponse com status, descricao e codigo de retorno.
+            StatusSEFAZResponse com status, descrição e código de retorno.
 
         Exemplo:
             status = await fiscal.status_sefaz("SP")
-            print(status.status)   # "Em Operacao"
+            print(status.status)   # "Em Operação"
         """
         return await self._nfe_client.consultar_status_servico(uf, ambiente)
 
@@ -259,24 +259,24 @@ class FiscalBrasil:
 
     async def consultar_simples(self, cnpj: str) -> SimplesNacionalResponse:
         """
-        Consulta a situacao de um CNPJ no Simples Nacional e MEI.
+        Consulta a situação de um CNPJ no Simples Nacional e MEI.
 
         Args:
-            cnpj: CNPJ com ou sem mascara.
+            cnpj: CNPJ com ou sem máscara.
 
         Returns:
-            SimplesNacionalResponse com optante_simples, optante_mei e datas de opcao/exclusao.
+            SimplesNacionalResponse com optante_simples, optante_mei e datas de opção/exclusão.
 
         Raises:
-            ValueError: Se o CNPJ for invalido.
+            ValueError: Se o CNPJ for inválido.
 
         Exemplo:
             simples = await fiscal.consultar_simples("33.000.167/0001-01")
-            print(simples.optante_simples)  # False (Petrobras nao e optante)
+            print(simples.optante_simples)  # False (Petrobras não é optante)
             print(simples.optante_mei)      # False
         """
         if not validate_cnpj(cnpj):
-            raise ValueError(f"CNPJ invalido: {cnpj}")
+            raise ValueError(f"CNPJ inválido: {cnpj}")
         return await self._simples_client.consultar(cnpj)
 
     # ------------------------------------------------------------------
@@ -285,20 +285,20 @@ class FiscalBrasil:
 
     async def analisar_sped(self, conteudo: str, nome_arquivo: str | None = None) -> dict[str, Any]:
         """
-        Analisa um arquivo SPED e extrai informacoes estruturais.
+        Analisa um arquivo SPED e extrai informações estruturais.
 
-        Suporta EFD-ICMS/IPI, EFD-Contribuicoes, ECD e ECF.
-        O arquivo deve ser passado como string (conteudo completo no formato pipe-delimitado).
+        Suporta EFD-ICMS/IPI, EFD-Contribuições, ECD e ECF.
+        O arquivo deve ser passado como string (conteúdo completo no formato pipe-delimitado).
 
         Args:
-            conteudo: Conteudo do arquivo SPED como string.
+            conteudo: Conteúdo do arquivo SPED como string.
             nome_arquivo: Nome do arquivo (opcional, usado apenas para log).
 
         Returns:
-            Dicionario com:
-            - tipo_sped (str): Tipo identificado ("EFD-ICMS-IPI", "EFD-Contribuicoes", etc.)
+            Dicionário com:
+            - tipo_sped (str): Tipo identificado ("EFD-ICMS-IPI", "EFD-Contribuições", etc.)
             - abertura (dict | None): Dados do registro 0000 (empresa, CNPJ, UF).
-            - resumo (dict): Periodo, total de registros e contagem por tipo.
+            - resumo (dict): Período, total de registros e contagem por tipo.
             - erros (list[str]): Erros encontrados na estrutura.
             - avisos (list[str]): Avisos sobre o arquivo.
 
@@ -319,22 +319,22 @@ class FiscalBrasil:
 
     async def portal_nfse(self, municipio: str, uf: str) -> dict[str, str]:
         """
-        Retorna o portal de consulta de NFSe para um municipio.
+        Retorna o portal de consulta de NFSe para um município.
 
-        NFSe nao possui padrao nacional unico; cada municipio tem seu sistema
-        (ABRASF, ISS.net, Betha, Curitiba, etc.). Este metodo localiza o portal
-        correto para o municipio informado e, quando nao encontrado, retorna
+        NFSe não possui padrão nacional único; cada município tem seu sistema
+        (ABRASF, ISS.net, Betha, Curitiba, etc.). Este método localiza o portal
+        correto para o município informado e, quando não encontrado, retorna
         o Portal Nacional ABRASF como alternativa.
 
         Args:
-            municipio: Nome do municipio (ex: "Sao Paulo", "Belo Horizonte").
+            municipio: Nome do município (ex: "Sao Paulo", "Belo Horizonte").
             uf: Sigla do estado (ex: "SP", "MG").
 
         Returns:
-            Dicionario com:
+            Dicionário com:
             - portal_municipio (str): URL do portal de consulta.
             - sistema_nfse (str): Sistema utilizado (ABRASF, ISS.net, etc.)
-            - alternativa (str): Alternativa para integracao automatizada.
+            - alternativa (str): Alternativa para integração automatizada.
             - status (str): "consulta_manual_necessaria".
 
         Exemplo:
@@ -357,20 +357,20 @@ class FiscalBrasil:
 
     async def listar_eventos_esocial(self, grupo: str | None = None) -> list[dict[str, Any]]:
         """
-        Lista os eventos do eSocial, com opcao de filtro por grupo.
+        Lista os eventos do eSocial, com opção de filtro por grupo.
 
         Args:
-            grupo: Filtrar por grupo do evento. Valores validos:
+            grupo: Filtrar por grupo do evento. Valores válidos:
                    "Tabelas", "Nao Periodicos", "Periodicos",
                    "Exclusao", "Totalizadores".
                    Se None, retorna todos os 45+ eventos catalogados.
 
         Returns:
-            Lista de dicionarios com campos:
-            - codigo (str): Codigo do evento (ex: "S-2200").
+            Lista de dicionários com campos:
+            - codigo (str): Código do evento (ex: "S-2200").
             - nome (str): Nome completo do evento.
             - grupo (str): Grupo ao qual pertence.
-            - descricao (str): Descricao do proposito do evento.
+            - descricao (str): Descrição do propósito do evento.
 
         Exemplo:
             eventos = await fiscal.listar_eventos_esocial("Periodicos")
@@ -383,18 +383,18 @@ class FiscalBrasil:
         return [e.model_dump() for e in eventos]
 
     # ------------------------------------------------------------------
-    # Metodos sincronos (wrappers com asyncio.run)
+    # Métodos síncronos (wrappers com asyncio.run)
     # ------------------------------------------------------------------
 
     def consultar_cnpj_sync(self, cnpj: str) -> CNPJResponse:
         """
-        Versao sincrona de consultar_cnpj. Util em contextos nao-async (Django, scripts).
+        Versão síncrona de consultar_cnpj. Útil em contextos não-async (Django, scripts).
 
-        Nao use dentro de um event loop ja ativo (ex: FastAPI, Jupyter).
-        Prefira o metodo assincrono nesses casos.
+        Não use dentro de um event loop já ativo (ex: FastAPI, Jupyter).
+        Prefira o método assíncrono nesses casos.
 
         Args:
-            cnpj: CNPJ com ou sem mascara.
+            cnpj: CNPJ com ou sem máscara.
 
         Returns:
             CNPJResponse com os dados da empresa.
@@ -403,25 +403,25 @@ class FiscalBrasil:
 
     def consultar_simples_sync(self, cnpj: str) -> SimplesNacionalResponse:
         """
-        Versao sincrona de consultar_simples. Util em contextos nao-async.
+        Versão síncrona de consultar_simples. Útil em contextos não-async.
 
         Args:
-            cnpj: CNPJ com ou sem mascara.
+            cnpj: CNPJ com ou sem máscara.
 
         Returns:
-            SimplesNacionalResponse com situacao no Simples Nacional.
+            SimplesNacionalResponse com situação no Simples Nacional.
         """
         return asyncio.run(self.consultar_simples(cnpj))
 
     def status_sefaz_sync(self, uf: str, ambiente: str = "producao") -> StatusSEFAZResponse:
         """
-        Versao sincrona de status_sefaz. Util em contextos nao-async.
+        Versão síncrona de status_sefaz. Útil em contextos não-async.
 
         Args:
             uf: Sigla do estado.
             ambiente: "producao" ou "homologacao".
 
         Returns:
-            StatusSEFAZResponse com status do servico.
+            StatusSEFAZResponse com status do serviço.
         """
         return asyncio.run(self.status_sefaz(uf, ambiente))

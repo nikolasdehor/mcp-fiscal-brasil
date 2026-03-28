@@ -1,22 +1,22 @@
 """
 Exemplo: API REST fiscal usando mcp-fiscal-brasil + FastAPI.
 
-Demonstra como integrar o SDK em uma aplicacao FastAPI, aproveitando
-o ciclo de vida do framework para gerenciar a instancia do FiscalBrasil.
+Demonstra como integrar o SDK em uma aplicação FastAPI, aproveitando
+o ciclo de vida do framework para gerenciar a instância do FiscalBrasil.
 
-Instalar dependencias extras:
+Instalar dependências extras:
     pip install fastapi uvicorn
 
 Executar:
     uvicorn examples.fastapi_integracao:app --reload
 
-Endpoints disponiveis:
+Endpoints disponíveis:
     GET /cnpj/{cnpj}              - Dados completos do CNPJ
     GET /nfe/status/{uf}          - Status SEFAZ de uma UF
     GET /nfe/chave/{chave}        - Consultar NFe por chave de acesso
     GET /validar/cpf/{cpf}        - Validar CPF (offline)
     GET /validar/cnpj/{cnpj}      - Validar CNPJ (offline)
-    GET /simples/{cnpj}           - Situacao no Simples Nacional
+    GET /simples/{cnpj}           - Situação no Simples Nacional
     GET /esocial/eventos          - Listar eventos eSocial
 """
 
@@ -30,7 +30,7 @@ from mcp_fiscal_brasil import FiscalBrasil
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # type: ignore[type-arg]
-    """Gerencia o ciclo de vida do FiscalBrasil junto com a aplicacao FastAPI."""
+    """Gerencia o ciclo de vida do FiscalBrasil junto com a aplicação FastAPI."""
     app.state.fiscal = FiscalBrasil()
     yield
     await app.state.fiscal.fechar()
@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):  # type: ignore[type-arg]
 
 app = FastAPI(
     title="API Fiscal Brasil",
-    description=("API REST para consultas fiscais brasileiras. Powered by mcp-fiscal-brasil."),
+    description="API REST para consultas fiscais brasileiras. Alimentada pelo mcp-fiscal-brasil.",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -61,13 +61,13 @@ async def consultar_cnpj(cnpj: str, request: Any = None) -> Any:
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Servico externo indisponivel: {e}") from e
+        raise HTTPException(status_code=503, detail=f"Serviço externo indisponível: {e}") from e
 
 
 @app.get(
     "/nfe/status/{uf}",
     summary="Status SEFAZ",
-    description="Consulta o status do servico SEFAZ de uma UF.",
+    description="Consulta o status do serviço SEFAZ de uma UF.",
 )
 async def status_sefaz(uf: str, request: Any = None) -> Any:
     fiscal: FiscalBrasil = request.app.state.fiscal if request else FiscalBrasil()
@@ -78,7 +78,7 @@ async def status_sefaz(uf: str, request: Any = None) -> Any:
 @app.get(
     "/nfe/chave/{chave}",
     summary="Consultar NFe",
-    description="Consulta os dados de uma NFe pela chave de acesso de 44 digitos.",
+    description="Consulta os dados de uma NFe pela chave de acesso de 44 dígitos.",
 )
 async def consultar_nfe(chave: str, request: Any = None) -> Any:
     fiscal: FiscalBrasil = request.app.state.fiscal if request else FiscalBrasil()
@@ -88,13 +88,13 @@ async def consultar_nfe(chave: str, request: Any = None) -> Any:
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Servico externo indisponivel: {e}") from e
+        raise HTTPException(status_code=503, detail=f"Serviço externo indisponível: {e}") from e
 
 
 @app.get(
     "/validar/cpf/{cpf}",
     summary="Validar CPF",
-    description="Valida o digito verificador de um CPF (sem chamada de API).",
+    description="Valida o dígito verificador de um CPF (sem chamada de API).",
 )
 def validar_cpf(cpf: str) -> dict[str, Any]:
     fiscal = FiscalBrasil()
@@ -104,7 +104,7 @@ def validar_cpf(cpf: str) -> dict[str, Any]:
 @app.get(
     "/validar/cnpj/{cnpj}",
     summary="Validar CNPJ",
-    description="Valida o digito verificador de um CNPJ (sem chamada de API).",
+    description="Valida o dígito verificador de um CNPJ (sem chamada de API).",
 )
 def validar_cnpj(cnpj: str) -> dict[str, Any]:
     fiscal = FiscalBrasil()
@@ -114,7 +114,7 @@ def validar_cnpj(cnpj: str) -> dict[str, Any]:
 @app.get(
     "/validar/chave-nfe/{chave}",
     summary="Validar e decodificar chave NFe",
-    description="Valida o digito verificador e extrai os campos da chave de acesso.",
+    description="Valida o dígito verificador e extrai os campos da chave de acesso.",
 )
 def validar_chave_nfe(chave: str) -> dict[str, Any]:
     fiscal = FiscalBrasil()
@@ -124,7 +124,7 @@ def validar_chave_nfe(chave: str) -> dict[str, Any]:
 @app.get(
     "/simples/{cnpj}",
     summary="Consultar Simples Nacional",
-    description="Retorna a situacao de um CNPJ no Simples Nacional e MEI.",
+    description="Retorna a situação de um CNPJ no Simples Nacional e MEI.",
 )
 async def consultar_simples(cnpj: str, request: Any = None) -> Any:
     fiscal: FiscalBrasil = request.app.state.fiscal if request else FiscalBrasil()
@@ -134,13 +134,13 @@ async def consultar_simples(cnpj: str, request: Any = None) -> Any:
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Servico externo indisponivel: {e}") from e
+        raise HTTPException(status_code=503, detail=f"Serviço externo indisponível: {e}") from e
 
 
 @app.get(
     "/esocial/eventos",
     summary="Listar eventos eSocial",
-    description="Lista os eventos do eSocial com opcao de filtro por grupo.",
+    description="Lista os eventos do eSocial com opção de filtro por grupo.",
 )
 async def listar_eventos_esocial(
     grupo: str | None = Query(

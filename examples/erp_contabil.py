@@ -1,11 +1,11 @@
 """
-Exemplo: Integracao com sistema contabil/ERP.
+Exemplo: Integração com sistema contábil/ERP.
 
-Demonstra padroes reais de uso em sistemas de gestao:
-- Cadastro automatico de fornecedor a partir do CNPJ
+Demonstra padrões reais de uso em sistemas de gestão:
+- Cadastro automático de fornecedor a partir do CNPJ
 - Enriquecimento de base de dados com dados fiscais
-- Verificacao de regularidade fiscal antes de pagamento
-- Classificacao automatica por regime tributario
+- Verificação de regularidade fiscal antes de pagamento
+- Classificação automática por regime tributário
 
 Executar:
     python examples/erp_contabil.py
@@ -44,13 +44,13 @@ async def cadastrar_fornecedor(cnpj: str) -> Fornecedor:
     Fluxo:
     1. Valida o CNPJ (offline)
     2. Consulta dados na Receita Federal via API
-    3. Verifica situacao no Simples Nacional
+    3. Verifica situação no Simples Nacional
     4. Monta e retorna o objeto Fornecedor preenchido
     """
     async with FiscalBrasil() as fiscal:
         # 1. Validar CNPJ antes de qualquer chamada de API
         if not fiscal.validar_cnpj(cnpj):
-            raise ValueError(f"CNPJ invalido: {cnpj}")
+            raise ValueError(f"CNPJ inválido: {cnpj}")
 
         print(f"  Consultando dados para CNPJ {cnpj}...")
 
@@ -64,7 +64,7 @@ async def cadastrar_fornecedor(cnpj: str) -> Fornecedor:
             optante_simples = simples.optante_simples
             optante_mei = simples.optante_mei
         except Exception as e:
-            print(f"  Aviso: nao foi possivel consultar Simples Nacional: {e}")
+            print(f"  Aviso: não foi possível consultar Simples Nacional: {e}")
             optante_simples = False
             optante_mei = False
 
@@ -76,13 +76,13 @@ async def cadastrar_fornecedor(cnpj: str) -> Fornecedor:
         else:
             regime = "Lucro Real/Presumido"
 
-        # 5. Montar endereco formatado
+        # 5. Montar endereço formatado
         endereco_str = None
         if empresa.endereco:
             endereco_str = empresa.endereco.formatado()
 
-        # 6. Extrair socios do QSA
-        socios = [s.nome for s in empresa.qsa[:3]]  # Top 3 socios
+        # 6. Extrair sócios do QSA
+        socios = [s.nome for s in empresa.qsa[:3]]  # Top 3 sócios
 
         return Fornecedor(
             cnpj=cnpj,
@@ -106,11 +106,11 @@ async def verificar_regularidade_antes_pagamento(cnpj: str) -> dict[str, Any]:
     """
     Verifica a regularidade fiscal de um fornecedor antes de autorizar pagamento.
 
-    Retorna um dicionario com:
-    - apto_pagamento (bool): Se passou em todas as verificacoes.
+    Retorna um dicionário com:
+    - apto_pagamento (bool): Se passou em todas as verificações.
     - situacao_receita (str): Status na Receita Federal.
-    - simples_regular (bool): Se a situacao no Simples esta regular.
-    - alertas (list[str]): Lista de alertas que requerem atencao.
+    - simples_regular (bool): Se a situação no Simples está regular.
+    - alertas (list[str]): Lista de alertas que requerem atenção.
     """
     alertas = []
     apto = True
@@ -119,7 +119,7 @@ async def verificar_regularidade_antes_pagamento(cnpj: str) -> dict[str, Any]:
         if not fiscal.validar_cnpj(cnpj):
             return {
                 "apto_pagamento": False,
-                "alertas": ["CNPJ invalido"],
+                "alertas": ["CNPJ inválido"],
                 "situacao_receita": "N/A",
                 "simples_regular": False,
             }
@@ -140,7 +140,7 @@ async def verificar_regularidade_antes_pagamento(cnpj: str) -> dict[str, Any]:
                 alertas.append(f"Empresa excluida do Simples em {simples.data_exclusao_simples}")
                 simples_regular = False
         except Exception:
-            alertas.append("Nao foi possivel verificar situacao no Simples Nacional")
+            alertas.append("Não foi possível verificar situação no Simples Nacional")
             simples_regular = False
 
         return {
@@ -164,7 +164,7 @@ async def enriquecer_base_fornecedores(
         cnpjs: Lista de CNPJs a consultar.
 
     Returns:
-        Lista de dicionarios com dados enriquecidos ou erro por CNPJ.
+        Lista de dicionários com dados enriquecidos ou erro por CNPJ.
     """
     resultados = []
     erros = 0
@@ -172,7 +172,7 @@ async def enriquecer_base_fornecedores(
     async with FiscalBrasil() as fiscal:
         for cnpj in cnpjs:
             if not fiscal.validar_cnpj(cnpj):
-                resultados.append({"cnpj": cnpj, "status": "invalido", "erro": "CNPJ invalido"})
+                resultados.append({"cnpj": cnpj, "status": "invalido", "erro": "CNPJ inválido"})
                 erros += 1
                 continue
 
@@ -204,30 +204,30 @@ async def enriquecer_base_fornecedores(
 
 
 async def main() -> None:
-    print("=== Cadastro automatico de fornecedor ===")
+    print("=== Cadastro automático de fornecedor ===")
     try:
         fornecedor = await cadastrar_fornecedor("33.000.167/0001-01")
         print(f"  CNPJ: {fornecedor.cnpj}")
-        print(f"  Razao Social: {fornecedor.razao_social}")
+        print(f"  Razão Social: {fornecedor.razao_social}")
         print(f"  Nome Fantasia: {fornecedor.nome_fantasia or '-'}")
         print(f"  Regime: {fornecedor.regime_tributario}")
-        print(f"  Situacao: {fornecedor.situacao_cadastral}")
+        print(f"  Situação: {fornecedor.situacao_cadastral}")
         print(f"  Abertura: {fornecedor.data_abertura or '-'}")
-        print(f"  Endereco: {fornecedor.endereco or '-'}")
+        print(f"  Endereço: {fornecedor.endereco or '-'}")
         if fornecedor.cnae_codigo:
             print(f"  CNAE: {fornecedor.cnae_codigo} - {fornecedor.cnae_descricao}")
         if fornecedor.socios:
-            print(f"  Socios: {', '.join(fornecedor.socios)}")
+            print(f"  Sócios: {', '.join(fornecedor.socios)}")
         print(f"  Fonte: {fornecedor.origem_consulta}")
     except Exception as e:
         print(f"  Erro: {e}")
 
-    print("\n=== Verificacao antes de pagamento ===")
+    print("\n=== Verificação antes de pagamento ===")
     try:
         resultado = await verificar_regularidade_antes_pagamento("33.000.167/0001-01")
         print(f"  Empresa: {resultado.get('razao_social', '-')}")
         print(f"  Apto para pagamento: {'SIM' if resultado['apto_pagamento'] else 'NAO'}")
-        print(f"  Situacao RF: {resultado['situacao_receita']}")
+        print(f"  Situação RF: {resultado['situacao_receita']}")
         if resultado["alertas"]:
             print("  Alertas:")
             for alerta in resultado["alertas"]:
@@ -239,7 +239,7 @@ async def main() -> None:
     cnpjs = [
         "33000167000101",  # Petrobras
         "60746948000112",  # Banco do Brasil
-        "11111111111111",  # invalido
+        "11111111111111",  # inválido
     ]
     resultados = await enriquecer_base_fornecedores(cnpjs)
     for r in resultados:
