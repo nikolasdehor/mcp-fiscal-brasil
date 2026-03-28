@@ -136,6 +136,11 @@ claude mcp add fiscal-brasil -- mcp-fiscal-brasil
 # Pronto! Pergunte ao Claude sobre qualquer empresa brasileira.
 ```
 
+```python
+# Ou use como biblioteca Python:
+from mcp_fiscal_brasil import FiscalBrasil
+```
+
 ### Via uv (recomendado)
 
 ```bash
@@ -223,6 +228,119 @@ Todas as variaveis sao opcionais. O servidor funciona sem nenhuma configuracao.
 | `MCP_FISCAL_LOG_LEVEL` | Nivel de log: `DEBUG`, `INFO`, `WARNING` | `INFO` |
 | `BRASILAPI_BASE_URL` | URL base da BrasilAPI (para ambientes customizados) | `https://brasilapi.com.br/api` |
 | `HTTP_TIMEOUT` | Timeout em segundos para chamadas HTTP | `30` |
+
+---
+
+## Dois Modos de Uso
+
+O mcp-fiscal-brasil funciona de **duas formas**:
+
+| Modo | Para quem | Como |
+|------|-----------|------|
+| **MCP Server** | Usuarios de IA (Claude, Cursor, GPT) | Instala e configura no assistente |
+| **SDK Python** | Desenvolvedores de apps fiscais/contabeis | Importa e usa no codigo |
+
+---
+
+## 🐍 Uso como Biblioteca Python (SDK)
+
+Alem de funcionar como servidor MCP, voce pode importar e usar diretamente no seu codigo Python - sem servidor, sem configuracao extra.
+
+### Inicio Rapido
+
+```python
+import asyncio
+from mcp_fiscal_brasil import FiscalBrasil
+
+async def main():
+    async with FiscalBrasil() as fiscal:
+        empresa = await fiscal.consultar_cnpj("00.000.000/0001-91")
+        print(empresa["razao_social"])  # Banco do Brasil S.A.
+        print(empresa["situacao_cadastral"])  # ATIVA
+
+asyncio.run(main())
+```
+
+### Validacoes Offline (sem API, instantaneo)
+
+```python
+from mcp_fiscal_brasil import FiscalBrasil
+
+fiscal = FiscalBrasil()
+
+# Validacoes locais - sem chamada de rede
+print(fiscal.validate_cpf("529.982.247-25"))       # True
+print(fiscal.validate_cnpj("11.222.333/0001-81"))  # True / False
+print(fiscal.validate_chave_nfe("3524...44 digitos..."))  # dict com detalhes
+```
+
+### Integracao com FastAPI
+
+```python
+from fastapi import FastAPI
+from mcp_fiscal_brasil import FiscalBrasil
+
+app = FastAPI()
+fiscal = FiscalBrasil()
+
+@app.get("/cnpj/{cnpj}")
+async def consultar(cnpj: str):
+    async with fiscal:
+        return await fiscal.consultar_cnpj(cnpj)
+```
+
+### Integracao com Django
+
+```python
+# views.py
+import asyncio
+from mcp_fiscal_brasil import FiscalBrasil
+from django.http import JsonResponse
+
+def consulta_cnpj(request, cnpj):
+    async def buscar():
+        async with FiscalBrasil() as fiscal:
+            return await fiscal.consultar_cnpj(cnpj)
+    dados = asyncio.run(buscar())
+    return JsonResponse(dados)
+```
+
+### Cadastro Automatico de Fornecedor (exemplo ERP)
+
+```python
+import asyncio
+from mcp_fiscal_brasil import FiscalBrasil
+
+async def cadastrar_fornecedor(cnpj: str, db_session):
+    async with FiscalBrasil() as fiscal:
+        if not fiscal.validate_cnpj(cnpj):
+            raise ValueError("CNPJ invalido")
+
+        dados = await fiscal.consultar_cnpj(cnpj)
+        simples = await fiscal.consultar_simples_nacional(cnpj)
+
+        await db_session.execute(
+            "INSERT INTO fornecedores (cnpj, razao_social, simples) VALUES (?, ?, ?)",
+            [cnpj, dados["razao_social"], simples["optante"]]
+        )
+```
+
+### Validacao em Lote
+
+```python
+import asyncio
+from mcp_fiscal_brasil import FiscalBrasil
+
+fiscal = FiscalBrasil()
+
+documentos = ["529.982.247-25", "000.000.000-00", "11.222.333/0001-81"]
+
+resultados = [
+    {"doc": doc, "valido": fiscal.validate_cpf(doc) or fiscal.validate_cnpj(doc)}
+    for doc in documentos
+]
+# [{'doc': '529.982.247-25', 'valido': True}, ...]
+```
 
 ---
 
