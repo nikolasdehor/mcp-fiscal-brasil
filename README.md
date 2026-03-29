@@ -10,13 +10,13 @@
   <a href="https://pypi.org/project/mcp-fiscal-brasil/"><img src="https://img.shields.io/pypi/v/mcp-fiscal-brasil?color=009c3b&label=PyPI" alt="PyPI version"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10%2B-002776?logo=python&logoColor=white" alt="Python 3.10+"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/licenca-MIT-FFDF00?labelColor=002776" alt="License MIT"></a>
-  <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-compativel-7c3aed" alt="MCP Compatible"></a>
+  <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-compatível-7c3aed" alt="MCP Compatible"></a>
   <img src="https://img.shields.io/github/stars/nikolasdehor/mcp-fiscal-brasil?style=flat&color=009c3b" alt="Stars">
   <img src="https://img.shields.io/github/issues/nikolasdehor/mcp-fiscal-brasil?color=FFDF00&labelColor=002776" alt="Issues">
 </p>
 
 <p align="center">
-  <a href="#-instalacao">Instalacao</a> ·
+  <a href="#-instalacao">Instalação</a> ·
   <a href="#-ferramentas-disponiveis">Ferramentas</a> ·
   <a href="#-demonstracao">Exemplos</a> ·
   <a href="#-roadmap">Roadmap</a> ·
@@ -35,7 +35,7 @@ Antes deste projeto, integrar IA com qualquer dado fiscal brasileiro exigia dese
 
 ---
 
-## 🎬 Demonstracao
+## 🎬 Demonstração
 
 ```
 Você:  "Consulte o CNPJ 00.000.000/0001-91 e liste os sócios"
@@ -79,7 +79,7 @@ IA:    Status SEFAZ SP: OPERACIONAL
 
 ---
 
-## 🛠 Ferramentas Disponiveis
+## 🛠 Ferramentas Disponíveis
 
 **14 ferramentas** cobrindo os principais módulos do sistema fiscal brasileiro.
 
