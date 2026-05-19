@@ -1,17 +1,26 @@
-"""Ferramentas MCP para NFe."""
+"""MCP tools for NFe lookups and validation."""
 
-import logging
+from mcp_fiscal_brasil._core import FiscalValidationError, get_logger
 
 from ..shared.exceptions import ValidationError
 from ..shared.validators import validate_chave_nfe
 from .client import NFEClient
 from .schemas import NFeResponse, StatusSEFAZResponse
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 _client = NFEClient()
 
-# UFs validas para consulta SEFAZ
+
+class NFeValidationError(FiscalValidationError, ValidationError):
+    """Validation error compatible with both core and legacy exception hierarchies."""
+
+    def __init__(self, field: str, value: str, reason: str) -> None:
+        ValidationError.__init__(self, field=field, value=value, reason=reason)
+        self.detail = dict(self.details)
+
+
+# Valid state abbreviations for SEFAZ lookup.
 UFS_VALIDAS = {
     "AC",
     "AL",
@@ -45,29 +54,30 @@ UFS_VALIDAS = {
 
 async def consultar_nfe(chave_acesso: str) -> NFeResponse:
     """
-    Consulta os dados de uma NFe (Nota Fiscal Eletrônica) pela chave de acesso.
+    Look up NFe (Nota Fiscal Eletrônica) data by access key.
 
-    A chave de acesso tem 44 dígitos e pode ser encontrada no DANFE (documento impresso da nota).
+    The access key has 44 digits and is printed on the DANFE document.
 
     Args:
-        chave_acesso: Chave de acesso da NFe com 44 dígitos (aceita com ou sem espaços)
+        chave_acesso: 44 digit NFe access key, accepted with or without spaces.
 
     Returns:
-        NFeResponse com emitente, destinatário, itens e totais da nota.
+        NFeResponse with issuer, recipient, items and totals.
 
     Raises:
-        ValidationError: Se a chave de acesso for inválida.
-        NotFoundError: Se a NFe não for encontrada.
-        APIError: Em caso de falha no serviço SEFAZ ou APIs consultadas.
+        FiscalValidationError: If the access key is invalid.
+        FiscalNotFoundError: If the NFe is not found.
+        FiscalHTTPError: If SEFAZ or an upstream API fails.
     """
-    # Remove espaços e outros separadores
     chave_limpa = "".join(c for c in chave_acesso if c.isdigit())
 
     if not validate_chave_nfe(chave_limpa):
-        raise ValidationError(
+        raise NFeValidationError(
             field="chave_acesso",
             value=chave_acesso,
-            reason="Chave de acesso NFe inválida. Deve ter 44 dígitos com dígito verificador correto.",
+            reason=(
+                "Chave de acesso NFe inválida. Deve ter 44 dígitos com dígito verificador correto."
+            ),
         )
 
     return await _client.consultar_por_chave(chave_limpa)
@@ -75,15 +85,15 @@ async def consultar_nfe(chave_acesso: str) -> NFeResponse:
 
 async def validar_chave_nfe(chave_acesso: str) -> dict[str, object]:
     """
-    Valida o formato e dígito verificador de uma chave de acesso de NFe.
+    Validate the format and check digit of an NFe access key.
 
-    Não consulta APIs - apenas verifica o cálculo matemático (módulo 11).
+    This does not call external APIs. It only verifies the modulo 11 check digit.
 
     Args:
-        chave_acesso: Chave de acesso com 44 dígitos
+        chave_acesso: 44 digit access key.
 
     Returns:
-        Dicionário com 'valido', 'chave_formatada', 'uf', 'data_emissao', 'cnpj_emitente', 'numero'
+        Dictionary with validity and decoded fields when valid.
     """
     chave_limpa = "".join(c for c in chave_acesso if c.isdigit())
     valido = validate_chave_nfe(chave_limpa)
@@ -115,22 +125,22 @@ async def validar_chave_nfe(chave_acesso: str) -> dict[str, object]:
 
 async def consultar_status_sefaz(uf: str) -> StatusSEFAZResponse:
     """
-    Consulta o status atual do serviço SEFAZ de um estado.
+    Look up the current SEFAZ service status for a state.
 
-    Verifica se o webservice da SEFAZ para emissão de NFe está operacional.
+    Checks whether the SEFAZ NFe issuance webservice is operational.
 
     Args:
-        uf: Sigla do estado (ex: 'SP', 'MG', 'RJ')
+        uf: State abbreviation, for example 'SP', 'MG' or 'RJ'.
 
     Returns:
-        StatusSEFAZResponse com o status atual e descrição.
+        StatusSEFAZResponse with current status and description.
 
     Raises:
-        ValidationError: Se a UF for inválida.
+        FiscalValidationError: If the state abbreviation is invalid.
     """
     uf_upper = uf.upper().strip()
     if uf_upper not in UFS_VALIDAS:
-        raise ValidationError(
+        raise NFeValidationError(
             field="uf",
             value=uf,
             reason=f"UF inválida. Use uma das siglas: {', '.join(sorted(UFS_VALIDAS))}",

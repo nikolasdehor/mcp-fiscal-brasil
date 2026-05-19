@@ -1,22 +1,28 @@
 """Cliente para consulta de CNPJ via BrasilAPI e ReceitaWS."""
 
-import logging
 from datetime import date
-from typing import Any
+from typing import Any, cast
 
-from ..shared.http_client import FiscalHTTPClient
-from ..shared.rate_limiter import brasil_api_limiter, receita_limiter
+from mcp_fiscal_brasil._core import HTTPClient, Settings, get_logger
+
 from ..shared.schemas import Endereco
 from .schemas import AtividadeCNAE, CNPJResponse, QSASocio
 
-logger = logging.getLogger(__name__)
-
-BRASIL_API_BASE = "https://brasilapi.com.br/api"
-RECEITA_WS_BASE = "https://receitaws.com.br/v1"
+logger = get_logger(__name__)
+_settings = Settings()
 
 
 class CNPJClient:
     """Cliente para busca de dados de CNPJ em fontes publicas."""
+
+    def _http_client(self, base_url: str) -> HTTPClient:
+        return HTTPClient(
+            base_url,
+            timeout=_settings.mcp_fiscal_http_timeout,
+            max_retries=_settings.mcp_fiscal_max_retries,
+            cache_ttl=_settings.mcp_fiscal_cache_ttl,
+            rate_limit_per_second=_settings.mcp_fiscal_rate_limit,
+        )
 
     async def consultar(self, cnpj: str) -> CNPJResponse:
         """
@@ -25,30 +31,27 @@ class CNPJClient:
         Tenta BrasilAPI primeiro; em caso de falha, tenta ReceitaWS.
         """
         cnpj_limpo = "".join(c for c in cnpj if c.isdigit())
-        logger.info("Consultando CNPJ %s", cnpj_limpo)
+        logger.info("cnpj_lookup_started", cnpj=cnpj_limpo)
 
         try:
             return await self._consultar_brasil_api(cnpj_limpo)
-        except Exception as e:
+        except Exception as exc:
             logger.warning(
-                "BrasilAPI falhou para CNPJ %s: %s. Tentando ReceitaWS...", cnpj_limpo, e
+                "brasilapi_cnpj_lookup_failed",
+                cnpj=cnpj_limpo,
+                error=str(exc),
+                fallback="receitaws",
             )
             return await self._consultar_receita_ws(cnpj_limpo)
 
     async def _consultar_brasil_api(self, cnpj: str) -> CNPJResponse:
-        async with FiscalHTTPClient(BRASIL_API_BASE, rate_limiter=brasil_api_limiter) as client:
-            data: dict[str, Any] = await client.get(  # type: ignore[assignment]
-                f"/cnpj/v1/{cnpj}",
-                rate_limit_key="brasilapi/cnpj",
-            )
+        async with self._http_client(_settings.brasilapi_base_url) as client:
+            data = cast(dict[str, Any], await client.get(f"/cnpj/v1/{cnpj}"))
         return self._parse_brasil_api(data, cnpj)
 
     async def _consultar_receita_ws(self, cnpj: str) -> CNPJResponse:
-        async with FiscalHTTPClient(RECEITA_WS_BASE, rate_limiter=receita_limiter) as client:
-            data: dict[str, Any] = await client.get(  # type: ignore[assignment]
-                f"/cnpj/{cnpj}",
-                rate_limit_key="receitaws/cnpj",
-            )
+        async with self._http_client(_settings.receita_base_url) as client:
+            data = cast(dict[str, Any], await client.get(f"/cnpj/{cnpj}"))
         return self._parse_receita_ws(data, cnpj)
 
     def _parse_brasil_api(self, data: dict[str, Any], cnpj: str) -> CNPJResponse:

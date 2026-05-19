@@ -1,29 +1,28 @@
-"""Cliente para consulta de NFe via SEFAZ e APIs de terceiros."""
+"""NFe lookup client backed by BrasilAPI and the National NFe Portal."""
 
-import logging
-from typing import Any
+from typing import Any, cast
+
+from mcp_fiscal_brasil._core import (
+    FiscalHTTPError,
+    FiscalRateLimitError,
+    HTTPClient,
+    get_logger,
+    settings,
+)
 
 from ..shared.constants import CODIGO_UF
-from ..shared.exceptions import APIError, RateLimitError
-from ..shared.http_client import FiscalHTTPClient
-from ..shared.rate_limiter import brasil_api_limiter
 from .schemas import NFeResponse, StatusSEFAZResponse
 from .xml_parser import parse_nfe_xml
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-# URL da API de consulta publica do SEFAZ (ambiente nacional)
-SEFAZ_CONSULTA_URL = "https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx"
-
-# Portal Nacional da NFe - endpoint de consulta publica (nao requer autenticacao)
+# National NFe Portal public lookup endpoint, no certificate required.
 PORTAL_NFE_BASE = "https://www.nfe.fazenda.gov.br/portal"
-
-# BrasilAPI oferece consulta de NFe por chave
-BRASIL_API_BASE = "https://brasilapi.com.br/api"
+PORTAL_NFE_CONSULTA_PATH = "/consultaRecaptcha.aspx"
 
 
 def _extrair_info_chave(chave: str) -> dict[str, str]:
-    """Extrai campos estruturais da chave de acesso de 44 digitos."""
+    """Extract structural fields from a 44 digit NFe access key."""
     cod_uf = int(chave[:2])
     return {
         "uf": CODIGO_UF.get(cod_uf, f"UF {cod_uf}"),
@@ -36,76 +35,104 @@ def _extrair_info_chave(chave: str) -> dict[str, str]:
 
 
 class NFEClient:
-    """Cliente para consulta de NFe."""
+    """Client for NFe lookup flows."""
+
+    def _http_client(self, base_url: str) -> HTTPClient:
+        return HTTPClient(
+            base_url,
+            timeout=settings.mcp_fiscal_http_timeout,
+            max_retries=settings.mcp_fiscal_max_retries,
+            cache_ttl=settings.mcp_fiscal_cache_ttl,
+            rate_limit_per_second=settings.mcp_fiscal_rate_limit,
+        )
+
+    async def _get_json_or_text(
+        self,
+        client: HTTPClient,
+        path: str,
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any] | str:
+        response = await client._request("GET", path, params=params)
+        content_type = response.headers.get("content-type", "").lower()
+
+        if "json" in content_type:
+            data = response.json()
+            if isinstance(data, dict):
+                return cast(dict[str, Any], data)
+            raise FiscalHTTPError(
+                "Resposta JSON inválida",
+                status_code=response.status_code,
+                url=str(response.request.url),
+                detail={"response": response.text},
+            )
+
+        return response.text
 
     async def consultar_por_chave(self, chave: str) -> NFeResponse:
         """
-        Consulta os dados de uma NFe pela chave de acesso de 44 digitos.
+        Look up NFe data by its 44 digit access key.
 
-        Cadeia de fallback:
-          1. BrasilAPI (cobertura parcial por estado)
-          2. Portal Nacional NFe (consulta publica, sem autenticacao)
-          3. Informacoes parciais extraidas da propria chave
+        Fallback chain:
+          1. BrasilAPI, with partial state coverage
+          2. National NFe Portal, public lookup without authentication
+          3. Partial fields extracted from the access key itself
         """
-        logger.info("Consultando NFe chave: %s", chave)
+        logger.info("nfe_lookup_started", chave_prefix=chave[:10])
 
-        # Tentativa 1: BrasilAPI
         try:
             resultado = await self._consultar_brasil_api(chave)
-            logger.info("NFe %s consultada via BrasilAPI com sucesso", chave[:10])
+            logger.info("nfe_lookup_brasilapi_success", chave_prefix=chave[:10])
             return resultado
-        except RateLimitError as e:
+        except FiscalRateLimitError as exc:
             logger.warning(
-                "BrasilAPI retornou rate limit (429) para NFe %s: %s. Tentando Portal NFe.",
-                chave[:10],
-                e,
+                "nfe_lookup_brasilapi_rate_limited",
+                chave_prefix=chave[:10],
+                error=str(exc),
+                fallback="portal_nfe",
             )
-        except APIError as e:
+        except FiscalHTTPError as exc:
             logger.warning(
-                "BrasilAPI falhou para NFe %s (status=%s): %s. Tentando Portal NFe.",
-                chave[:10],
-                e.status_code,
-                e,
+                "nfe_lookup_brasilapi_http_failed",
+                chave_prefix=chave[:10],
+                status_code=exc.status_code,
+                error=str(exc),
+                fallback="portal_nfe",
             )
-        except Exception as e:
+        except Exception as exc:
             logger.warning(
-                "BrasilAPI erro inesperado para NFe %s: %s. Tentando Portal NFe.",
-                chave[:10],
-                e,
+                "nfe_lookup_brasilapi_unexpected_failed",
+                chave_prefix=chave[:10],
+                error=str(exc),
+                fallback="portal_nfe",
             )
 
-        # Tentativa 2: Portal Nacional NFe
         try:
             resultado = await self._consultar_portal_nfe(chave)
-            logger.info("NFe %s consultada via Portal NFe com sucesso", chave[:10])
+            logger.info("nfe_lookup_portal_success", chave_prefix=chave[:10])
             return resultado
-        except Exception as e:
+        except Exception as exc:
             logger.warning(
-                "Portal NFe falhou para NFe %s: %s. Retornando dados parciais da chave.",
-                chave[:10],
-                e,
+                "nfe_lookup_portal_failed",
+                chave_prefix=chave[:10],
+                error=str(exc),
+                fallback="partial_access_key_data",
             )
 
-        # Fallback final: dados extraidos da propria chave
         logger.info(
-            "Todas as APIs falharam para NFe %s. Retornando dados parciais extraidos da chave.",
-            chave[:10],
+            "nfe_lookup_all_sources_failed",
+            chave_prefix=chave[:10],
+            fallback="partial_access_key_data",
         )
         return self._resposta_parcial_da_chave(chave)
 
     async def _consultar_brasil_api(self, chave: str) -> NFeResponse:
-        """Consulta NFe via BrasilAPI (endpoint nfe/v1)."""
-        async with FiscalHTTPClient(BRASIL_API_BASE, rate_limiter=brasil_api_limiter) as client:
-            data: dict[str, Any] = await client.get(  # type: ignore[assignment]
-                f"/nfe/v1/{chave}",
-                rate_limit_key="brasilapi/nfe",
-            )
+        """Look up NFe data through BrasilAPI nfe/v1."""
+        async with self._http_client(settings.brasilapi_base_url) as client:
+            data = await self._get_json_or_text(client, f"/nfe/v1/{chave}")
 
-        # BrasilAPI pode retornar JSON ou XML dependendo do estado
         if isinstance(data, str):
             return parse_nfe_xml(data, chave)
 
-        # Se retornar JSON, mapeia para NFeResponse
         return NFeResponse(
             chave_acesso=chave,
             numero=str(data.get("numero", "")),
@@ -115,37 +142,37 @@ class NFEClient:
 
     async def _consultar_portal_nfe(self, chave: str) -> NFeResponse:
         """
-        Consulta NFe via Portal Nacional da NFe (SEFAZ federal).
+        Look up NFe data through the National NFe Portal.
 
-        O portal oferece consulta publica por chave sem necessidade de certificado digital.
-        Retorna XML da NFe quando disponivel.
+        The portal offers public access key lookup without a digital certificate.
+        It returns NFe XML when available.
         """
-        async with FiscalHTTPClient(PORTAL_NFE_BASE) as client:
-            # Endpoint de consulta resumida publica do Portal NFe
-            data = await client.get(
-                "/consultaRecaptcha.aspx",
+        async with self._http_client(PORTAL_NFE_BASE) as client:
+            data = await self._get_json_or_text(
+                client,
+                PORTAL_NFE_CONSULTA_PATH,
                 params={
                     "tipoConsulta": "completa",
                     "tipoConteudo": "XML",
                     "nfe": chave,
                 },
-                rate_limit_key="portal-nfe/consulta",
             )
 
         if isinstance(data, str) and data.strip():
             return parse_nfe_xml(data, chave)
 
-        raise APIError(
-            message="Portal NFe retornou resposta vazia ou em formato nao suportado",
-            endpoint=PORTAL_NFE_BASE,
+        raise FiscalHTTPError(
+            "Portal NFe retornou resposta vazia ou em formato não suportado",
+            status_code=200,
+            url=PORTAL_NFE_BASE,
         )
 
     def _resposta_parcial_da_chave(self, chave: str) -> NFeResponse:
         """
-        Constroi uma NFeResponse com os dados extraidos da propria chave de acesso.
+        Build an NFeResponse from fields embedded in the access key.
 
-        Util quando nenhuma API consegue fornecer os dados completos. Fornece ao
-        chamador ao menos UF, CNPJ do emitente, numero e serie da nota.
+        This gives callers at least UF, issuer CNPJ, number and series when no
+        external source can return full details.
         """
         info = _extrair_info_chave(chave)
         from .schemas import EnderecoNFe
@@ -157,12 +184,12 @@ class NFEClient:
             serie=info["serie"].lstrip("0") or info["serie"],
             modelo=info["modelo"],
             emitente=emitente,
-            situacao="Dados parciais - consulta indisponivel nas APIs externas",
+            situacao="Dados parciais - consulta indisponível nas APIs externas",
             informacoes_adicionais=(
-                f"UF de emissao: {info['uf']}. "
-                f"Emissao: {info['ano_mes']}. "
-                "Dados completos indisponiveis: BrasilAPI sem cobertura para este estado "
-                "e Portal NFe inacessivel no momento."
+                f"UF de emissão: {info['uf']}. "
+                f"Emissão: {info['ano_mes']}. "
+                "Dados completos indisponíveis: BrasilAPI sem cobertura para este estado "
+                "e Portal NFe inacessível no momento."
             ),
         )
 
@@ -170,18 +197,15 @@ class NFEClient:
         self, uf: str, ambiente: str = "producao"
     ) -> StatusSEFAZResponse:
         """
-        Consulta o status do servico SEFAZ de uma UF.
+        Look up the SEFAZ service status for a state.
 
-        Usa BrasilAPI como proxy para o webservice SEFAZ.
+        BrasilAPI acts as a proxy for the state SEFAZ webservice.
         """
-        logger.info("Consultando status SEFAZ %s (ambiente=%s)", uf, ambiente)
+        logger.info("sefaz_status_lookup_started", uf=uf, ambiente=ambiente)
 
-        async with FiscalHTTPClient(BRASIL_API_BASE, rate_limiter=brasil_api_limiter) as client:
+        async with self._http_client(settings.brasilapi_base_url) as client:
             try:
-                data: dict[str, Any] = await client.get(  # type: ignore[assignment]
-                    f"/nfe/v1/status/{uf.upper()}",
-                    rate_limit_key="brasilapi/nfe-status",
-                )
+                data = await client.get(f"/nfe/v1/status/{uf.upper()}")
                 return StatusSEFAZResponse(
                     uf=uf.upper(),
                     status=data.get("status", "Desconhecido"),
@@ -190,10 +214,9 @@ class NFEClient:
                     ambiente=ambiente,
                 )
             except Exception:
-                # Fallback: retorna status indisponivel se nao conseguir consultar
                 return StatusSEFAZResponse(
                     uf=uf.upper(),
-                    status="Indisponivel",
-                    descricao="Nao foi possivel consultar o status do servico SEFAZ.",
+                    status="Indisponível",
+                    descricao="Não foi possível consultar o status do serviço SEFAZ.",
                     ambiente=ambiente,
                 )

@@ -1,13 +1,31 @@
 """Ferramentas MCP para consulta de CNPJ."""
 
-import logging
+from mcp_fiscal_brasil._core import FiscalValidationError, get_logger
 
-from ..shared.exceptions import ValidationError
+from ..shared.exceptions import ValidationError as SharedValidationError
 from ..shared.validators import format_cnpj, validate_cnpj
 from .client import CNPJClient
 from .schemas import CNPJResponse
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+_INVALID_CNPJ_REASON = "CNPJ inválido. Verifique os 14 dígitos e o dígito verificador."
+
+
+class _CNPJValidationError(FiscalValidationError, SharedValidationError):
+    """Validation error compatible with both core and legacy fiscal errors."""
+
+    def __init__(self, field: str, value: str, reason: str) -> None:
+        message = f"Valor inválido para '{field}': {value!r}. {reason}"
+        detail = {"field": field, "value": value, "reason": reason}
+        Exception.__init__(self, message)
+        self.message = message
+        self.detail = detail
+        self.field = field
+        self.value = value
+        self.code = "VALIDATION_ERROR"
+        self.details = {"field": field, "value": value}
+        self.reason = reason
+
 
 _client = CNPJClient()
 
@@ -31,14 +49,10 @@ async def consultar_cnpj(cnpj: str) -> CNPJResponse:
         APIError: Em caso de falha nas APIs consultadas.
     """
     if not validate_cnpj(cnpj):
-        raise ValidationError(
-            field="cnpj",
-            value=cnpj,
-            reason="CNPJ inválido. Verifique os 14 dígitos e o dígito verificador.",
-        )
+        raise _CNPJValidationError(field="cnpj", value=cnpj, reason=_INVALID_CNPJ_REASON)
 
     cnpj_formatado = format_cnpj(cnpj)
-    logger.info("Consultando CNPJ: %s", cnpj_formatado)
+    logger.info("cnpj_lookup_requested", cnpj=cnpj_formatado)
     return await _client.consultar(cnpj)
 
 
@@ -56,9 +70,7 @@ async def listar_cnpjs_por_nome(nome: str, uf: str | None = None) -> list[dict[s
     Returns:
         Lista de dicionários com 'cnpj' e 'razao_social'.
     """
-    # Esta implementação é um stub - a busca por nome requer APIs pagas
-    # como a da Receita Federal (acesso via certificado digital) ou serviços como CNPJ.ws
-    logger.info("Busca por nome '%s' (UF=%s) - funcionalidade limitada", nome, uf)
+    logger.info("cnpj_name_lookup_limited", nome=nome, uf=uf)
     return [
         {
             "aviso": (

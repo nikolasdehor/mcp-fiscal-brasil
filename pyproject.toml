@@ -18,6 +18,11 @@ dependencies = [
     "pydantic>=2.0",
     "lxml>=5.0",
     "python-dateutil>=2.9.0",
+    "tenacity>=9.1.4",
+    "cachetools>=7.0.5",
+    "aiolimiter>=1.2.1",
+    "structlog>=25.5.0",
+    "pydantic-settings>=2.13.1",
 ]
 
 [project.optional-dependencies]
@@ -59,3 +64,8 @@ plugins = ["pydantic.mypy"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest-cov>=7.1.0",
+]

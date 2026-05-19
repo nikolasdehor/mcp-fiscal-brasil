@@ -1,11 +1,11 @@
 """Ferramentas MCP para analise de arquivos SPED."""
 
-import logging
 from datetime import date
 
+from .._core import get_logger
 from .schemas import InfoAberturaSPED, ResumoPeriodoSPED, SPEDAnaliseResponse
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Identificação do tipo de SPED pelo registro 0000 campo tipo_escrituracao
 TIPOS_SPED: dict[str, str] = {
@@ -74,7 +74,7 @@ async def analisar_sped(conteudo: str, nome_arquivo: str | None = None) -> SPEDA
     Returns:
         SPEDAnaliseResponse com resumo do arquivo, informações da empresa e contagem de registros.
     """
-    logger.info("Analisando arquivo SPED: %s", nome_arquivo or "desconhecido")
+    logger.info("sped_analysis_started", nome_arquivo=nome_arquivo or "desconhecido")
 
     abertura: InfoAberturaSPED | None = None
     tipos_registros: dict[str, int] = {}
