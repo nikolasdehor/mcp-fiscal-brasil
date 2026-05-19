@@ -9,7 +9,7 @@ from typing import Any, cast
 
 import httpx
 from aiolimiter import AsyncLimiter
-from cachetools import TTLCache  # type: ignore[import-untyped]
+from cachetools import TTLCache
 from tenacity import AsyncRetrying, retry_if_exception, stop_after_attempt, wait_exponential
 
 __all__ = ["HTTPClient"]
@@ -84,7 +84,7 @@ class HTTPClient:
         cache_key = self._cache_key("GET", url, params)
 
         if self.cache_ttl > 0 and cache_key in self._cache:
-            return cast(dict[str, Any], self._cache[cache_key])
+            return self._cache[cache_key]
 
         response = await self._request("GET", path, params=params, headers=headers)
         data = self._json_object(response)

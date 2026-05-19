@@ -1023,6 +1023,7 @@ dev = [
 [package.dev-dependencies]
 dev = [
     { name = "pytest-cov" },
+    { name = "types-cachetools" },
 ]
 
 [package.metadata]
@@ -1046,7 +1047,10 @@ requires-dist = [
 provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pytest-cov", specifier = ">=7.1.0" }]
+dev = [
+    { name = "pytest-cov", specifier = ">=7.1.0" },
+    { name = "types-cachetools", specifier = ">=7.0.0.20260518" },
+]
 
 [[package]]
 name = "mdurl"
@@ -1929,6 +1933,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/12/64/da524626d3b9cc40c168a13da8335fe1c51be12c0a63685cc6db7308daae/tomli-2.4.1-cp314-cp314t-win_amd64.whl", hash = "sha256:2c1c351919aca02858f740c6d33adea0c5deea37f9ecca1cc1ef9e884a619d26", size = 121196, upload-time = "2026-03-25T20:22:01.169Z" },
     { url = "https://files.pythonhosted.org/packages/5a/cd/e80b62269fc78fc36c9af5a6b89c835baa8af28ff5ad28c7028d60860320/tomli-2.4.1-cp314-cp314t-win_arm64.whl", hash = "sha256:eab21f45c7f66c13f2a9e0e1535309cee140182a9cdae1e041d02e47291e8396", size = 100393, upload-time = "2026-03-25T20:22:02.137Z" },
     { url = "https://files.pythonhosted.org/packages/7b/61/cceae43728b7de99d9b847560c262873a1f6c98202171fd5ed62640b494b/tomli-2.4.1-py3-none-any.whl", hash = "sha256:0d85819802132122da43cb86656f8d1f8c6587d54ae7dcaf30e90533028b49fe", size = 14583, upload-time = "2026-03-25T20:22:03.012Z" },
+]
+
+[[package]]
+name = "types-cachetools"
+version = "7.0.0.20260518"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c8/14/1e4fca2b250dbc75be9f0beab083acb3cd1151711e1031eb4a854dfd71be/types_cachetools-7.0.0.20260518.tar.gz", hash = "sha256:7730014e4fef0c6f01e2cd0f980f8ce6d1b1d2472c8459c1f382348ec1a6b435", size = 10072, upload-time = "2026-05-18T06:02:20.396Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/45/e0/767be6b60859fd2edc4512fabdedbce703fc8d4ec5007b31abaf37a51c6c/types_cachetools-7.0.0.20260518-py3-none-any.whl", hash = "sha256:997b356870915f8bbc9b2cdb4e7271c01d487996fdac2a9c8e91cc5b1261b3d1", size = 9500, upload-time = "2026-05-18T06:02:19.042Z" },
 ]
 
 [[package]]

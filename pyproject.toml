@@ -68,4 +68,5 @@ testpaths = ["tests"]
 [dependency-groups]
 dev = [
     "pytest-cov>=7.1.0",
+    "types-cachetools>=7.0.0.20260518",
 ]

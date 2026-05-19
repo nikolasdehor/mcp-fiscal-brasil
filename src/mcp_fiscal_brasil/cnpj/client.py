@@ -1,7 +1,7 @@
 """Cliente para consulta de CNPJ via BrasilAPI e ReceitaWS."""
 
 from datetime import date
-from typing import Any, cast
+from typing import Any
 
 from mcp_fiscal_brasil._core import HTTPClient, Settings, get_logger
 
@@ -46,12 +46,12 @@ class CNPJClient:
 
     async def _consultar_brasil_api(self, cnpj: str) -> CNPJResponse:
         async with self._http_client(_settings.brasilapi_base_url) as client:
-            data = cast(dict[str, Any], await client.get(f"/cnpj/v1/{cnpj}"))
+            data = await client.get(f"/cnpj/v1/{cnpj}")
         return self._parse_brasil_api(data, cnpj)
 
     async def _consultar_receita_ws(self, cnpj: str) -> CNPJResponse:
         async with self._http_client(_settings.receita_base_url) as client:
-            data = cast(dict[str, Any], await client.get(f"/cnpj/{cnpj}"))
+            data = await client.get(f"/cnpj/{cnpj}")
         return self._parse_receita_ws(data, cnpj)
 
     def _parse_brasil_api(self, data: dict[str, Any], cnpj: str) -> CNPJResponse:
