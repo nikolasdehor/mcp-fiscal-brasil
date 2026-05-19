@@ -7,7 +7,7 @@ name = "mcp-fiscal-brasil"
 version = "0.1.0"
 description = "Servidor MCP para integrar IAs com o sistema fiscal brasileiro. Consulte CNPJ, NFe, NFSe, SPED, eSocial e mais via linguagem natural."
 authors = [
-    { name = "Nikolas DeHor" }
+    { name = "Nikolas de Hor" }
 ]
 readme = "README.md"
 license = { text = "MIT" }
@@ -31,6 +31,9 @@ dev = [
 
 [project.scripts]
 mcp-fiscal-brasil = "mcp_fiscal_brasil.server:main"
+
+[project.urls]
+Examples = "https://github.com/nikolasdehor/mcp-fiscal-brasil/tree/main/examples"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mcp_fiscal_brasil"]

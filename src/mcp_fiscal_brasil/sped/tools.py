@@ -83,13 +83,11 @@ async def analisar_sped(conteudo: str, nome_arquivo: str | None = None) -> SPEDA
     periodo_inicial: date | None = None
     periodo_final: date | None = None
 
-    linhas = conteudo.strip().splitlines()
+    linhas = [linha for linha in conteudo.strip().splitlines() if linha.strip()]
     total = len(linhas)
 
     for _num_linha, linha in enumerate(linhas, 1):
         linha = linha.strip()
-        if not linha:
-            continue
         campos = _parse_linha_sped(linha)
         if not campos:
             continue

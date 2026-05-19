@@ -1,11 +1,51 @@
 """Parser de XML de NFe (versao 4.00)."""
 
 from datetime import datetime
+from typing import cast
 
 from lxml import etree
 
 from ..shared.xml_utils import NS_NFE, parse_xml, xpath_text
 from .schemas import EnderecoNFe, ItemNFe, NFeResponse, TotaisNFe
+
+
+def _find_any(
+    element: etree._Element | None,
+    namespaced_path: str,
+    plain_path: str,
+    ns: dict[str, str],
+) -> etree._Element | None:
+    if element is None:
+        return None
+    found = element.find(namespaced_path, ns)
+    if found is not None:
+        return found
+    return element.find(plain_path)
+
+
+def _findall_any(
+    element: etree._Element | None,
+    namespaced_path: str,
+    plain_path: str,
+    ns: dict[str, str],
+) -> list[etree._Element]:
+    if element is None:
+        return []
+    found = cast(list[etree._Element], element.findall(namespaced_path, ns))
+    if found:
+        return found
+    return cast(list[etree._Element], element.findall(plain_path))
+
+
+def _xpath_text_any(
+    element: etree._Element | None,
+    namespaced_xpath: str,
+    plain_xpath: str,
+    ns: dict[str, str],
+) -> str | None:
+    if element is None:
+        return None
+    return xpath_text(element, namespaced_xpath, ns) or xpath_text(element, plain_xpath, {})
 
 
 def _safe_float(value: str | None) -> float | None:
@@ -21,61 +61,73 @@ def _parse_endereco(element: etree._Element | None, ns: dict[str, str]) -> Ender
     if element is None:
         return None
     return EnderecoNFe(
-        nome=xpath_text(element, "nfe:xNome/text()", ns),
-        cnpj=xpath_text(element, "nfe:CNPJ/text()", ns),
-        cpf=xpath_text(element, "nfe:CPF/text()", ns),
-        ie=xpath_text(element, "nfe:IE/text()", ns),
-        logradouro=xpath_text(element, "nfe:enderEmit/nfe:xLgr/text()", ns)
-        or xpath_text(element, "nfe:enderDest/nfe:xLgr/text()", ns),
-        numero=xpath_text(element, "nfe:enderEmit/nfe:nro/text()", ns)
-        or xpath_text(element, "nfe:enderDest/nfe:nro/text()", ns),
-        bairro=xpath_text(element, "nfe:enderEmit/nfe:xBairro/text()", ns)
-        or xpath_text(element, "nfe:enderDest/nfe:xBairro/text()", ns),
-        municipio=xpath_text(element, "nfe:enderEmit/nfe:xMun/text()", ns)
-        or xpath_text(element, "nfe:enderDest/nfe:xMun/text()", ns),
-        uf=xpath_text(element, "nfe:enderEmit/nfe:UF/text()", ns)
-        or xpath_text(element, "nfe:enderDest/nfe:UF/text()", ns),
-        cep=xpath_text(element, "nfe:enderEmit/nfe:CEP/text()", ns)
-        or xpath_text(element, "nfe:enderDest/nfe:CEP/text()", ns),
+        nome=_xpath_text_any(element, "nfe:xNome/text()", "xNome/text()", ns),
+        cnpj=_xpath_text_any(element, "nfe:CNPJ/text()", "CNPJ/text()", ns),
+        cpf=_xpath_text_any(element, "nfe:CPF/text()", "CPF/text()", ns),
+        ie=_xpath_text_any(element, "nfe:IE/text()", "IE/text()", ns),
+        logradouro=_xpath_text_any(
+            element, "nfe:enderEmit/nfe:xLgr/text()", "enderEmit/xLgr/text()", ns
+        )
+        or _xpath_text_any(
+            element, "nfe:enderDest/nfe:xLgr/text()", "enderDest/xLgr/text()", ns
+        ),
+        numero=_xpath_text_any(element, "nfe:enderEmit/nfe:nro/text()", "enderEmit/nro/text()", ns)
+        or _xpath_text_any(element, "nfe:enderDest/nfe:nro/text()", "enderDest/nro/text()", ns),
+        bairro=_xpath_text_any(
+            element, "nfe:enderEmit/nfe:xBairro/text()", "enderEmit/xBairro/text()", ns
+        )
+        or _xpath_text_any(
+            element, "nfe:enderDest/nfe:xBairro/text()", "enderDest/xBairro/text()", ns
+        ),
+        municipio=_xpath_text_any(
+            element, "nfe:enderEmit/nfe:xMun/text()", "enderEmit/xMun/text()", ns
+        )
+        or _xpath_text_any(
+            element, "nfe:enderDest/nfe:xMun/text()", "enderDest/xMun/text()", ns
+        ),
+        uf=_xpath_text_any(element, "nfe:enderEmit/nfe:UF/text()", "enderEmit/UF/text()", ns)
+        or _xpath_text_any(element, "nfe:enderDest/nfe:UF/text()", "enderDest/UF/text()", ns),
+        cep=_xpath_text_any(element, "nfe:enderEmit/nfe:CEP/text()", "enderEmit/CEP/text()", ns)
+        or _xpath_text_any(element, "nfe:enderDest/nfe:CEP/text()", "enderDest/CEP/text()", ns),
     )
 
 
 def _parse_item(det: etree._Element, ns: dict[str, str]) -> ItemNFe:
     numero_str = det.get("nItem", "0")
-    prod = det.find("nfe:prod", ns)
-    imposto = det.find("nfe:imposto", ns)
+    prod = _find_any(det, "nfe:prod", "prod", ns)
+    imposto = _find_any(det, "nfe:imposto", "imposto", ns)
 
     icms_el = None
     if imposto is not None:
-        icms_group = imposto.find("nfe:ICMS", ns)
+        icms_group = _find_any(imposto, "nfe:ICMS", "ICMS", ns)
         if icms_group is not None and len(icms_group):
             icms_el = icms_group[0]  # ICMS00, ICMS10, etc.
 
     return ItemNFe(
         numero=int(numero_str),
-        codigo_produto=xpath_text(prod, "nfe:cProd/text()", ns) or "" if prod is not None else "",
-        descricao=xpath_text(prod, "nfe:xProd/text()", ns) or "" if prod is not None else "",
-        ncm=xpath_text(prod, "nfe:NCM/text()", ns) if prod is not None else None,
-        cfop=xpath_text(prod, "nfe:CFOP/text()", ns) or "" if prod is not None else "",
-        unidade=xpath_text(prod, "nfe:uCom/text()", ns) or "" if prod is not None else "",
+        codigo_produto=_xpath_text_any(prod, "nfe:cProd/text()", "cProd/text()", ns) or "",
+        descricao=_xpath_text_any(prod, "nfe:xProd/text()", "xProd/text()", ns) or "",
+        ncm=_xpath_text_any(prod, "nfe:NCM/text()", "NCM/text()", ns),
+        cfop=_xpath_text_any(prod, "nfe:CFOP/text()", "CFOP/text()", ns) or "",
+        unidade=_xpath_text_any(prod, "nfe:uCom/text()", "uCom/text()", ns) or "",
         quantidade=_safe_float(
-            xpath_text(prod, "nfe:qCom/text()", ns) if prod is not None else None
+            _xpath_text_any(prod, "nfe:qCom/text()", "qCom/text()", ns)
         )
         or 0.0,
         valor_unitario=_safe_float(
-            xpath_text(prod, "nfe:vUnCom/text()", ns) if prod is not None else None
+            _xpath_text_any(prod, "nfe:vUnCom/text()", "vUnCom/text()", ns)
         )
         or 0.0,
         valor_total=_safe_float(
-            xpath_text(prod, "nfe:vProd/text()", ns) if prod is not None else None
+            _xpath_text_any(prod, "nfe:vProd/text()", "vProd/text()", ns)
         )
         or 0.0,
-        cst_icms=xpath_text(icms_el, "nfe:CST/text()", ns) if icms_el is not None else None,
+        cst_icms=_xpath_text_any(icms_el, "nfe:CST/text()", "CST/text()", ns),
         aliquota_icms=_safe_float(
-            xpath_text(icms_el, "nfe:pICMS/text()", ns) if icms_el is not None else None
+            _xpath_text_any(icms_el, "nfe:pICMS/text()", "pICMS/text()", ns)
         ),
         valor_icms=_safe_float(
-            xpath_text(icms_el, "nfe:vICMS/text()", ns) if icms_el is not None else None
+            _xpath_text_any(icms_el, "nfe:vICMS/text()", "vICMS/text()", ns)
         ),
     )
 
@@ -90,21 +142,22 @@ def parse_nfe_xml(xml_content: str | bytes, chave: str) -> NFeResponse:
     ns = NS_NFE
 
     # A raiz pode ser <nfeProc> ou diretamente <NFe>
-    nfe_el = root.find(".//nfe:NFe", ns) or root
-    inf_nfe = nfe_el.find(".//nfe:infNFe", ns)
+    nfe_el = root.find(".//nfe:NFe", ns)
+    if nfe_el is None:
+        nfe_el = root.find(".//NFe")
+    if nfe_el is None:
+        nfe_el = root
 
-    if inf_nfe is None:
-        # Tenta sem namespace
-        inf_nfe = root.find(".//infNFe")
+    inf_nfe = _find_any(nfe_el, ".//nfe:infNFe", ".//infNFe", ns)
 
-    ide = inf_nfe.find("nfe:ide", ns) if inf_nfe is not None else None
-    emit = inf_nfe.find("nfe:emit", ns) if inf_nfe is not None else None
-    dest = inf_nfe.find("nfe:dest", ns) if inf_nfe is not None else None
-    total = inf_nfe.find("nfe:total/nfe:ICMSTot", ns) if inf_nfe is not None else None
+    ide = _find_any(inf_nfe, "nfe:ide", "ide", ns)
+    emit = _find_any(inf_nfe, "nfe:emit", "emit", ns)
+    dest = _find_any(inf_nfe, "nfe:dest", "dest", ns)
+    total = _find_any(inf_nfe, "nfe:total/nfe:ICMSTot", "total/ICMSTot", ns)
 
     # Data de emissao
     data_emissao = None
-    raw_dhemi = xpath_text(ide, "nfe:dhEmi/text()", ns) if ide is not None else None
+    raw_dhemi = _xpath_text_any(ide, "nfe:dhEmi/text()", "dhEmi/text()", ns)
     if raw_dhemi:
         try:
             data_emissao = datetime.fromisoformat(raw_dhemi.replace("Z", "+00:00"))
@@ -112,43 +165,44 @@ def parse_nfe_xml(xml_content: str | bytes, chave: str) -> NFeResponse:
             pass
 
     # Protocolo de autorizacao
-    prot_nfe = root.find(".//nfe:protNFe", ns)
+    prot_nfe = _find_any(root, ".//nfe:protNFe", ".//protNFe", ns)
     protocolo = (
-        xpath_text(prot_nfe, "nfe:infProt/nfe:nProt/text()", ns) if prot_nfe is not None else None
+        _xpath_text_any(prot_nfe, "nfe:infProt/nfe:nProt/text()", "infProt/nProt/text()", ns)
     )
 
     # Itens
     itens = []
-    if inf_nfe is not None:
-        for det in inf_nfe.findall("nfe:det", ns):
-            itens.append(_parse_item(det, ns))
+    for det in _findall_any(inf_nfe, "nfe:det", "det", ns):
+        itens.append(_parse_item(det, ns))
 
     # Totais
     totais = None
     if total is not None:
         totais = TotaisNFe(
-            valor_produtos=_safe_float(xpath_text(total, "nfe:vProd/text()", ns)),
-            valor_desconto=_safe_float(xpath_text(total, "nfe:vDesc/text()", ns)),
-            valor_frete=_safe_float(xpath_text(total, "nfe:vFrete/text()", ns)),
-            base_calculo_icms=_safe_float(xpath_text(total, "nfe:vBC/text()", ns)),
-            valor_icms=_safe_float(xpath_text(total, "nfe:vICMS/text()", ns)),
-            valor_icms_st=_safe_float(xpath_text(total, "nfe:vST/text()", ns)),
-            valor_ipi=_safe_float(xpath_text(total, "nfe:vIPI/text()", ns)),
-            valor_pis=_safe_float(xpath_text(total, "nfe:vPIS/text()", ns)),
-            valor_cofins=_safe_float(xpath_text(total, "nfe:vCOFINS/text()", ns)),
-            valor_nota=_safe_float(xpath_text(total, "nfe:vNF/text()", ns)),
+            valor_produtos=_safe_float(_xpath_text_any(total, "nfe:vProd/text()", "vProd/text()", ns)),
+            valor_desconto=_safe_float(_xpath_text_any(total, "nfe:vDesc/text()", "vDesc/text()", ns)),
+            valor_frete=_safe_float(_xpath_text_any(total, "nfe:vFrete/text()", "vFrete/text()", ns)),
+            base_calculo_icms=_safe_float(_xpath_text_any(total, "nfe:vBC/text()", "vBC/text()", ns)),
+            valor_icms=_safe_float(_xpath_text_any(total, "nfe:vICMS/text()", "vICMS/text()", ns)),
+            valor_icms_st=_safe_float(_xpath_text_any(total, "nfe:vST/text()", "vST/text()", ns)),
+            valor_ipi=_safe_float(_xpath_text_any(total, "nfe:vIPI/text()", "vIPI/text()", ns)),
+            valor_pis=_safe_float(_xpath_text_any(total, "nfe:vPIS/text()", "vPIS/text()", ns)),
+            valor_cofins=_safe_float(
+                _xpath_text_any(total, "nfe:vCOFINS/text()", "vCOFINS/text()", ns)
+            ),
+            valor_nota=_safe_float(_xpath_text_any(total, "nfe:vNF/text()", "vNF/text()", ns)),
         )
 
     return NFeResponse(
         chave_acesso=chave,
-        numero=xpath_text(ide, "nfe:nNF/text()", ns) if ide is not None else None,
-        serie=xpath_text(ide, "nfe:serie/text()", ns) if ide is not None else None,
-        modelo=xpath_text(ide, "nfe:mod/text()", ns) or "55" if ide is not None else "55",
+        numero=_xpath_text_any(ide, "nfe:nNF/text()", "nNF/text()", ns),
+        serie=_xpath_text_any(ide, "nfe:serie/text()", "serie/text()", ns),
+        modelo=_xpath_text_any(ide, "nfe:mod/text()", "mod/text()", ns) or "55",
         emitente=_parse_endereco(emit, ns),
         destinatario=_parse_endereco(dest, ns),
         data_emissao=data_emissao,
-        natureza_operacao=xpath_text(ide, "nfe:natOp/text()", ns) if ide is not None else None,
-        tipo_operacao=xpath_text(ide, "nfe:tpNF/text()", ns) if ide is not None else None,
+        natureza_operacao=_xpath_text_any(ide, "nfe:natOp/text()", "natOp/text()", ns),
+        tipo_operacao=_xpath_text_any(ide, "nfe:tpNF/text()", "tpNF/text()", ns),
         itens=itens,
         totais=totais,
         protocolo_autorizacao=protocolo,
