@@ -61,7 +61,7 @@ class CNPJClient:
             )
 
         atividades_secundarias = []
-        for cnae in data.get("cnaes_secundarios", []):
+        for cnae in data.get("cnaes_secundarios") or []:
             if cnae.get("codigo") and cnae.get("descricao"):
                 atividades_secundarias.append(
                     AtividadeCNAE(codigo=str(cnae["codigo"]), descricao=cnae["descricao"])
@@ -78,7 +78,7 @@ class CNPJClient:
         )
 
         qsa = []
-        for socio in data.get("qsa", []):
+        for socio in data.get("qsa") or []:
             qsa.append(
                 QSASocio(
                     nome=socio.get("nome_socio", ""),
@@ -116,7 +116,7 @@ class CNPJClient:
     def _parse_receita_ws(self, data: dict[str, Any], cnpj: str) -> CNPJResponse:
         """Transforma resposta da ReceitaWS em CNPJResponse."""
         atividade_principal = None
-        for ativ in data.get("atividade_principal", []):
+        for ativ in data.get("atividade_principal") or []:
             atividade_principal = AtividadeCNAE(
                 codigo=ativ.get("code", ""),
                 descricao=ativ.get("text", ""),
@@ -125,7 +125,7 @@ class CNPJClient:
 
         atividades_secundarias = [
             AtividadeCNAE(codigo=a.get("code", ""), descricao=a.get("text", ""))
-            for a in data.get("atividades_secundarias", [])
+            for a in data.get("atividades_secundarias") or []
         ]
 
         endereco = Endereco(
@@ -143,7 +143,7 @@ class CNPJClient:
                 nome=s.get("nome", ""),
                 qualificacao=s.get("qual", ""),
             )
-            for s in data.get("qsa", [])
+            for s in data.get("qsa") or []
         ]
 
         return CNPJResponse(
