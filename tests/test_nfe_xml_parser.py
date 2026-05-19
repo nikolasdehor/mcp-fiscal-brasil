@@ -69,4 +69,3 @@ def test_parse_nfe_xml_without_namespace_extracts_basic_fields() -> None:
     assert response.itens[0].valor_total == 100.0
     assert response.totais is not None
     assert response.totais.valor_nota == 100.0
-

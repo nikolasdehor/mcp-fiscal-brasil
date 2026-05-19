@@ -29,9 +29,7 @@ async def test_analisar_sped_empty_content_reports_missing_opening() -> None:
 
 async def test_listar_registros_sped_strips_requested_record_type() -> None:
     content = (
-        "|C100|0|1|55|00|123|31012024|100.00|\n"
-        "|C100|0|1|55|00|124|31012024|250.00|\n"
-        "|9999|3|\n"
+        "|C100|0|1|55|00|123|31012024|100.00|\n|C100|0|1|55|00|124|31012024|250.00|\n|9999|3|\n"
     )
 
     records = await listar_registros_sped(content, " c100 ")

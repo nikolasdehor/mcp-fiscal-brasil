@@ -22,4 +22,3 @@ def test_parse_brasil_api_handles_null_collections_and_invalid_date() -> None:
     assert response.atividades_secundarias == []
     assert response.qsa == []
     assert response.data_abertura is None
-

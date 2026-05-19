@@ -68,9 +68,7 @@ def _parse_endereco(element: etree._Element | None, ns: dict[str, str]) -> Ender
         logradouro=_xpath_text_any(
             element, "nfe:enderEmit/nfe:xLgr/text()", "enderEmit/xLgr/text()", ns
         )
-        or _xpath_text_any(
-            element, "nfe:enderDest/nfe:xLgr/text()", "enderDest/xLgr/text()", ns
-        ),
+        or _xpath_text_any(element, "nfe:enderDest/nfe:xLgr/text()", "enderDest/xLgr/text()", ns),
         numero=_xpath_text_any(element, "nfe:enderEmit/nfe:nro/text()", "enderEmit/nro/text()", ns)
         or _xpath_text_any(element, "nfe:enderDest/nfe:nro/text()", "enderDest/nro/text()", ns),
         bairro=_xpath_text_any(
@@ -82,9 +80,7 @@ def _parse_endereco(element: etree._Element | None, ns: dict[str, str]) -> Ender
         municipio=_xpath_text_any(
             element, "nfe:enderEmit/nfe:xMun/text()", "enderEmit/xMun/text()", ns
         )
-        or _xpath_text_any(
-            element, "nfe:enderDest/nfe:xMun/text()", "enderDest/xMun/text()", ns
-        ),
+        or _xpath_text_any(element, "nfe:enderDest/nfe:xMun/text()", "enderDest/xMun/text()", ns),
         uf=_xpath_text_any(element, "nfe:enderEmit/nfe:UF/text()", "enderEmit/UF/text()", ns)
         or _xpath_text_any(element, "nfe:enderDest/nfe:UF/text()", "enderDest/UF/text()", ns),
         cep=_xpath_text_any(element, "nfe:enderEmit/nfe:CEP/text()", "enderEmit/CEP/text()", ns)
@@ -110,25 +106,14 @@ def _parse_item(det: etree._Element, ns: dict[str, str]) -> ItemNFe:
         ncm=_xpath_text_any(prod, "nfe:NCM/text()", "NCM/text()", ns),
         cfop=_xpath_text_any(prod, "nfe:CFOP/text()", "CFOP/text()", ns) or "",
         unidade=_xpath_text_any(prod, "nfe:uCom/text()", "uCom/text()", ns) or "",
-        quantidade=_safe_float(
-            _xpath_text_any(prod, "nfe:qCom/text()", "qCom/text()", ns)
-        )
+        quantidade=_safe_float(_xpath_text_any(prod, "nfe:qCom/text()", "qCom/text()", ns)) or 0.0,
+        valor_unitario=_safe_float(_xpath_text_any(prod, "nfe:vUnCom/text()", "vUnCom/text()", ns))
         or 0.0,
-        valor_unitario=_safe_float(
-            _xpath_text_any(prod, "nfe:vUnCom/text()", "vUnCom/text()", ns)
-        )
-        or 0.0,
-        valor_total=_safe_float(
-            _xpath_text_any(prod, "nfe:vProd/text()", "vProd/text()", ns)
-        )
+        valor_total=_safe_float(_xpath_text_any(prod, "nfe:vProd/text()", "vProd/text()", ns))
         or 0.0,
         cst_icms=_xpath_text_any(icms_el, "nfe:CST/text()", "CST/text()", ns),
-        aliquota_icms=_safe_float(
-            _xpath_text_any(icms_el, "nfe:pICMS/text()", "pICMS/text()", ns)
-        ),
-        valor_icms=_safe_float(
-            _xpath_text_any(icms_el, "nfe:vICMS/text()", "vICMS/text()", ns)
-        ),
+        aliquota_icms=_safe_float(_xpath_text_any(icms_el, "nfe:pICMS/text()", "pICMS/text()", ns)),
+        valor_icms=_safe_float(_xpath_text_any(icms_el, "nfe:vICMS/text()", "vICMS/text()", ns)),
     )
 
 
@@ -166,8 +151,8 @@ def parse_nfe_xml(xml_content: str | bytes, chave: str) -> NFeResponse:
 
     # Protocolo de autorizacao
     prot_nfe = _find_any(root, ".//nfe:protNFe", ".//protNFe", ns)
-    protocolo = (
-        _xpath_text_any(prot_nfe, "nfe:infProt/nfe:nProt/text()", "infProt/nProt/text()", ns)
+    protocolo = _xpath_text_any(
+        prot_nfe, "nfe:infProt/nfe:nProt/text()", "infProt/nProt/text()", ns
     )
 
     # Itens
@@ -179,10 +164,18 @@ def parse_nfe_xml(xml_content: str | bytes, chave: str) -> NFeResponse:
     totais = None
     if total is not None:
         totais = TotaisNFe(
-            valor_produtos=_safe_float(_xpath_text_any(total, "nfe:vProd/text()", "vProd/text()", ns)),
-            valor_desconto=_safe_float(_xpath_text_any(total, "nfe:vDesc/text()", "vDesc/text()", ns)),
-            valor_frete=_safe_float(_xpath_text_any(total, "nfe:vFrete/text()", "vFrete/text()", ns)),
-            base_calculo_icms=_safe_float(_xpath_text_any(total, "nfe:vBC/text()", "vBC/text()", ns)),
+            valor_produtos=_safe_float(
+                _xpath_text_any(total, "nfe:vProd/text()", "vProd/text()", ns)
+            ),
+            valor_desconto=_safe_float(
+                _xpath_text_any(total, "nfe:vDesc/text()", "vDesc/text()", ns)
+            ),
+            valor_frete=_safe_float(
+                _xpath_text_any(total, "nfe:vFrete/text()", "vFrete/text()", ns)
+            ),
+            base_calculo_icms=_safe_float(
+                _xpath_text_any(total, "nfe:vBC/text()", "vBC/text()", ns)
+            ),
             valor_icms=_safe_float(_xpath_text_any(total, "nfe:vICMS/text()", "vICMS/text()", ns)),
             valor_icms_st=_safe_float(_xpath_text_any(total, "nfe:vST/text()", "vST/text()", ns)),
             valor_ipi=_safe_float(_xpath_text_any(total, "nfe:vIPI/text()", "vIPI/text()", ns)),
