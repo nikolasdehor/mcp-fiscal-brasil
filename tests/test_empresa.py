@@ -19,7 +19,13 @@ async def test_get_empresa_success(client):
         patch("mcp_fiscal_brasil.cnpj.client.CNPJClient.consultar") as mock_cnpj,
         patch("mcp_fiscal_brasil.simples.client.SimplesClient.get_simples_status") as mock_simples,
     ):
-        mock_cnpj.return_value = CNPJResponse(cnpj="123", razao_social="Teste", situacao_cadastral="ATIVA", origem="ReceitaWS", natureza_juridica="Teste")
+        mock_cnpj.return_value = CNPJResponse(
+            cnpj="123",
+            razao_social="Teste",
+            situacao_cadastral="ATIVA",
+            origem="ReceitaWS",
+            natureza_juridica="Teste",
+        )
         mock_simples.return_value = SimplesStatus(cnpj="123", simples_nacional=True, mei=True)
 
         result = await client.get_empresa("123")
@@ -46,7 +52,13 @@ async def test_get_empresa_simples_fails(client):
         patch("mcp_fiscal_brasil.cnpj.client.CNPJClient.consultar") as mock_cnpj,
         patch("mcp_fiscal_brasil.simples.client.SimplesClient.get_simples_status") as mock_simples,
     ):
-        mock_cnpj.return_value = CNPJResponse(cnpj="123", razao_social="Teste", situacao_cadastral="ATIVA", origem="ReceitaWS", natureza_juridica="Teste")
+        mock_cnpj.return_value = CNPJResponse(
+            cnpj="123",
+            razao_social="Teste",
+            situacao_cadastral="ATIVA",
+            origem="ReceitaWS",
+            natureza_juridica="Teste",
+        )
         mock_simples.side_effect = FiscalNotFoundError("Not found", "Resource", "unknown")
 
         result = await client.get_empresa("123")
