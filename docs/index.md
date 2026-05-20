@@ -38,7 +38,7 @@ Com o `mcp-fiscal-brasil`, **uma linha de código** consulta CNPJ, válida NFe, 
 
     - `analyze_cnpj_compliance` - relatório consolidado com score 0-100
     - `compare_tax_regimes` - MEI vs Simples vs Lucro Presumido vs Real
-    - `risk_score_supplier` - due diligence com recomendacao acionavel
+    - `risk_score_supplier` - due diligence com recomendação acionavel
     - `validate_nfe_full` - parse XML + chave + situação do emissor
     - `summarize_sped` - sumário executivo de arquivo SPED
 

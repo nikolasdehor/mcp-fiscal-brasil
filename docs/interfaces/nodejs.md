@@ -41,7 +41,7 @@ console.log(`Risco: ${report.risco_geral} (score ${report.score}/100)`);
 
 // Due diligence
 const score = await scoreSupplier("12345678000190", { estrito: true });
-console.log(score.recomendacao);  // "aprovar" | "investigar" | etc
+console.log(score.recomendação);  // "aprovar" | "investigar" | etc
 
 // Planejamento tributário
 const regimes = await compareRegimes({

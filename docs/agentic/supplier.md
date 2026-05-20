@@ -13,13 +13,13 @@ async def risk_score_supplier(
 
 ## O que faz
 
-Baseia-se em [`analyze_cnpj_compliance`](compliance.md) e aplica ajustes mais conservadores para contexto de **contratacao**:
+Baseia-se em [`analyze_cnpj_compliance`](compliance.md) e aplica ajustes mais conservadores para contexto de **contratação**:
 
 - Achados com severidade `alto`/`critico` reduzem score em 15
 - Achados `medio` reduzem em 5
-- `criterios_estritos=True` reduz score em 10 (politicas anti-corrupcao)
+- `criterios_estritos=True` reduz score em 10 (politicas anti-corrupção)
 
-Retorna **recomendacao binaria/quaternaria** acionavel.
+Retorna **recomendação binária/quaternária** acionavel.
 
 ## Schema de saida
 
@@ -30,7 +30,7 @@ class SupplierRiskScore(BaseModel):
     risco: Literal["baixo", "medio", "alto", "critico"]
     score: int  # 0-100
     fatores: list[str]  # positivos e negativos
-    recomendacao: Literal[
+    recomendação: Literal[
         "aprovar",
         "aprovar_com_ressalvas",
         "investigar",
@@ -39,7 +39,7 @@ class SupplierRiskScore(BaseModel):
     data_analise: date
 ```
 
-## Faixas de recomendacao
+## Faixas de recomendação
 
 | Score | Recomendacao |
 |-------|--------------|
@@ -57,19 +57,19 @@ mcp-fiscal supplier 12345678000190
 mcp-fiscal supplier 12345678000190 --estrito --json
 ```
 
-### Python (integracao com cadastro de fornecedores)
+### Python (integração com cadastro de fornecedores)
 
 ```python
 async def cadastrar_fornecedor(cnpj: str) -> bool:
     score = await risk_score_supplier(cnpj, criterios_estritos=True)
-    if score.recomendacao == "recusar":
+    if score.recomendação == "recusar":
         log.warning("supplier_rejected", cnpj=cnpj, fatores=score.fatores)
         return False
-    if score.recomendacao == "investigar":
+    if score.recomendação == "investigar":
         await notificar_compliance_team(cnpj, score)
     return True
 ```
 
 ### Via agente IA
 
-> "Faz a due diligence completa do CNPJ 12.345.678/0001-90 com critérios estritos e me da a recomendacao"
+> "Faz a due diligence completa do CNPJ 12.345.678/0001-90 com critérios estritos e me da a recomendação"

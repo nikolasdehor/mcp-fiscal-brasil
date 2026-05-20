@@ -37,7 +37,7 @@ class NFeValidationReport(BaseModel):
 | Codigo | Severidade | Significado |
 |--------|------------|-------------|
 | `XML_PARSE_ERROR` | critico | XML mal-formado ou schema invalido |
-| `CHAVE_INVALIDA` | alto | DV da chave não confere com conteudo |
+| `CHAVE_INVALIDA` | alto | DV da chave não confere com conteúdo |
 | `EMISSOR_INATIVO` | alto | CNPJ emissor não esta `ativa` na Receita |
 | `CHAVE_VALIDACAO_FALHOU` | medio | Falha técnica ao validar chave (rede etc) |
 

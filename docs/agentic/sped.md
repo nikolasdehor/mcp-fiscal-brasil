@@ -23,7 +23,7 @@ async def summarize_sped(file_path: str | Path) -> SPEDSummary
 ```python
 class SPEDSummary(BaseModel):
     arquivo: str
-    tipo: Literal["fiscal", "contribuicoes", "ecf", "ecd"]
+    tipo: Literal["fiscal", "contribuições", "ecf", "ecd"]
     periodo_inicio: date | None
     periodo_fim: date | None
     total_registros: int

@@ -25,7 +25,7 @@ endereço:
   cep: 70040912
 atividade_principal:
   código: 6422100
-  descrição: Bancos multiplos, com carteira comercial
+  descrição: Bancos múltiplos, com carteira comercial
 origem: BrasilAPI
 ```
 
@@ -48,7 +48,7 @@ achados:
   - categoria: atividade
     severidade: baixo
     titulo: CNAE principal 6422100
-    detalhe: Bancos multiplos, com carteira comercial
+    detalhe: Bancos múltiplos, com carteira comercial
 resumo_executivo: CNPJ 00000000000191 (BANCO DO BRASIL S.A.) apresenta risco baixo (score 90/100)...
 fontes_consultadas:
   - BrasilAPI
@@ -113,7 +113,7 @@ async def main():
 
     # Due diligence de fornecedor
     score = await risk_score_supplier("00000000000191", criterios_estritos=True)
-    print(f"Recomendacao: {score.recomendacao}")
+    print(f"Recomendacao: {score.recomendação}")
 
     # Planejamento tributário
     plano = compare_tax_regimes(
@@ -134,7 +134,7 @@ Apos configurar o servidor MCP no seu cliente ([config](config.md)), basta pergu
 
 > "Consulte o CNPJ 00.000.000/0001-91 e me da uma analise de compliance"
 >
-> "A empresa X esta apta a entrar no Simples Nacional?"
+> "A empresa X está apta a entrar no Simples Nacional?"
 >
 > "Compare os regimes tributários para um serviço com R$ 500 mil de faturamento e R$ 180 mil de folha"
 

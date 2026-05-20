@@ -17,7 +17,7 @@ Spoiler: no final do post, você consegue fazer isso aqui em 5 minutos:
 from mcp_fiscal_brasil.agentic import risk_score_supplier
 
 score = await risk_score_supplier("12.345.678/0001-90", criterios_estritos=True)
-if score.recomendacao == "recusar":
+if score.recomendação == "recusar":
     print(f"Bloqueado: {', '.join(score.fatores)}")
 ```
 
@@ -38,7 +38,7 @@ Antes do `mcp-fiscal-brasil`, integrar IA com qualquer dado fiscal brasileiro ex
 - Aprender APIs e schemas de cada fonte (BrasilAPI, ReceitaWS, IBGE, portais municipais)
 - Lidar com rate limits diferentes, formatos diferentes (JSON, XML, TXT pipe-delimited)
 - Cuidar de retry, cache, parsing XML de NFe, validação algoritmica de DV
-- Compor várias chamadas para responder uma pergunta simples como "essa empresa esta apta a contratar?"
+- Compor várias chamadas para responder uma pergunta simples como "essa empresa está apta a contratar?"
 
 Resultado: cada projeto que precisava disso virava semanas de código de cola. E quando virava, era uma bola de neve de manutencao porque APIs mudam, regimes tributários são atualizados, novos eventos do eSocial são adicionados.
 
@@ -66,7 +66,7 @@ Antes, cada módulo tinha seu próprio cliente HTTP. Acoplado, difícil de testa
 - Rate-limit per-host via `aiolimiter`
 - Logs estruturados JSON via `structlog`
 - Config via `pydantic-settings` (env vars `MCP_FISCAL_*`)
-- Hierarquia tipada de excecoes
+- Hierarquia tipada de exceções
 
 Resultado: cada módulo agora e magro, com toda a complexidade infraestrutural compartilhada e testada.
 
@@ -95,7 +95,7 @@ Por isso criei o módulo `agentic/`:
 |------|-----------|
 | `analyze_cnpj_compliance` | Consolida CNPJ + Simples + MEI + CNAE, retorna score 0-100 e risco classificado |
 | `compare_tax_regimes` | Compara MEI/Simples/Lucro Presumido/Lucro Real com alíquota efetiva estimada |
-| `risk_score_supplier` | Due diligence de fornecedor com recomendacao (aprovar/investigar/recusar) |
+| `risk_score_supplier` | Due diligence de fornecedor com recomendação (aprovar/investigar/recusar) |
 | `validate_nfe_full` | NFe: parse XML + válida chave + verifica situação do emissor |
 | `summarize_sped` | Sumario executivo de arquivo SPED |
 
@@ -116,7 +116,7 @@ report = await analyze_cnpj_compliance("12345678000190")
 #             severidade="medio",
 #             titulo="Endereco incompleto",
 #             detalhe="Endereco cadastral incompleto ou não retornado pela fonte.",
-#             recomendacao="Solicitar comprovante de endereço atualizado.",
+#             recomendação="Solicitar comprovante de endereço atualizado.",
 #         )
 #     ],
 #     resumo_executivo="CNPJ 12345678000190 (EMPRESA EXEMPLO LTDA) apresenta risco medio (score 65/100)...",
@@ -191,9 +191,9 @@ Com o `mcp-fiscal-brasil`:
 async def cadastrar_fornecedor(cnpj: str) -> dict:
     score = await risk_score_supplier(cnpj, criterios_estritos=True)
 
-    if score.recomendacao == "recusar":
+    if score.recomendação == "recusar":
         return {"status": "bloqueado", "motivos": score.fatores}
-    if score.recomendacao == "investigar":
+    if score.recomendação == "investigar":
         await fila_compliance.enqueue(cnpj, score)
 
     return {"status": "aprovado"}
@@ -216,11 +216,11 @@ plano = compare_tax_regimes(
 # economia_anual_vs_pior = R$ 23.000
 ```
 
-Plus: o assistente de IA pode fazer essa pergunta direto para o cliente em linguagem natural ("quanto você fatura e quanto e folha?") e responder com a recomendacao.
+Plus: o assistente de IA pode fazer essa pergunta direto para o cliente em linguagem natural ("quanto você fatura e quanto e folha?") e responder com a recomendação.
 
 ### 3. Validacao pré-emissão de NFe
 
-Antes de emitir NFe contra um destinatario:
+Antes de emitir NFe contra um destinatário:
 
 ```python
 async def pre_emissao(cnpj_destinatario: str):
@@ -244,7 +244,7 @@ Algumas escolhas que valem destacar:
 - **mypy --strict** no código novo. Cada PR roda type checking sem exception.
 - **Sem dependencias pagas**. Tudo via APIs publicas: BrasilAPI, ReceitaWS, IBGE, portais SEFAZ.
 
-Quem entendeu Brasil sabe: tem que ser robusto a rate limit, a sites que caem, a respostas com encoding errado, a XML com namespace as vezes presente as vezes não. A v0.2.0 trata todos esses casos com fallback chain e captura de excecoes individuais.
+Quem entendeu Brasil sabe: tem que ser robusto a rate limit, a sites que caem, a respostas com encoding errado, a XML com namespace as vezes presente as vezes não. A v0.2.0 trata todos esses casos com fallback chain e captura de exceções individuais.
 
 ---
 
@@ -296,7 +296,7 @@ asyncio.run(analyze_cnpj_compliance("12345678000190"))
 
 V0.2.0 entregou o nucleo. Olhando pra frente:
 
-- **v0.3.0**: integracoes nativas com frameworks BR (Django ContaPRO, Laravel Saas-Fiscal)
+- **v0.3.0**: integrações nativas com frameworks BR (Django ContaPRO, Laravel Saas-Fiscal)
 - **v0.3.0**: cliente SOAP para webservices SEFAZ que exigem certificado A1/A3
 - **v0.3.0**: tools agenticas para folha (eSocial S-1.0 completo)
 - **v0.4.0**: SDK em outras linguagens (Go, Rust) ao inves de wrappers
@@ -323,7 +323,7 @@ Se você e empresa e quer feature especifica, posso fazer consultoria. Mando con
 - **Changelog**: https://github.com/nikolasdehor/mcp-fiscal-brasil/blob/main/CHANGELOG.md
 - **MCP Spec**: https://modelcontextprotocol.io
 
-Se você chegou até aqui, valeu pela paciencia. Espero que o projeto seja útil. Qualquer feedback, abra issue ou me chama no LinkedIn.
+Se você chegou até aqui, valeu pela paciência. Espero que o projeto seja útil. Qualquer feedback, abra issue ou me chama no LinkedIn.
 
 Abraco de Goiânia.
 

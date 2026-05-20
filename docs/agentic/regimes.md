@@ -20,7 +20,7 @@ Retorna o regime **mais econômico** e a **economia anual vs pior opção**.
 
 !!! warning "Estimativa, não planejamento contabil"
 
-    Calculo simplificado baseado em premissas publicas. NAO substitui parecer de contador. Use para direcionamento em decisões de planejamento, não para apuracao final.
+    Calculo simplificado baseado em premissas publicas. NAO substitui parecer de contador. Use para direcionamento em decisões de planejamento, não para apuração final.
 
 ## Heuristicas
 
@@ -52,7 +52,7 @@ class TaxRegimeComparison(BaseModel):
     cenario_faturamento_anual: float
     cenario_setor: Literal["comércio", "serviços", "indústria"]
     folha_pagamento_anual: float | None
-    opções: list[TaxRegimeOption]  # ordenadas: aplicaveis primeiro, do mais barato
+    opções: list[TaxRegimeOption]  # ordenadas: aplicáveis primeiro, do mais barato
     melhor_opcao: str
     economia_anual_vs_pior: float
     observações: str

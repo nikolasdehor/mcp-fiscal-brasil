@@ -26,4 +26,4 @@ goiania = await client.get_municipality(5208707)
 
 API publica do IBGE: https://servicodados.ibge.gov.br/api/v1/localidades/
 
-Sem rate limit conhecido, mas use cache para reduzir latencia (default TTL 5min).
+Sem rate limit conhecido, mas use cache para reduzir latência (default TTL 5min).
