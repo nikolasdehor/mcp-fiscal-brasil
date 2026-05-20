@@ -84,6 +84,32 @@ plugins:
   - search:
       lang: pt
   - mermaid2
+  - gen-files:
+      scripts:
+        - docs/gen_api_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: false
+            show_root_heading: false
+            show_submodules: true
+            members_order: source
+            separate_signature: true
+            filters: ["!^_"]
+            heading_level: 2
+            merge_init_into_class: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+      timezone: America/Sao_Paulo
+      locale: pt
+      fallback_to_build_date: true
 
 nav:
   - Inicio: index.md
@@ -119,5 +145,6 @@ nav:
       - Due diligence: use-cases/due-diligence.md
       - Planejamento tributario: use-cases/tax-planning.md
       - Validacao de fornecedor: use-cases/supplier-validation.md
+  - Referencia API: reference/
   - Contribuir: contributing.md
   - Changelog: changelog.md
