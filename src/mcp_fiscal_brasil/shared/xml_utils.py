@@ -7,7 +7,7 @@ from lxml import etree
 
 from .exceptions import XMLParseError
 
-# Namespaces NFe (versao 4.00)
+# Namespaces NFe (versão 4.00)
 NS_NFE = {
     "nfe": "http://www.portalfiscal.inf.br/nfe",
     "ds": "http://www.w3.org/2000/09/xmldsig#",
@@ -103,7 +103,7 @@ def element_to_dict(element: etree._Element) -> dict[str, Any] | str:
         child_value = element_to_dict(child)
 
         if tag in result:
-            # Converte em lista se ja existe a chave
+            # Converte em lista se já existe a chave
             if not isinstance(result[tag], list):
                 result[tag] = [result[tag]]
             result[tag].append(child_value)
@@ -156,5 +156,5 @@ def extract_soap_body(soap_response: str) -> etree._Element:
         "//soap11:Body/*[1]", namespaces=ns
     )
     if not body:
-        raise XMLParseError("Nao foi possivel encontrar o Body na resposta SOAP")
+        raise XMLParseError("Não foi possivel encontrar o Body na resposta SOAP")
     return body[0]

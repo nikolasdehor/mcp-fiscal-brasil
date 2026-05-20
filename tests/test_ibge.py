@@ -14,7 +14,7 @@ def client():
 @pytest.mark.asyncio
 async def test_get_states_success(client):
     with patch("mcp_fiscal_brasil._core.http.HTTPClient.get_list") as mock_get:
-        mock_get.return_value = [{"id": 35, "sigla": "SP", "nome": "Sao Paulo"}]
+        mock_get.return_value = [{"id": 35, "sigla": "SP", "nome": "São Paulo"}]
         result = await client.get_states()
         assert len(result) == 1
         assert result[0].sigla == "SP"
@@ -31,7 +31,7 @@ async def test_get_state_not_found(client):
 @pytest.mark.asyncio
 async def test_get_municipalities_success(client):
     with patch("mcp_fiscal_brasil._core.http.HTTPClient.get_list") as mock_get:
-        mock_get.return_value = [{"id": 3550308, "nome": "Sao Paulo"}]
+        mock_get.return_value = [{"id": 3550308, "nome": "São Paulo"}]
         result = await client.get_municipalities("SP")
         assert len(result) == 1
         assert result[0].id == 3550308
@@ -40,6 +40,6 @@ async def test_get_municipalities_success(client):
 @pytest.mark.asyncio
 async def test_get_municipality_success(client):
     with patch("mcp_fiscal_brasil._core.http.HTTPClient.get_list") as mock_get:
-        mock_get.return_value = [{"id": 3550308, "nome": "Sao Paulo"}]
+        mock_get.return_value = [{"id": 3550308, "nome": "São Paulo"}]
         result = await client.get_municipality(3550308)
         assert result.id == 3550308

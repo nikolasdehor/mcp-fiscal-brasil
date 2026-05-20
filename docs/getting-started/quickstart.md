@@ -18,14 +18,14 @@ situacao_cadastral: ATIVA
 natureza_juridica: 2038
 porte: DEMAIS
 capital_social: ...
-endereco:
+endereço:
   logradouro: SAUN QUADRA 5 LOTE B TORRES I, II E III
   municipio: BRASILIA
   uf: DF
   cep: 70040912
 atividade_principal:
-  codigo: 6422100
-  descricao: Bancos multiplos, com carteira comercial
+  código: 6422100
+  descrição: Bancos multiplos, com carteira comercial
 origem: BrasilAPI
 ```
 
@@ -55,27 +55,27 @@ fontes_consultadas:
   - Simples Nacional
 ```
 
-## 3. Compare regimes tributarios
+## 3. Compare regimes tributários
 
-Cenario: empresa de servicos, faturamento R$ 500 mil/ano, folha R$ 180 mil.
+Cenario: empresa de serviços, faturamento R$ 500 mil/ano, folha R$ 180 mil.
 
 ```bash
-mcp-fiscal regimes --faturamento 500000 --setor servicos --folha 180000
+mcp-fiscal regimes --faturamento 500000 --setor serviços --folha 180000
 ```
 
 Saida:
 
 ```
 cenario_faturamento_anual: 500000
-cenario_setor: servicos
+cenario_setor: serviços
 folha_pagamento_anual: 180000
-opcoes:
+opções:
   - regime: simples_nacional
-    aplicavel: True
+    aplicável: True
     aliquota_efetiva_estimada: 16.0
     imposto_anual_estimado: 80000
   - regime: lucro_presumido
-    aplicavel: True
+    aplicável: True
     aliquota_efetiva_estimada: 19.8
     imposto_anual_estimado: 99000
 melhor_opcao: simples_nacional
@@ -115,10 +115,10 @@ async def main():
     score = await risk_score_supplier("00000000000191", criterios_estritos=True)
     print(f"Recomendacao: {score.recomendacao}")
 
-    # Planejamento tributario
+    # Planejamento tributário
     plano = compare_tax_regimes(
         faturamento_anual=500_000,
-        setor="servicos",
+        setor="serviços",
         folha_pagamento_anual=180_000,
     )
     print(f"Melhor regime: {plano.melhor_opcao}")
@@ -136,7 +136,7 @@ Apos configurar o servidor MCP no seu cliente ([config](config.md)), basta pergu
 >
 > "A empresa X esta apta a entrar no Simples Nacional?"
 >
-> "Compare os regimes tributarios para um servico com R$ 500 mil de faturamento e R$ 180 mil de folha"
+> "Compare os regimes tributários para um serviço com R$ 500 mil de faturamento e R$ 180 mil de folha"
 
 O Claude/GPT/Gemini chama as tools certas e responde em pt-BR.
 

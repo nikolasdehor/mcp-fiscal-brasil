@@ -5,7 +5,7 @@ from .schemas import CertidaoURL
 
 def validate_cpf_for_certificate(cpf: str) -> bool:
     """Valida se um CPF é apto para emissão de certidão (validação offline do formato e dígitos)."""
-    return validate_cpf(cpf).valido
+    return validate_cpf(cpf).válido
 
 
 def get_pgfn_url(cpf_or_cnpj: str) -> CertidaoURL:
@@ -19,7 +19,7 @@ def get_pgfn_url(cpf_or_cnpj: str) -> CertidaoURL:
     return CertidaoURL(
         tipo="PGFN",
         url=url,
-        descricao="Certidão Conjunta de Débitos Relativos a Tributos Federais e à Dívida Ativa da União",
+        descrição="Certidão Conjunta de Débitos Relativos a Tributos Federais e à Dívida Ativa da União",
         validade_dias_tipico=180,
     )
 
@@ -29,7 +29,7 @@ def get_fgts_url(cnpj: str) -> CertidaoURL:
     return CertidaoURL(
         tipo="FGTS",
         url="https://consulta-crf.caixa.gov.br/consultacrf/pages/consultaEmpregador.jsf",
-        descricao="Certidão de Regularidade do FGTS",
+        descrição="Certidão de Regularidade do FGTS",
         validade_dias_tipico=30,
     )
 
@@ -38,7 +38,7 @@ def get_cndt_url(cpf_or_cnpj: str) -> CertidaoURL:
     """Gera a URL para consulta da Certidão Negativa de Débitos Trabalhistas (CNDT)."""
     return CertidaoURL(
         tipo="CNDT",
-        url="https://cndt-certidao.tst.jus.br/inicio.faces",
-        descricao="Certidão Negativa de Débitos Trabalhistas",
+        url="https://cndt-certidao.tst.jus.br/início.faces",
+        descrição="Certidão Negativa de Débitos Trabalhistas",
         validade_dias_tipico=180,
     )

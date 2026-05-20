@@ -1,10 +1,10 @@
 # Hospedagem
 
-Quer rodar o `mcp-fiscal-brasil` como servico publico ou interno? Tres opcoes pre-configuradas no repo.
+Quer rodar o `mcp-fiscal-brasil` como serviço publico ou interno? Três opções pré-configuradas no repo.
 
 ## Render.com (recomendado para demo)
 
-Free tier com 750h/mes. Servico dorme apos 15min de inatividade (cold start de ~30s ao acordar).
+Free tier com 750h/mês. Servico dorme apos 15min de inatividade (cold start de ~30s ao acordar).
 
 ### Setup
 
@@ -12,7 +12,7 @@ Free tier com 750h/mes. Servico dorme apos 15min de inatividade (cold start de ~
 2. Em **Dashboard -> New -> Blueprint**
 3. Aponte para `https://github.com/nikolasdehor/mcp-fiscal-brasil`
 4. Render le `render.yaml` e configura tudo automaticamente
-5. Apos ~3min, voce tem URL tipo `mcp-fiscal-brasil.onrender.com`
+5. Apos ~3min, você tem URL tipo `mcp-fiscal-brasil.onrender.com`
 
 ### URL publica
 
@@ -20,9 +20,9 @@ Free tier com 750h/mes. Servico dorme apos 15min de inatividade (cold start de ~
 - OpenAPI: `https://mcp-fiscal-brasil.onrender.com/docs`
 - Endpoints: `https://mcp-fiscal-brasil.onrender.com/v1/...`
 
-## Fly.io (recomendado para producao)
+## Fly.io (recomendado para produção)
 
-Free allowance pequeno mas estavel. Latencia minima do BR (region `gru` = Sao Paulo). Sempre ativo (sem cold start).
+Free allowance pequeno mas estavel. Latencia minima do BR (region `gru` = São Paulo). Sempre ativo (sem cold start).
 
 ### Setup
 
@@ -35,7 +35,7 @@ flyctl launch --copy-config --no-deploy --name mcp-fiscal-brasil --region gru
 flyctl deploy
 ```
 
-`fly.toml` ja vem configurado no repo.
+`fly.toml` já vem configurado no repo.
 
 ### URL publica
 
@@ -62,21 +62,21 @@ Ou via docker-compose (`docker-compose.yml` do repo):
 docker compose up -d api
 ```
 
-## Configuracao recomendada para producao
+## Configuracao recomendada para produção
 
-Independente da plataforma, em producao real:
+Independente da plataforma, em produção real:
 
 - **`MCP_FISCAL_CACHE_BACKEND=redis`** + Redis externo (Render/Fly oferecem add-ons)
 - **`MCP_FISCAL_RATE_LIMIT=20`** ou mais (ajustar pela taxa de erros das APIs publicas)
 - **`MCP_FISCAL_LOG_LEVEL=INFO`** (debug so em troubleshooting)
 - **Proxy reverso com auth** (Nginx + basic auth, Cloudflare Access, etc) se exposto publicamente
-- **HTTPS obrigatorio** (todas as plataformas acima cobrem isso automaticamente)
+- **HTTPS obrigatório** (todas as plataformas acima cobrem isso automaticamente)
 
 ## Custos esperados
 
-| Plataforma | Plano | Custo/mes | Always-on |
+| Plataforma | Plano | Custo/mês | Always-on |
 |------------|-------|-----------|-----------|
-| Render | Free | $0 | Nao (sleep 15min) |
+| Render | Free | $0 | Não (sleep 15min) |
 | Render | Starter | US$ 7 | Sim |
 | Fly.io | Free allowance | $0 | Sim (256MB) |
 | Fly.io | Shared CPU | ~US$ 3 | Sim (256MB) |

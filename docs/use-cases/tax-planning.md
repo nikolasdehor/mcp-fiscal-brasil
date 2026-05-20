@@ -1,34 +1,34 @@
-# Planejamento tributario
+# Planejamento tributário
 
-Como usar o `mcp-fiscal` para sugerir regime tributario a clientes ou para decisoes internas de planejamento.
+Como usar o `mcp-fiscal` para sugerir regime tributário a clientes ou para decisões internas de planejamento.
 
 ## Cenario
 
-Cliente / equipe pergunta: "Qual o melhor regime para meu cenario?". Tradicionalmente: pegar planilhas, calcular para cada regime, comparar. Tempo: 30-60 minutos.
+Cliente / equipe pergunta: "Qual o melhor regime para meu cenário?". Tradicionalmente: pegar planilhas, calcular para cada regime, comparar. Tempo: 30-60 minutos.
 
 Com `compare_tax_regimes`:
 
 ```python
 plano = compare_tax_regimes(
     faturamento_anual=500_000,
-    setor="servicos",
+    setor="serviços",
     folha_pagamento_anual=180_000,
 )
 ```
 
-Resposta em milissegundos com aliquota efetiva e imposto estimado por regime.
+Resposta em milissegundos com alíquota efetiva e imposto estimado por regime.
 
 ## Exemplo: assistente de planejamento
 
 ```python
 from mcp_fiscal_brasil.agentic import compare_tax_regimes
 
-def sugerir_regime(cenario: dict) -> dict:
-    """Sugere regime tributario com base no cenario do cliente."""
+def sugerir_regime(cenário: dict) -> dict:
+    """Sugere regime tributário com base no cenário do cliente."""
     plano = compare_tax_regimes(
-        faturamento_anual=cenario["faturamento"],
-        setor=cenario["setor"],
-        folha_pagamento_anual=cenario.get("folha"),
+        faturamento_anual=cenário["faturamento"],
+        setor=cenário["setor"],
+        folha_pagamento_anual=cenário.get("folha"),
     )
 
     return {
@@ -38,44 +38,44 @@ def sugerir_regime(cenario: dict) -> dict:
             {
                 "regime": o.regime,
                 "imposto_anual": o.imposto_anual_estimado,
-                "aplicavel": o.aplicavel,
+                "aplicável": o.aplicável,
             }
-            for o in plano.opcoes
+            for o in plano.opções
         ],
-        "observacoes": plano.observacoes,
+        "observações": plano.observações,
     }
 ```
 
 ## Cenarios comuns
 
-### MEI vs Simples (microempresa de servicos)
+### MEI vs Simples (microempresa de serviços)
 
 ```bash
-mcp-fiscal regimes --faturamento 60000 --setor servicos --json
-mcp-fiscal regimes --faturamento 100000 --setor servicos --json
+mcp-fiscal regimes --faturamento 60000 --setor serviços --json
+mcp-fiscal regimes --faturamento 100000 --setor serviços --json
 ```
 
 Esperado: para faturamento <= R$ 81 mil, MEI tende a ser melhor (se a atividade for permitida). Acima disso, Simples.
 
-### Fator R em servicos
+### Fator R em serviços
 
 ```bash
 # Folha alta -> Anexo III
-mcp-fiscal regimes --faturamento 500000 --setor servicos --folha 200000
+mcp-fiscal regimes --faturamento 500000 --setor serviços --folha 200000
 
 # Folha baixa -> Anexo V (mais caro)
-mcp-fiscal regimes --faturamento 500000 --setor servicos --folha 30000
+mcp-fiscal regimes --faturamento 500000 --setor serviços --folha 30000
 ```
 
-A diferenca de aliquota pode passar de 5pp.
+A diferenca de alíquota pode passar de 5pp.
 
 ### Industria grande (sem Simples)
 
 ```bash
-mcp-fiscal regimes --faturamento 10000000 --setor industria --json
+mcp-fiscal regimes --faturamento 10000000 --setor indústria --json
 ```
 
-Simples saira como `aplicavel=false`. Comparativo entre Lucro Presumido e Lucro Real.
+Simples saira como `aplicável=false`. Comparativo entre Lucro Presumido e Lucro Real.
 
 ## Integracao com SaaS contabil
 
@@ -85,7 +85,7 @@ from mcp_fiscal_brasil.agentic import compare_tax_regimes
 
 app = FastAPI()
 
-@app.post("/api/planejamento-tributario")
+@app.post("/api/planejamento-tributário")
 async def planejamento(payload: dict) -> dict:
     plano = compare_tax_regimes(
         faturamento_anual=payload["faturamento"],
@@ -98,7 +98,7 @@ async def planejamento(payload: dict) -> dict:
 ## Limitacoes
 
 - Calculo simplificado, **NAO substitui parecer contabil**
-- Nao considera beneficios estaduais (ProEmprego, regimes especiais)
-- ICMS usado e media nacional (12%) - na pratica varia 4-25% por UF
-- ISS usado e media (5%) - varia 2-5% por municipio
-- Aliquotas atualizadas em 2025; revisar a cada reforma tributaria
+- Não considera benefícios estaduais (ProEmprego, regimes especiais)
+- ICMS usado e média nacional (12%) - na prática varia 4-25% por UF
+- ISS usado e média (5%) - varia 2-5% por municipio
+- Aliquotas atualizadas em 2025; revisar a cada reforma tributária

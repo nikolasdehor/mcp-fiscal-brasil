@@ -41,7 +41,7 @@ def test_agentic_regimes_via_api() -> None:
         "/v1/agentic/regimes",
         params={
             "faturamento_anual": 500_000,
-            "setor": "servicos",
+            "setor": "serviços",
             "folha_pagamento_anual": 180_000,
         },
     )
@@ -62,7 +62,7 @@ def test_agentic_regimes_setor_invalido() -> None:
 def test_agentic_regimes_faturamento_zero() -> None:
     response = client.get(
         "/v1/agentic/regimes",
-        params={"faturamento_anual": 0, "setor": "comercio"},
+        params={"faturamento_anual": 0, "setor": "comércio"},
     )
     assert response.status_code == 422
 

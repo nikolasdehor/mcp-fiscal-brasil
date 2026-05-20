@@ -52,7 +52,7 @@ class TestValidateChaveNFe:
         # Chave com DV correto (calculado)
         # Usamos uma chave conhecida
         chave = "31060107364617000135550000000194291370923172"
-        # Esta chave especifica pode ou nao ser valida dependendo do DV
+        # Esta chave especifica pode ou não ser válida dependendo do DV
         # Testamos o formato
         assert len(chave) == 44
 
@@ -61,7 +61,7 @@ class TestValidateChaveNFe:
         assert validate_chave_nfe("123456789012345678901234567890123456789012345") is False
 
     def test_chave_com_espacos(self) -> None:
-        # Espacos sao removidos pelo validador
+        # Espacos são removidos pelo validador
         assert validate_chave_nfe("1234 5678") is False  # ainda tamanho errado sem espacos
 
 

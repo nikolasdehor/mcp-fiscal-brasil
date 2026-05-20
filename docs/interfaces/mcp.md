@@ -37,6 +37,6 @@ Veja [Configuracao](../getting-started/config.md#cliente-mcp) para exemplos de C
 
 Apos configurar o servidor no cliente, pergunte em linguagem natural:
 
-> "Consulte o CNPJ 12.345.678/0001-90 e me da o relatorio de compliance completo"
+> "Consulte o CNPJ 12.345.678/0001-90 e me da o relatório de compliance completo"
 
 O agente IA vai chamar `analyze_cnpj_compliance` automaticamente.

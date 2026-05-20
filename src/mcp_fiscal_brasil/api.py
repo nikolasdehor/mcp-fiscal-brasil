@@ -1,7 +1,7 @@
 """API REST do mcp-fiscal-brasil via FastAPI.
 
 Expoe as principais ferramentas fiscais como endpoints HTTP. Util para
-integrar com sistemas que nao falam MCP (frontends web, automacao no-code,
+integrar com sistemas que não falam MCP (frontends web, automação no-code,
 microservicos legados).
 
 Executar:
@@ -48,7 +48,7 @@ app = FastAPI(
 
 
 # ---------------------------------------------------------------------------
-# Health + versao
+# Health + versão
 # ---------------------------------------------------------------------------
 
 
@@ -60,7 +60,7 @@ class HealthResponse(BaseModel):
 
 @app.get("/health", response_model=HealthResponse, tags=["meta"])
 def health() -> HealthResponse:
-    """Retorna status do servico."""
+    """Retorna status do serviço."""
     return HealthResponse()
 
 
@@ -120,11 +120,11 @@ async def simples_lookup(cnpj: str) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-@app.get("/v1/ibge/municipio/{codigo}", tags=["ibge"], summary="Municipio por codigo IBGE")
-async def ibge_municipio(codigo: int) -> dict[str, Any]:
-    """Consulta dados de um municipio pelo codigo IBGE."""
+@app.get("/v1/ibge/municipio/{código}", tags=["ibge"], summary="Municipio por código IBGE")
+async def ibge_municipio(código: int) -> dict[str, Any]:
+    """Consulta dados de um municipio pelo código IBGE."""
     client = IBGEClient()
-    resultado = await client.get_municipality(codigo)
+    resultado = await client.get_municipality(código)
     data: dict[str, Any] = resultado.model_dump(mode="json", exclude_none=True)
     return data
 
@@ -146,9 +146,9 @@ class NFeValidateRequest(BaseModel):
 
 @app.post("/v1/nfe/validate", tags=["nfe", "agentic"], summary="Validacao consolidada de NFe")
 async def nfe_validate_full(req: NFeValidateRequest) -> dict[str, Any]:
-    """Parse XML + valida chave + verifica situacao do emissor."""
+    """Parse XML + válida chave + verifica situacao do emissor."""
     if not Path(req.xml_path).exists():
-        raise HTTPException(status_code=404, detail=f"Arquivo nao encontrado: {req.xml_path}")
+        raise HTTPException(status_code=404, detail=f"Arquivo não encontrado: {req.xml_path}")
     resultado = await validate_nfe_full(req.xml_path)
     return resultado.model_dump(mode="json", exclude_none=True)
 
@@ -166,7 +166,7 @@ class SPEDSummarizeRequest(BaseModel):
 async def sped_summarize(req: SPEDSummarizeRequest) -> dict[str, Any]:
     """Sumario executivo de arquivo SPED."""
     if not Path(req.file_path).exists():
-        raise HTTPException(status_code=404, detail=f"Arquivo nao encontrado: {req.file_path}")
+        raise HTTPException(status_code=404, detail=f"Arquivo não encontrado: {req.file_path}")
     resultado = await summarize_sped(req.file_path)
     return resultado.model_dump(mode="json", exclude_none=True)
 
@@ -207,7 +207,7 @@ async def agentic_supplier(
 )
 def agentic_regimes(
     faturamento_anual: float = Query(..., gt=0),
-    setor: Literal["comercio", "servicos", "industria"] = Query(...),
+    setor: Literal["comércio", "serviços", "indústria"] = Query(...),
     folha_pagamento_anual: float | None = Query(None, ge=0),
 ) -> dict[str, Any]:
     """Comparativo MEI/Simples/Lucro Presumido/Lucro Real."""
@@ -304,9 +304,9 @@ a { color:var(--accent); }
                required min="1" style="min-width:160px;">
         <select name="setor" required style="background:#0f172a; color:var(--fg);
                 border:1px solid var(--border); padding:0.6rem; border-radius:6px;">
-          <option value="servicos">Servicos</option>
-          <option value="comercio">Comercio</option>
-          <option value="industria">Industria</option>
+          <option value="serviços">Servicos</option>
+          <option value="comércio">Comercio</option>
+          <option value="indústria">Industria</option>
         </select>
         <input name="folha" type="number" placeholder="Folha anual (opcional)"
                min="0" style="min-width:160px;">

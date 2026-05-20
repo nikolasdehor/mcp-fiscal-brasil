@@ -1,4 +1,4 @@
-"""Constantes fiscais brasileiras: UFs, CFOP, CST, NCM e codigos SEFAZ."""
+"""Constantes fiscais brasileiras: UFs, CFOP, CST, NCM e códigos SEFAZ."""
 
 # Codigos de UF (IBGE)
 UF_CODES: dict[str, int] = {
@@ -31,7 +31,7 @@ UF_CODES: dict[str, int] = {
     "TO": 17,
 }
 
-# Siglas de UF por codigo IBGE
+# Siglas de UF por código IBGE
 CODIGO_UF: dict[int, str] = {v: k for k, v in UF_CODES.items()}
 
 # Nomes completos das UFs
@@ -60,7 +60,7 @@ NOME_UF: dict[str, str] = {
     "RO": "Rondonia",
     "RR": "Roraima",
     "SC": "Santa Catarina",
-    "SP": "Sao Paulo",
+    "SP": "São Paulo",
     "SE": "Sergipe",
     "TO": "Tocantins",
 }
@@ -69,12 +69,12 @@ NOME_UF: dict[str, str] = {
 STATUS_SEFAZ: dict[int, str] = {
     100: "Autorizado o uso da NF-e",
     101: "Cancelamento de NF-e homologado",
-    102: "Inutilizacao de numero homologado",
+    102: "Inutilizacao de número homologado",
     110: "Uso Denegado",
     135: "Evento registrado e vinculado a NF-e",
-    136: "Evento registrado, mas nao vinculado a NF-e",
+    136: "Evento registrado, mas não vinculado a NF-e",
     150: "Autorizado o uso da NF-e, autorização fora de prazo",
-    151: "NF-e nao localizada",
+    151: "NF-e não localizada",
     155: "Cancelamento homologado fora de prazo",
     204: "Duplicidade de NF-e com divergencia",
     205: "NF-e esta denegada na base de dados da SEFAZ",
@@ -85,14 +85,14 @@ STATUS_SEFAZ: dict[int, str] = {
     235: "Chave de Acesso invalida",
     302: "CNPJ invalido",
     303: "CPF do destinatario invalido",
-    305: "Rejeicao: NF-e ja numerada",
+    305: "Rejeicao: NF-e já numerada",
     401: "Rejeicao: Certificado transmissor invalido",
     402: "Rejeicao: Certificado transmissor fora de validade",
     403: "Rejeicao: Certificado transmissor revogado",
     501: "Rejeicao: Prazo de Cancelamento Superior ao Permitido",
     539: "Rejeicao: CSOSN invalido",
     591: "Rejeicao: Informar a chave de acesso da NF-e referenciada",
-    999: "Rejeicao: Erro nao catalogado",
+    999: "Rejeicao: Erro não catalogado",
 }
 
 # Modelos de documentos fiscais
@@ -120,7 +120,7 @@ MODELOS_DOCUMENTO: dict[str, str] = {
 CFOP_DESCRICAO: dict[str, str] = {
     "1101": "Compra para industrializacao dentro do estado",
     "1102": "Compra para comercializacao dentro do estado",
-    "1202": "Devolucao de venda de producao propria dentro do estado",
+    "1202": "Devolucao de venda de producao própria dentro do estado",
     "1556": "Compra de material para uso ou consumo dentro do estado",
     "2101": "Compra para industrializacao de outro estado",
     "2102": "Compra para comercializacao de outro estado",
@@ -133,7 +133,7 @@ CFOP_DESCRICAO: dict[str, str] = {
     "5202": "Devolucao de compra para comercializacao dentro do estado",
     "5401": "Venda de producao do estabelecimento em operacao com ST",
     "5403": "Venda de mercadoria adquirida com ST dentro do estado",
-    "5405": "Venda de mercadoria adquirida com ST para nao contribuinte",
+    "5405": "Venda de mercadoria adquirida com ST para não contribuinte",
     "5501": "Remessa para industrializacao por encomenda",
     "5556": "Venda de material de uso ou consumo dentro do estado",
     "5910": "Remessa em bonificacao, doacao ou brinde",
@@ -142,7 +142,7 @@ CFOP_DESCRICAO: dict[str, str] = {
     "6102": "Venda de mercadoria adquirida ou recebida de terceiros para outro estado",
     "6108": "Venda de producao do estabelecimento destinada ao exterior",
     "6401": "Venda de producao com ST para outro estado",
-    "7101": "Exportacao de producao propria",
+    "7101": "Exportacao de producao própria",
     "7102": "Exportacao de mercadoria adquirida de terceiros",
 }
 
@@ -152,7 +152,7 @@ CST_ICMS_ORIGEM: dict[str, str] = {
     "1": "Estrangeira - Importacao direta",
     "2": "Estrangeira - Adquirida no mercado interno",
     "3": "Nacional com mais de 40% de conteudo de importacao",
-    "4": "Nacional com processo produtivo basico",
+    "4": "Nacional com processo produtivo básico",
     "5": "Nacional com menos de 40% de conteudo de importacao",
     "6": "Estrangeira - Importacao direta sem similar nacional",
     "7": "Estrangeira - Adquirida no mercado interno sem similar nacional",
@@ -164,9 +164,9 @@ CST_ICMS_TRIBUTACAO: dict[str, str] = {
     "00": "Tributada integralmente",
     "10": "Tributada e com cobranca do ICMS por ST",
     "20": "Com reducao de BC",
-    "30": "Isenta ou nao tributada e com cobranca do ICMS por ST",
+    "30": "Isenta ou não tributada e com cobranca do ICMS por ST",
     "40": "Isenta",
-    "41": "Nao tributada",
+    "41": "Não tributada",
     "50": "Suspensao",
     "51": "Diferimento",
     "60": "ICMS cobrado anteriormente por ST",
@@ -183,7 +183,7 @@ CSOSN: dict[str, str] = {
     "202": "Tributada pelo Simples Nacional sem permissao de credito e com cobranca do ICMS por ST",
     "203": "Isencao do ICMS no Simples Nacional para faixa de receita bruta e com cobranca do ICMS por ST",
     "300": "Imune",
-    "400": "Nao tributada pelo Simples Nacional",
+    "400": "Não tributada pelo Simples Nacional",
     "500": "ICMS cobrado anteriormente por ST ou por antecipacao",
     "900": "Outros",
 }
@@ -223,7 +223,7 @@ NATUREZA_JURIDICA: dict[str, str] = {
 
 # Porte da empresa
 PORTE_EMPRESA: dict[str, str] = {
-    "00": "Nao informado",
+    "00": "Não informado",
     "01": "Micro Empresa",
     "03": "Empresa de Pequeno Porte",
     "05": "Demais",

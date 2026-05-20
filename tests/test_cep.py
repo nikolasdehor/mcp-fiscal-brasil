@@ -23,7 +23,7 @@ async def test_get_address_success(client):
         mock_get.return_value = {
             "cep": "01001000",
             "state": "SP",
-            "city": "Sao Paulo",
+            "city": "São Paulo",
             "neighborhood": "Se",
             "street": "Praca da Se",
             "service": "viacep",

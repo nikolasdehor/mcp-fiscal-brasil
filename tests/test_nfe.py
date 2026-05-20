@@ -12,15 +12,15 @@ from mcp_fiscal_brasil.shared.exceptions import APIError, RateLimitError, Valida
 class TestValidarChaveNFe:
     async def test_chave_tamanho_errado(self) -> None:
         resultado = await validar_chave_nfe("12345")
-        assert resultado["valido"] is False
+        assert resultado["válido"] is False
 
     async def test_chave_com_espacos_aceita(self) -> None:
-        # Espacos devem ser removidos antes da validacao
+        # Espacos devem ser removidos antes da validação
         resultado = await validar_chave_nfe("1234 5678 9012")
-        assert resultado["valido"] is False  # ainda invalida por tamanho
+        assert resultado["válido"] is False  # ainda invalida por tamanho
 
     async def test_chave_valida_extrai_campos(self) -> None:
-        # Gera uma chave valida para teste
+        # Gera uma chave válida para teste
         # cUF=35 AAMM=2301 CNPJ=12345678901234 mod=55 serie=001 nNF=000000001 tpEmis=1 cNF=00000001
         # DV calculado via modulo 11
         base = "3523011234567890123455001000000001100000001"
@@ -34,7 +34,7 @@ class TestValidarChaveNFe:
         chave = base + str(dv)
 
         resultado = await validar_chave_nfe(chave)
-        assert resultado["valido"] is True
+        assert resultado["válido"] is True
         assert resultado["uf"] == "SP"
         assert resultado["cnpj_emitente"] == "12345678901234"
 
@@ -56,7 +56,7 @@ class TestConsultarStatusSEFAZ:
 
 
 def _chave_valida_sp() -> str:
-    """Gera uma chave de acesso valida para SP (cUF=35)."""
+    """Gera uma chave de acesso válida para SP (cUF=35)."""
     base = "3523011234567890123455001000000001100000001"
     assert len(base) == 43
     pesos_ciclo = list(range(2, 10))
@@ -72,7 +72,7 @@ class TestExtrairInfoChave:
         info = _extrair_info_chave(chave)
         assert info["uf"] == "SP"
         assert info["cnpj_emitente"] == "12345678901234"
-        assert info["numero"] == "000000001"
+        assert info["número"] == "000000001"
         assert info["serie"] == "001"
         assert info["modelo"] == "55"
 
@@ -86,7 +86,7 @@ class TestNFEClientFallback:
 
         from mcp_fiscal_brasil.nfe.schemas import NFeResponse
 
-        mock_resp = NFeResponse(chave_acesso=chave, numero="1", serie="1", situacao="Autorizada")
+        mock_resp = NFeResponse(chave_acesso=chave, número="1", serie="1", situacao="Autorizada")
 
         with patch.object(client, "_consultar_brasil_api", new=AsyncMock(return_value=mock_resp)):
             with patch.object(client, "_consultar_portal_nfe", new=AsyncMock()) as portal_mock:
@@ -101,7 +101,7 @@ class TestNFEClientFallback:
 
         from mcp_fiscal_brasil.nfe.schemas import NFeResponse
 
-        mock_resp = NFeResponse(chave_acesso=chave, numero="1", serie="1", situacao="Autorizada")
+        mock_resp = NFeResponse(chave_acesso=chave, número="1", serie="1", situacao="Autorizada")
 
         with patch.object(
             client,
@@ -122,12 +122,12 @@ class TestNFEClientFallback:
 
         from mcp_fiscal_brasil.nfe.schemas import NFeResponse
 
-        mock_resp = NFeResponse(chave_acesso=chave, numero="1", serie="1", situacao="Autorizada")
+        mock_resp = NFeResponse(chave_acesso=chave, número="1", serie="1", situacao="Autorizada")
 
         with patch.object(
             client,
             "_consultar_brasil_api",
-            new=AsyncMock(side_effect=APIError(message="nao encontrado", status_code=404)),
+            new=AsyncMock(side_effect=APIError(message="não encontrado", status_code=404)),
         ):
             with patch.object(
                 client, "_consultar_portal_nfe", new=AsyncMock(return_value=mock_resp)

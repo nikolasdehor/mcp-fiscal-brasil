@@ -3,5 +3,5 @@ from pydantic import BaseModel
 
 class CPFValidation(BaseModel):
     cpf_formatado: str
-    valido: bool
+    válido: bool
     digitos_verificadores_ok: bool

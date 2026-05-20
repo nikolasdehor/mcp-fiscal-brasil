@@ -1,13 +1,13 @@
 # Contribuir
 
-Contribuicoes sao bem-vindas! Algumas formas de ajudar:
+Contribuicoes são bem-vindas! Algumas formas de ajudar:
 
 ## Formas de contribuir
 
 - **Issues**: reporte bugs ou peca features em [github.com/nikolasdehor/mcp-fiscal-brasil/issues](https://github.com/nikolasdehor/mcp-fiscal-brasil/issues)
 - **Pull requests**: fork, branch, PR
-- **Documentacao**: melhorias na doc sao MUITO bem-vindas
-- **Casos de uso**: compartilhe como voce usa o `mcp-fiscal-brasil` em projetos reais
+- **Documentacao**: melhorias na doc são MUITO bem-vindas
+- **Casos de uso**: compartilhe como você usa o `mcp-fiscal-brasil` em projetos reais
 
 ## Setup de desenvolvimento
 
@@ -22,7 +22,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync --all-extras
 ```
 
-## Comandos uteis
+## Comandos úteis
 
 ```bash
 # Testes
@@ -46,9 +46,9 @@ uv run mkdocs serve
 
 - **Estilo**: PEP 8 + ruff format
 - **Tipos**: mypy --strict, type hints em todas as funcoes publicas
-- **Testes**: pytest, cobertura minima 80% em novo codigo
+- **Testes**: pytest, cobertura minima 80% em novo código
 - **Mensagens de commit**: imperativo curto, sem AI footers (`Co-Authored-By`, `Generated with Claude` etc)
-- **Portugues**: pt-BR com acentos corretos em strings/docs user-facing. Codigo e comentarios em ingles.
+- **Portugues**: pt-BR com acentos corretos em strings/docs user-facing. Codigo e comentários em ingles.
 
 ## Estrutura de PR
 
@@ -56,8 +56,8 @@ uv run mkdocs serve
 2. Commits pequenos e atomicos
 3. Testes para mudancas funcionais
 4. Atualize CHANGELOG.md
-5. PR com descricao clara do que muda e por que
+5. PR com descrição clara do que muda e por que
 
 ## Codigo de conduta
 
-Seja respeitoso. Foco no codigo, nao na pessoa. Sem toxicidade.
+Seja respeitoso. Foco no código, não na pessoa. Sem toxicidade.

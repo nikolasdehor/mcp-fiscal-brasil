@@ -23,8 +23,8 @@ class QSASocio(BaseModel):
 class AtividadeCNAE(BaseModel):
     """Atividade economica conforme CNAE."""
 
-    codigo: str
-    descricao: str
+    código: str
+    descrição: str
 
 
 class CNPJResponse(BaseResponse):

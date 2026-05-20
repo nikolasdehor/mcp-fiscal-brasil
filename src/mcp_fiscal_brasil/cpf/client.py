@@ -32,7 +32,7 @@ def validate_cpf(cpf: str) -> CPFValidation:
 
     # Formato básico
     if len(clean_cpf) != 11 or len(set(clean_cpf)) == 1:
-        return CPFValidation(cpf_formatado=cpf, valido=False, digitos_verificadores_ok=False)
+        return CPFValidation(cpf_formatado=cpf, válido=False, digitos_verificadores_ok=False)
 
     cpf_9 = clean_cpf[:9]
     dv1 = _calcular_digito_cpf(cpf_9)
@@ -41,5 +41,5 @@ def validate_cpf(cpf: str) -> CPFValidation:
     digitos_ok = clean_cpf[9:] == (dv1 + dv2)
 
     return CPFValidation(
-        cpf_formatado=format_cpf(clean_cpf), valido=digitos_ok, digitos_verificadores_ok=digitos_ok
+        cpf_formatado=format_cpf(clean_cpf), válido=digitos_ok, digitos_verificadores_ok=digitos_ok
     )

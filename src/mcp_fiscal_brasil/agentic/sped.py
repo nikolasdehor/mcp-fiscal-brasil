@@ -26,23 +26,23 @@ async def summarize_sped(file_path: str | Path) -> SPEDSummary:
     Sumarizacao executiva de um arquivo SPED.
 
     Le o arquivo, identifica tipo (Fiscal, Contribuicoes, ECF, ECD), extrai
-    periodo, empresa, total de registros e produz resumo em pt-BR.
+    período, empresa, total de registros e produz resumo em pt-BR.
 
     Args:
         file_path: Caminho para arquivo .txt do SPED.
 
     Returns:
-        SPEDSummary com periodo, empresa, metricas e resumo executivo.
+        SPEDSummary com período, empresa, metricas e resumo executivo.
 
     Exemplo:
-        sumario = await summarize_sped("/tmp/sped_fiscal_201912.txt")
-        print(sumario.resumo)
-        for metrica, valor in sumario.metricas_chave.items():
+        sumário = await summarize_sped("/tmp/sped_fiscal_201912.txt")
+        print(sumário.resumo)
+        for metrica, valor in sumário.metricas_chave.items():
             print(f"{metrica}: {valor}")
     """
     path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Arquivo SPED nao encontrado: {file_path}")
+        raise FileNotFoundError(f"Arquivo SPED não encontrado: {file_path}")
 
     conteudo = path.read_text(encoding="latin-1")
     analise = await analisar_sped(conteudo, nome_arquivo=path.name)
@@ -88,7 +88,7 @@ async def summarize_sped(file_path: str | Path) -> SPEDSummary:
     empresa_str = f" para {razao}" if razao else ""
     resumo = (
         f"Arquivo SPED {analise.tipo_sped}{empresa_str}{periodo_str}: "
-        f"{total_registros} registros validos em {total_blocos} blocos. "
+        f"{total_registros} registros válidos em {total_blocos} blocos. "
         f"{len(inconsistencias)} inconsistencia(s) identificada(s)."
     )
 

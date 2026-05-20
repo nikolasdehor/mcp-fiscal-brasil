@@ -28,12 +28,12 @@ docs = await listar_registros_sped(conteudo, "C100")
 
 ## Tools MCP
 
-- `analisar_sped(conteudo, nome_arquivo?)` - parse e sumario
+- `analisar_sped(conteudo, nome_arquivo?)` - parse e sumário
 - `listar_registros_sped(conteudo, tipo_registro)` - filtra por tipo
 
 ## Tool agentic
 
-Para sumario executivo de alto nivel, use [`summarize_sped`](../agentic/sped.md).
+Para sumário executivo de alto nivel, use [`summarize_sped`](../agentic/sped.md).
 
 ## Encoding
 

@@ -30,7 +30,7 @@ def test_cli_regimes_setor_invalido() -> None:
 def test_cli_regimes_calculo_valido() -> None:
     result = runner.invoke(
         app,
-        ["regimes", "--faturamento", "500000", "--setor", "servicos", "--folha", "180000"],
+        ["regimes", "--faturamento", "500000", "--setor", "serviços", "--folha", "180000"],
     )
     assert result.exit_code == 0
     assert (
@@ -43,7 +43,7 @@ def test_cli_regimes_calculo_valido() -> None:
 def test_cli_regimes_json_output() -> None:
     result = runner.invoke(
         app,
-        ["regimes", "--faturamento", "500000", "--setor", "servicos", "--json"],
+        ["regimes", "--faturamento", "500000", "--setor", "serviços", "--json"],
     )
     assert result.exit_code == 0
     import json
@@ -81,20 +81,20 @@ def test_cli_compliance_via_mock() -> None:
 def test_cli_regimes_grande_empresa() -> None:
     result = runner.invoke(
         app,
-        ["regimes", "--faturamento", "20000000", "--setor", "industria", "--json"],
+        ["regimes", "--faturamento", "20000000", "--setor", "indústria", "--json"],
     )
     assert result.exit_code == 0
     import json
 
     data = json.loads(result.stdout)
-    # Empresa grande nao usa simples
+    # Empresa grande não usa simples
     assert data["melhor_opcao"] in ("lucro_presumido", "lucro_real")
 
 
 def _fake_regime() -> TaxRegimeComparison:
     return TaxRegimeComparison(
         cenario_faturamento_anual=500_000,
-        cenario_setor="servicos",
+        cenario_setor="serviços",
         folha_pagamento_anual=180_000,
         opcoes=[
             TaxRegimeOption(
@@ -115,7 +115,7 @@ def _fake_regime() -> TaxRegimeComparison:
 def test_cli_regimes_pretty_output() -> None:
     result = runner.invoke(
         app,
-        ["regimes", "--faturamento", "500000", "--setor", "servicos"],
+        ["regimes", "--faturamento", "500000", "--setor", "serviços"],
     )
     assert result.exit_code == 0
     # pretty output uses key: value

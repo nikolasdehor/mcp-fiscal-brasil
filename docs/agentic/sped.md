@@ -12,8 +12,8 @@ async def summarize_sped(file_path: str | Path) -> SPEDSummary
 
 1. Le o arquivo (encoding `latin-1`, padrao SPED)
 2. Identifica tipo (EFD-ICMS-IPI, EFD-Contribuicoes, ECF, ECD)
-3. Extrai periodo (registro 0000)
-4. Extrai dados da empresa (CNPJ, razao social)
+3. Extrai período (registro 0000)
+4. Extrai dados da empresa (CNPJ, razão social)
 5. Conta registros totais e por bloco
 6. Lista inconsistencias estruturais
 7. Produz resumo executivo em pt-BR
@@ -40,7 +40,7 @@ class SPEDSummary(BaseModel):
 ### CLI
 
 ```bash
-# Sumario rapido
+# Sumario rápido
 mcp-fiscal-api  # liga o servidor
 curl -X POST http://localhost:8000/v1/sped/summarize \
   -H "Content-Type: application/json" \
@@ -61,4 +61,4 @@ if resumo.inconsistencias:
 
 ### Via agente IA
 
-> "Analisa o arquivo SPED em /contabil/sped_fiscal_202412.txt e me da o sumario executivo"
+> "Analisa o arquivo SPED em /contabil/sped_fiscal_202412.txt e me da o sumário executivo"

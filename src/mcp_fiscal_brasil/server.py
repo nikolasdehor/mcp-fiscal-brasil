@@ -152,13 +152,13 @@ async def tool_consultar_status_sefaz(uf: str) -> dict[str, Any]:
     ),
 )
 async def tool_consultar_nfse(
-    numero: str,
+    número: str,
     municipio: str,
     uf: str,
     cnpj_prestador: str | None = None,
 ) -> dict[str, str]:
     """Consulta NFSe com orientacoes por municipio."""
-    return await consultar_nfse(numero, municipio, uf, cnpj_prestador)
+    return await consultar_nfse(número, municipio, uf, cnpj_prestador)
 
 
 # ---------------------------------------------------------------------------
@@ -219,7 +219,7 @@ async def tool_listar_registros_sped(conteudo: str, tipo_registro: str) -> list[
     name="listar_eventos_esocial",
     description=(
         "Lista os eventos do eSocial com nome, grupo e descrição. "
-        "Pode filtrar por grupo: 'Tabelas', 'Nao Periodicos', 'Periodicos' ou 'Exclusao'."
+        "Pode filtrar por grupo: 'Tabelas', 'Não Periodicos', 'Periodicos' ou 'Exclusao'."
     ),
 )
 async def tool_listar_eventos_esocial(grupo: str | None = None) -> list[dict[str, Any]]:
@@ -280,10 +280,10 @@ async def tool_consultar_certidao_fgts(cnpj: str) -> dict[str, str]:
     name="analyze_cnpj_compliance",
     description=(
         "Analise consolidada de compliance fiscal de um CNPJ. "
-        "Combina dados cadastrais (Receita), regime tributario (Simples Nacional), "
-        "status MEI e CNAE em um relatorio unico com score 0-100, risco classificado "
+        "Combina dados cadastrais (Receita), regime tributário (Simples Nacional), "
+        "status MEI e CNAE em um relatório unico com score 0-100, risco classificado "
         "(baixo/medio/alto/critico) e achados acionaveis. "
-        "Use para decisao de contratar/recusar/investigar uma empresa em uma chamada."
+        "Use para decisão de contratar/recusar/investigar uma empresa em uma chamada."
     ),
 )
 async def tool_analyze_cnpj_compliance(cnpj: str) -> dict[str, Any]:
@@ -296,9 +296,9 @@ async def tool_analyze_cnpj_compliance(cnpj: str) -> dict[str, Any]:
     name="compare_tax_regimes",
     description=(
         "Compara regimes tributarios brasileiros (MEI, Simples Nacional, Lucro Presumido, "
-        "Lucro Real) para um cenario de faturamento e setor. Retorna estimativa de aliquota "
-        "efetiva, imposto anual e melhor opcao. Util para planejamento tributario rapido. "
-        "Setor: comercio, servicos ou industria. Folha opcional impacta Fator R no Simples."
+        "Lucro Real) para um cenário de faturamento e setor. Retorna estimativa de alíquota "
+        "efetiva, imposto anual e melhor opção. Util para planejamento tributário rápido. "
+        "Setor: comércio, serviços ou indústria. Folha opcional impacta Fator R no Simples."
     ),
 )
 async def tool_compare_tax_regimes(
@@ -306,9 +306,9 @@ async def tool_compare_tax_regimes(
     setor: str,
     folha_pagamento_anual: float | None = None,
 ) -> dict[str, Any]:
-    """Compara regimes tributarios para um cenario."""
-    if setor not in ("comercio", "servicos", "industria"):
-        raise ValueError("setor deve ser: comercio, servicos ou industria")
+    """Compara regimes tributarios para um cenário."""
+    if setor not in ("comércio", "serviços", "indústria"):
+        raise ValueError("setor deve ser: comércio, serviços ou indústria")
     resultado = compare_tax_regimes(
         faturamento_anual=faturamento_anual,
         setor=setor,  # type: ignore[arg-type]
@@ -335,9 +335,9 @@ async def tool_risk_score_supplier(cnpj: str, criterios_estritos: bool = False) 
 @app.tool(
     name="validate_nfe_full",
     description=(
-        "Validacao consolidada de uma NFe a partir do XML: parse estrutural, validacao "
+        "Validacao consolidada de uma NFe a partir do XML: parse estrutural, validação "
         "do digito verificador da chave, verificacao de situacao do CNPJ emissor. "
-        "Recebe caminho de arquivo XML local. Retorna relatorio com chave, validade, "
+        "Recebe caminho de arquivo XML local. Retorna relatório com chave, validade, "
         "issues e resumo."
     ),
 )
@@ -351,7 +351,7 @@ async def tool_validate_nfe_full(xml_path: str) -> dict[str, Any]:
     name="summarize_sped",
     description=(
         "Sumarizacao executiva de um arquivo SPED (Fiscal, Contribuicoes, ECF ou ECD). "
-        "Identifica tipo, extrai periodo, empresa, total de registros, blocos e produz "
+        "Identifica tipo, extrai período, empresa, total de registros, blocos e produz "
         "resumo em pt-BR. Recebe caminho de arquivo .txt local."
     ),
 )

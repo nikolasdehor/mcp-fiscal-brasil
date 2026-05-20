@@ -14,20 +14,20 @@ Release focada em produzir o MCP fiscal brasileiro mais completo do mercado.
 
 #### Fase 2 - 8 novas fontes de dados
 - `cnae/` - tabela CNAE da Receita
-- `cpf/` - validacao algoritmica offline
+- `cpf/` - validação algoritmica offline
 - `simples/` - regime Simples Nacional
 - `mei/` - status MEI
-- `ibge/` - municipios, UFs, codigos IBGE
-- `cep/` - lookup de endereco por CEP
+- `ibge/` - municipios, UFs, códigos IBGE
+- `cep/` - lookup de endereço por CEP
 - `empresa/` - dados consolidados de empresa
 - `certidoes/` - geracao de URLs de certidoes (CND, FGTS, CNDT)
 
 #### Fase 3 - Tools agenticas (`agentic/`)
-- `analyze_cnpj_compliance` - relatorio consolidado (CNPJ + Simples + MEI + CNAE) com score 0-100 e risco classificado
-- `compare_tax_regimes` - comparativo MEI/Simples/Lucro Presumido/Lucro Real com aliquota efetiva e imposto estimado
+- `analyze_cnpj_compliance` - relatório consolidado (CNPJ + Simples + MEI + CNAE) com score 0-100 e risco classificado
+- `compare_tax_regimes` - comparativo MEI/Simples/Lucro Presumido/Lucro Real com alíquota efetiva e imposto estimado
 - `risk_score_supplier` - due diligence de fornecedor com recomendacao (aprovar/aprovar_com_ressalvas/investigar/recusar)
-- `validate_nfe_full` - validacao consolidada de NFe (parse XML + chave + situacao do emissor)
-- `summarize_sped` - sumario executivo de arquivo SPED
+- `validate_nfe_full` - validação consolidada de NFe (parse XML + chave + situação do emissor)
+- `summarize_sped` - sumário executivo de arquivo SPED
 
 #### Fase 4 - Multiplas interfaces
 - **CLI** (`mcp-fiscal`) - typer com comandos cnpj, cpf, cep, simples, municipio, compliance, supplier, regimes. Flag `--json`.
@@ -36,7 +36,7 @@ Release focada em produzir o MCP fiscal brasileiro mais completo do mercado.
 - **npm wrapper** (`mcp-fiscal-brasil` no npm) - TypeScript que spawna o CLI Python para uso em apps Node.js
 
 #### Fase 5 - Docker e release
-- Dockerfile multi-stage com healthcheck e usuario nao-root
+- Dockerfile multi-stage com healthcheck e usuário não-root
 - docker-compose com profiles para API e MCP HTTP
 - Bump v0.1.1 -> v0.2.0
 
@@ -46,9 +46,9 @@ Release focada em produzir o MCP fiscal brasileiro mais completo do mercado.
 - Suite de testes expandida para **117 testes** (era ~70)
 
 ### Quality gates
-- `mypy --strict`: limpo no codigo novo
+- `mypy --strict`: limpo no código novo
 - `ruff check` + `ruff format`: limpos
-- Cobertura: 80%+ no codigo novo
+- Cobertura: 80%+ no código novo
 
 
 
@@ -60,7 +60,7 @@ Release focada em produzir o MCP fiscal brasileiro mais completo do mercado.
 - NFe fallback chain: BrasilAPI -> Portal Nacional -> partial key data
 - eSocial catalog expanded to 45+ events (S-1.0 complete)
 - NFSe coverage expanded to 50+ municipalities (all state capitals + major cities)
-- CI/CD: GitHub Actions (lint, test, publish PyPI), Docker, pre-commit
+- CI/CD: GitHub Actions (lint, test, publish PyPI), Docker, pré-commit
 - Published on PyPI: pip install mcp-fiscal-brasil
 
 ### Fixed

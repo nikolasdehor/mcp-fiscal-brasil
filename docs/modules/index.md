@@ -1,6 +1,6 @@
 # Modulos
 
-Cada fonte de dado fiscal e um modulo Python em `src/mcp_fiscal_brasil/`.
+Cada fonte de dado fiscal e um módulo Python em `src/mcp_fiscal_brasil/`.
 
 ## Disponiveis (v0.2.0)
 
@@ -9,8 +9,8 @@ Cada fonte de dado fiscal e um modulo Python em `src/mcp_fiscal_brasil/`.
 | [cnpj](cnpj.md) | BrasilAPI, ReceitaWS | Dados cadastrais |
 | [cpf](cpf.md) | Algoritmico | Validacao offline |
 | [cep](cep.md) | BrasilAPI, ViaCEP | Enderecos |
-| [nfe](nfe.md) | SEFAZ, parse XML | Notas fiscais eletronicas |
-| [nfse](#) | Portais municipais | Servicos eletronicos |
+| [nfe](nfe.md) | SEFAZ, parse XML | Notas fiscais eletrônicas |
+| [nfse](#) | Portais municipais | Servicos eletrônicos |
 | [sped](sped.md) | Parse local | Escrituracao digital |
 | [esocial](#) | Validacao | Eventos eSocial |
 | [simples](simples.md) | API Receita | Regime Simples Nacional |
@@ -22,14 +22,14 @@ Cada fonte de dado fiscal e um modulo Python em `src/mcp_fiscal_brasil/`.
 
 ## Convencao
 
-Cada modulo segue o mesmo padrao:
+Cada módulo segue o mesmo padrao:
 
 ```
-src/mcp_fiscal_brasil/<modulo>/
+src/mcp_fiscal_brasil/<módulo>/
 ├── __init__.py    # exports publicos
 ├── client.py      # cliente assincrono
 ├── schemas.py     # modelos pydantic
-└── tools.py       # tools MCP (quando aplicavel)
+└── tools.py       # tools MCP (quando aplicável)
 ```
 
-Para detalhes da arquitetura interna, veja o codigo no [GitHub](https://github.com/nikolasdehor/mcp-fiscal-brasil/tree/main/src/mcp_fiscal_brasil).
+Para detalhes da arquitetura interna, veja o código no [GitHub](https://github.com/nikolasdehor/mcp-fiscal-brasil/tree/main/src/mcp_fiscal_brasil).

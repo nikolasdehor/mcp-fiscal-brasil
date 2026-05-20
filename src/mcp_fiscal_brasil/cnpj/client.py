@@ -59,20 +59,20 @@ class CNPJClient:
         atividade_principal = None
         if data.get("cnae_fiscal") and data.get("cnae_fiscal_descricao"):
             atividade_principal = AtividadeCNAE(
-                codigo=str(data["cnae_fiscal"]),
-                descricao=data["cnae_fiscal_descricao"],
+                código=str(data["cnae_fiscal"]),
+                descrição=data["cnae_fiscal_descricao"],
             )
 
         atividades_secundarias = []
         for cnae in data.get("cnaes_secundarios") or []:
-            if cnae.get("codigo") and cnae.get("descricao"):
+            if cnae.get("código") and cnae.get("descrição"):
                 atividades_secundarias.append(
-                    AtividadeCNAE(codigo=str(cnae["codigo"]), descricao=cnae["descricao"])
+                    AtividadeCNAE(código=str(cnae["código"]), descrição=cnae["descrição"])
                 )
 
         endereco = Endereco(
             logradouro=data.get("logradouro"),
-            numero=data.get("numero"),
+            número=data.get("número"),
             complemento=data.get("complemento"),
             bairro=data.get("bairro"),
             municipio=data.get("municipio"),
@@ -81,13 +81,13 @@ class CNPJClient:
         )
 
         qsa = []
-        for socio in data.get("qsa") or []:
+        for sócio in data.get("qsa") or []:
             qsa.append(
                 QSASocio(
-                    nome=socio.get("nome_socio", ""),
-                    qualificacao=socio.get("qualificacao_socio", ""),
-                    cpf_cnpj_socio=socio.get("cnpj_cpf_do_socio"),
-                    faixa_etaria=socio.get("faixa_etaria"),
+                    nome=sócio.get("nome_socio", ""),
+                    qualificacao=sócio.get("qualificacao_socio", ""),
+                    cpf_cnpj_socio=sócio.get("cnpj_cpf_do_socio"),
+                    faixa_etaria=sócio.get("faixa_etaria"),
                 )
             )
 
@@ -121,19 +121,19 @@ class CNPJClient:
         atividade_principal = None
         for ativ in data.get("atividade_principal") or []:
             atividade_principal = AtividadeCNAE(
-                codigo=ativ.get("code", ""),
-                descricao=ativ.get("text", ""),
+                código=ativ.get("code", ""),
+                descrição=ativ.get("text", ""),
             )
             break
 
         atividades_secundarias = [
-            AtividadeCNAE(codigo=a.get("code", ""), descricao=a.get("text", ""))
+            AtividadeCNAE(código=a.get("code", ""), descrição=a.get("text", ""))
             for a in data.get("atividades_secundarias") or []
         ]
 
         endereco = Endereco(
             logradouro=data.get("logradouro"),
-            numero=data.get("numero"),
+            número=data.get("número"),
             complemento=data.get("complemento"),
             bairro=data.get("bairro"),
             municipio=data.get("municipio"),

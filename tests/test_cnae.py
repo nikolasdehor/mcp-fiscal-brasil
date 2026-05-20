@@ -14,10 +14,10 @@ def client():
 @pytest.mark.asyncio
 async def test_get_activities_success(client):
     with patch("mcp_fiscal_brasil._core.http.HTTPClient.get_list") as mock_get:
-        mock_get.return_value = [{"id": "0111301", "descricao": "Cultivo de arroz"}]
+        mock_get.return_value = [{"id": "0111301", "descrição": "Cultivo de arroz"}]
         result = await client.get_activities()
         assert len(result) == 1
-        assert result[0].codigo == "0111301"
+        assert result[0].código == "0111301"
 
 
 @pytest.mark.asyncio
@@ -34,13 +34,13 @@ async def test_get_classes_success(client):
         mock_get.return_value = [
             {
                 "id": "01113",
-                "descricao": "Cultivo de cereais",
-                "grupo": {"descricao": "Grupo 1", "divisao": {"descricao": "Divisao 1"}},
+                "descrição": "Cultivo de cereais",
+                "grupo": {"descrição": "Grupo 1", "divisao": {"descrição": "Divisao 1"}},
             }
         ]
         result = await client.get_classes()
         assert len(result) == 1
-        assert result[0].codigo == "01113"
+        assert result[0].código == "01113"
         assert result[0].grupo == "Grupo 1"
         assert result[0].divisao == "Divisao 1"
 
@@ -48,6 +48,6 @@ async def test_get_classes_success(client):
 @pytest.mark.asyncio
 async def test_get_class_success(client):
     with patch("mcp_fiscal_brasil._core.http.HTTPClient.get_list") as mock_get:
-        mock_get.return_value = [{"id": "01113", "descricao": "Cultivo de cereais"}]
+        mock_get.return_value = [{"id": "01113", "descrição": "Cultivo de cereais"}]
         result = await client.get_class("01113")
-        assert result.codigo == "01113"
+        assert result.código == "01113"

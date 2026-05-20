@@ -45,7 +45,7 @@ class Endereco(BaseModel):
     """Endereco padrao brasileiro."""
 
     logradouro: str | None = None
-    numero: str | None = None
+    número: str | None = None
     complemento: str | None = None
     bairro: str | None = None
     municipio: str | None = None
@@ -57,8 +57,8 @@ class Endereco(BaseModel):
         partes = []
         if self.logradouro:
             partes.append(self.logradouro)
-        if self.numero:
-            partes.append(f"n. {self.numero}")
+        if self.número:
+            partes.append(f"n. {self.número}")
         if self.complemento:
             partes.append(self.complemento)
         if self.bairro:

@@ -1,26 +1,26 @@
 # compare_tax_regimes
 
-Comparativo entre regimes tributarios brasileiros (MEI, Simples, Lucro Presumido, Lucro Real).
+Comparativo entre regimes tributários brasileiros (MEI, Simples, Lucro Presumido, Lucro Real).
 
 ## Assinatura
 
 ```python
 def compare_tax_regimes(
     faturamento_anual: float,
-    setor: Literal["comercio", "servicos", "industria"],
+    setor: Literal["comércio", "serviços", "indústria"],
     folha_pagamento_anual: float | None = None,
 ) -> TaxRegimeComparison
 ```
 
 ## O que faz
 
-Calcula **aliquota efetiva estimada** e **imposto anual estimado** para cada regime tributario aplicavel ao cenario, baseado em tabelas publicas vigentes (2025).
+Calcula **alíquota efetiva estimada** e **imposto anual estimado** para cada regime tributário aplicável ao cenário, baseado em tabelas publicas vigentes (2025).
 
-Retorna o regime **mais economico** e a **economia anual vs pior opcao**.
+Retorna o regime **mais econômico** e a **economia anual vs pior opção**.
 
-!!! warning "Estimativa, nao planejamento contabil"
+!!! warning "Estimativa, não planejamento contabil"
 
-    Calculo simplificado baseado em premissas publicas. NAO substitui parecer de contador. Use para direcionamento em decisoes de planejamento, nao para apuracao final.
+    Calculo simplificado baseado em premissas publicas. NAO substitui parecer de contador. Use para direcionamento em decisões de planejamento, não para apuracao final.
 
 ## Heuristicas
 
@@ -31,18 +31,18 @@ Retorna o regime **mais economico** e a **economia anual vs pior opcao**.
 
 ### Simples Nacional
 - Limite: R$ 4,8 milhoes/ano
-- Anexo conforme setor (comercio I, industria II, servicos III ou V)
-- **Fator R** (servicos): folha/faturamento >= 28% -> Anexo III (mais barato)
+- Anexo conforme setor (comércio I, indústria II, serviços III ou V)
+- **Fator R** (serviços): folha/faturamento >= 28% -> Anexo III (mais barato)
 
 ### Lucro Presumido
 - Limite: R$ 78 milhoes/ano
-- Presuncao 8% (comercio/industria) ou 32% (servicos)
+- Presuncao 8% (comércio/indústria) ou 32% (serviços)
 - PIS/COFINS cumulativos (3,65%)
 
 ### Lucro Real
 - Sem teto
 - IRPJ 15% + adicional 10% sobre lucro liquido
-- PIS/COFINS nao-cumulativos com creditos
+- PIS/COFINS não-cumulativos com creditos
 - Burocracia maior
 
 ## Schema de saida
@@ -50,16 +50,16 @@ Retorna o regime **mais economico** e a **economia anual vs pior opcao**.
 ```python
 class TaxRegimeComparison(BaseModel):
     cenario_faturamento_anual: float
-    cenario_setor: Literal["comercio", "servicos", "industria"]
+    cenario_setor: Literal["comércio", "serviços", "indústria"]
     folha_pagamento_anual: float | None
-    opcoes: list[TaxRegimeOption]  # ordenadas: aplicaveis primeiro, do mais barato
+    opções: list[TaxRegimeOption]  # ordenadas: aplicaveis primeiro, do mais barato
     melhor_opcao: str
     economia_anual_vs_pior: float
-    observacoes: str
+    observações: str
 
 class TaxRegimeOption(BaseModel):
     regime: Literal["mei", "simples_nacional", "lucro_presumido", "lucro_real"]
-    aplicavel: bool
+    aplicável: bool
     motivo_inaplicavel: str | None
     aliquota_efetiva_estimada: float | None
     imposto_anual_estimado: float | None
@@ -69,28 +69,28 @@ class TaxRegimeOption(BaseModel):
 
 ## Exemplos
 
-### Empresa de servicos pequena
+### Empresa de serviços pequena
 
 ```bash
-mcp-fiscal regimes --faturamento 300000 --setor servicos --folha 120000 --json
+mcp-fiscal regimes --faturamento 300000 --setor serviços --folha 120000 --json
 ```
 
-Esperado: melhor opcao = `simples_nacional` (Anexo III pelo Fator R).
+Esperado: melhor opção = `simples_nacional` (Anexo III pelo Fator R).
 
 ### Industria de medio porte
 
 ```bash
-mcp-fiscal regimes --faturamento 5000000 --setor industria --folha 1500000 --json
+mcp-fiscal regimes --faturamento 5000000 --setor indústria --folha 1500000 --json
 ```
 
-Esperado: Simples Nacional **nao aplicavel** (faturamento > R$ 4,8 mi). Melhor opcao tipicamente `lucro_presumido`.
+Esperado: Simples Nacional **não aplicável** (faturamento > R$ 4,8 mi). Melhor opção tipicamente `lucro_presumido`.
 
 ### Via REST API
 
 ```bash
-curl "http://localhost:8000/v1/agentic/regimes?faturamento_anual=500000&setor=servicos&folha_pagamento_anual=180000"
+curl "http://localhost:8000/v1/agentic/regimes?faturamento_anual=500000&setor=serviços&folha_pagamento_anual=180000"
 ```
 
 ### Via agente IA
 
-> "Sou prestador de servicos com faturamento de R$ 500 mil e folha de R$ 180 mil. Qual o melhor regime?"
+> "Sou prestador de serviços com faturamento de R$ 500 mil e folha de R$ 180 mil. Qual o melhor regime?"

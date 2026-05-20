@@ -30,7 +30,7 @@ def _extrair_info_chave(chave: str) -> dict[str, str]:
         "cnpj_emitente": chave[6:20],
         "modelo": chave[20:22],
         "serie": chave[22:25],
-        "numero": chave[25:34],
+        "número": chave[25:34],
     }
 
 
@@ -135,7 +135,7 @@ class NFEClient:
 
         return NFeResponse(
             chave_acesso=chave,
-            numero=str(data.get("numero", "")),
+            número=str(data.get("número", "")),
             serie=str(data.get("serie", "")),
             situacao=data.get("situacao"),
         )
@@ -180,7 +180,7 @@ class NFEClient:
         emitente = EnderecoNFe(cnpj=info["cnpj_emitente"])
         return NFeResponse(
             chave_acesso=chave,
-            numero=info["numero"].lstrip("0") or info["numero"],
+            número=info["número"].lstrip("0") or info["número"],
             serie=info["serie"].lstrip("0") or info["serie"],
             modelo=info["modelo"],
             emitente=emitente,
@@ -209,14 +209,14 @@ class NFEClient:
                 return StatusSEFAZResponse(
                     uf=uf.upper(),
                     status=data.get("status", "Desconhecido"),
-                    descricao=data.get("descricao", ""),
-                    codigo=data.get("cStat"),
+                    descrição=data.get("descrição", ""),
+                    código=data.get("cStat"),
                     ambiente=ambiente,
                 )
             except Exception:
                 return StatusSEFAZResponse(
                     uf=uf.upper(),
                     status="Indisponível",
-                    descricao="Não foi possível consultar o status do serviço SEFAZ.",
+                    descrição="Não foi possível consultar o status do serviço SEFAZ.",
                     ambiente=ambiente,
                 )

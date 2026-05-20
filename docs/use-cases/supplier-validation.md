@@ -1,17 +1,17 @@
 # Validacao de fornecedor no ERP
 
-Integracao com sistemas ERP para validar fornecedores antes de emissao de NFe.
+Integracao com sistemas ERP para validar fornecedores antes de emissão de NFe.
 
 ## Cenario
 
-Antes de emitir NFe contra um CNPJ destinatario, voce quer confirmar que:
+Antes de emitir NFe contra um CNPJ destinatario, você quer confirmar que:
 
 1. CNPJ existe e esta ativo
-2. Empresa nao foi baixada / suspensa
+2. Empresa não foi baixada / suspensa
 3. Endereco bate com o cadastro
-4. Atividade (CNAE) e compativel com a operacao
+4. Atividade (CNAE) e compatível com a operação
 
-## Pre-emissao via webhook
+## Pré-emissão via webhook
 
 ```python
 from fastapi import FastAPI, HTTPException
@@ -19,7 +19,7 @@ from mcp_fiscal_brasil.agentic import analyze_cnpj_compliance
 
 app = FastAPI()
 
-@app.post("/erp/pre-emissao-nfe")
+@app.post("/erp/pré-emissão-nfe")
 async def validar_destinatario(payload: dict) -> dict:
     cnpj_destinatario = payload["cnpj_destinatario"]
     report = await analyze_cnpj_compliance(cnpj_destinatario)
@@ -48,7 +48,7 @@ import asyncio
 from datetime import datetime
 
 async def reconciliacao_fornecedores(cnpjs_ativos: list[str]) -> dict:
-    """Roda 1x por mes para reavaliar fornecedores ativos."""
+    """Roda 1x por mês para reavaliar fornecedores ativos."""
     sem = asyncio.Semaphore(20)
 
     async def _avaliar(cnpj: str):
@@ -76,7 +76,7 @@ async def reconciliacao_fornecedores(cnpjs_ativos: list[str]) -> dict:
     }
 ```
 
-## Renovacao automatica de certidoes
+## Renovacao automática de certidoes
 
 ```python
 from mcp_fiscal_brasil.certidoes.tools import (
@@ -93,7 +93,7 @@ async def renovar_certidoes(cnpj: str) -> dict:
 
 !!! note "Sobre certidoes"
 
-    O `mcp-fiscal-brasil` retorna **URLs para emissao** das certidoes (CND, FGTS, CNDT). A emissao em si requer captcha / login no portal correspondente - nao automatizamos isso por questoes legais e de tos. Use os URLs para guiar o usuario / contador.
+    O `mcp-fiscal-brasil` retorna **URLs para emissão** das certidoes (CND, FGTS, CNDT). A emissão em si requer captcha / login no portal correspondente - não automatizamos isso por questões legais e de tos. Use os URLs para guiar o usuário / contador.
 
 ## Logs estruturados
 
@@ -111,4 +111,4 @@ log.info(
 )
 ```
 
-Ideal para BI: tracker de "quantos cadastros foram bloqueados", "qual a media de score por mes", etc.
+Ideal para BI: tracker de "quantos cadastros foram bloqueados", "qual a média de score por mês", etc.

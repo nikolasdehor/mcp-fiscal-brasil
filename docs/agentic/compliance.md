@@ -17,7 +17,7 @@ Consulta **em paralelo**:
 3. Status MEI
 4. CNAE principal e secundarios
 
-Aplica heuristicas e retorna um relatorio unico com:
+Aplica heuristicas e retorna um relatório unico com:
 
 - **`risco_geral`** (`baixo` / `medio` / `alto` / `critico`)
 - **`score`** (0-100, calibrado: 90 = excelente, 5 = critico)
@@ -40,7 +40,7 @@ class ComplianceReport(BaseModel):
 
 ## Tolerancia a falhas
 
-Se uma das fontes (Simples, MEI) estiver offline, a tool **nao falha**. So a fonte CNPJ e mandatoria (se ela falhar, a tool levanta `RuntimeError`). As demais sao usadas se disponiveis.
+Se uma das fontes (Simples, MEI) estiver offline, a tool **não falha**. So a fonte CNPJ e mandatoria (se ela falhar, a tool levanta `RuntimeError`). As demais são usadas se disponíveis.
 
 Verifique `fontes_consultadas` para saber quais responderam.
 
@@ -52,7 +52,7 @@ Verifique `fontes_consultadas` para saber quais responderam.
 | Situacao `INAPTA` | alto |
 | Situacao `SUSPENSA` | medio |
 | Endereco incompleto | medio |
-| QSA nao disponivel | medio |
+| QSA não disponível | medio |
 | Tudo regular | baixo |
 
 Risco geral = severidade maxima dos achados.
@@ -89,4 +89,4 @@ asyncio.run(main())
 
 ### Via agente IA
 
-> "Analise o compliance fiscal do CNPJ 12.345.678/0001-90 e me responda em portugues"
+> "Analise o compliance fiscal do CNPJ 12.345.678/0001-90 e me responda em português"

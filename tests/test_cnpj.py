@@ -13,7 +13,7 @@ class TestConsultarCNPJ:
         assert exc_info.value.field == "cnpj"
 
     async def test_cnpj_com_mascara_aceito(self, cnpj_valido: str) -> None:
-        # Verifica que nao levanta ValidationError (pode falhar na API em ambiente de teste)
+        # Verifica que não levanta ValidationError (pode falhar na API em ambiente de teste)
         # Em CI, mockar a API
         try:
             resultado = await consultar_cnpj(cnpj_valido)
