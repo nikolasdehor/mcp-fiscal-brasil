@@ -36,14 +36,14 @@ def _cnpj_ativo() -> CNPJResponse:
         capital_social=10000.0,
         data_abertura=date(2020, 1, 1),
         atividade_principal=AtividadeCNAE(
-            codigo="6201500", descricao="Desenvolvimento de software"
+            código="6201500", descrição="Desenvolvimento de software"
         ),
         atividades_secundarias=[],
         endereco=Endereco(
             logradouro="Rua A",
-            numero="100",
+            número="100",
             bairro="Centro",
-            municipio="Goiania",
+            municipio="Goiânia",
             uf="GO",
             cep="74000000",
         ),
@@ -142,7 +142,7 @@ async def test_compliance_cnpj_invalido_levanta() -> None:
 def test_compare_tax_regimes_servicos_pequena_empresa() -> None:
     resultado = compare_tax_regimes(
         faturamento_anual=300_000,
-        setor="servicos",
+        setor="serviços",
         folha_pagamento_anual=120_000,
     )
     assert isinstance(resultado, TaxRegimeComparison)
@@ -154,7 +154,7 @@ def test_compare_tax_regimes_servicos_pequena_empresa() -> None:
 def test_compare_tax_regimes_grande_empresa_exclui_simples() -> None:
     resultado = compare_tax_regimes(
         faturamento_anual=10_000_000,
-        setor="industria",
+        setor="indústria",
         folha_pagamento_anual=2_000_000,
     )
     simples = next(o for o in resultado.opcoes if o.regime == "simples_nacional")
@@ -165,11 +165,11 @@ def test_compare_tax_regimes_grande_empresa_exclui_simples() -> None:
 
 def test_compare_tax_regimes_faturamento_negativo_levanta() -> None:
     with pytest.raises(ValueError):
-        compare_tax_regimes(faturamento_anual=-100, setor="comercio")
+        compare_tax_regimes(faturamento_anual=-100, setor="comércio")
 
 
 def test_calc_mei_dentro_limite() -> None:
-    aplicavel, _aliq, imposto, motivo = _calc_mei(60_000, "comercio")
+    aplicavel, _aliq, imposto, motivo = _calc_mei(60_000, "comércio")
     assert aplicavel is True
     assert imposto is not None
     assert imposto < 1500
@@ -177,7 +177,7 @@ def test_calc_mei_dentro_limite() -> None:
 
 
 def test_calc_mei_excede_limite() -> None:
-    aplicavel, _aliq, _imposto, motivo = _calc_mei(100_000, "servicos")
+    aplicavel, _aliq, _imposto, motivo = _calc_mei(100_000, "serviços")
     assert aplicavel is False
     assert motivo is not None
     assert "81" in motivo
@@ -185,16 +185,16 @@ def test_calc_mei_excede_limite() -> None:
 
 def test_calc_simples_fator_r_servicos() -> None:
     # Folha alta -> anexo III (mais barato)
-    aplicavel_alto, aliq_alto, _imp_alto, _ = _calc_simples(500_000, "servicos", 200_000)
+    aplicavel_alto, aliq_alto, _imp_alto, _ = _calc_simples(500_000, "serviços", 200_000)
     # Folha baixa -> anexo V (mais caro)
-    aplicavel_baixo, aliq_baixo, _imp_baixo, _ = _calc_simples(500_000, "servicos", 10_000)
+    aplicavel_baixo, aliq_baixo, _imp_baixo, _ = _calc_simples(500_000, "serviços", 10_000)
     assert aplicavel_alto and aplicavel_baixo
     assert aliq_alto is not None and aliq_baixo is not None
     assert aliq_alto < aliq_baixo
 
 
 def test_calc_lucro_presumido_aplicavel() -> None:
-    aplicavel, _aliq, imp, motivo = _calc_lucro_presumido(2_000_000, "comercio")
+    aplicavel, _aliq, imp, motivo = _calc_lucro_presumido(2_000_000, "comércio")
     assert aplicavel is True
     assert imp is not None
     assert motivo is None

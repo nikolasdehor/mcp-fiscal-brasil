@@ -1,6 +1,6 @@
 # Modulo CEP
 
-Lookup de enderecos por CEP.
+Lookup de endereços por CEP.
 
 ## Uso
 
@@ -8,8 +8,8 @@ Lookup de enderecos por CEP.
 from mcp_fiscal_brasil.cep.client import CEPClient
 
 client = CEPClient()
-endereco = await client.get_address("74000000")
-print(f"{endereco.logradouro}, {endereco.bairro} - {endereco.municipio}/{endereco.uf}")
+endereço = await client.get_address("74000000")
+print(f"{endereço.logradouro}, {endereço.bairro} - {endereço.municipio}/{endereço.uf}")
 ```
 
 ## Fontes
@@ -17,4 +17,4 @@ print(f"{endereco.logradouro}, {endereco.bairro} - {endereco.municipio}/{enderec
 - **BrasilAPI** (preferencial)
 - **ViaCEP** (fallback)
 
-Ambas sao publicas e gratuitas, sem rate limit estrito.
+Ambas são publicas e gratuitas, sem rate limit estrito.

@@ -46,7 +46,7 @@ class CNAEClient:
                 raise
 
         return [
-            CNAEActivity(codigo=item.get("id", ""), descricao=item.get("descricao", ""))
+            CNAEActivity(código=item.get("id", ""), descrição=item.get("descrição", ""))
             for item in data
         ]
 
@@ -63,7 +63,7 @@ class CNAEClient:
                     )
                 # IBGE often returns a list with one item for specific queries
                 item = data[0] if isinstance(data, list) else data
-                return CNAEActivity(codigo=item.get("id", ""), descricao=item.get("descricao", ""))
+                return CNAEActivity(código=item.get("id", ""), descrição=item.get("descrição", ""))
             except FiscalHTTPError as exc:
                 if exc.status_code == 404:
                     raise FiscalNotFoundError(
@@ -91,20 +91,20 @@ class CNAEClient:
         result = []
         for item in data:
             grupo = (
-                item.get("grupo", {}).get("descricao")
+                item.get("grupo", {}).get("descrição")
                 if isinstance(item.get("grupo"), dict)
                 else None
             )
             divisao = (
-                item.get("grupo", {}).get("divisao", {}).get("descricao")
+                item.get("grupo", {}).get("divisao", {}).get("descrição")
                 if isinstance(item.get("grupo"), dict)
                 and isinstance(item.get("grupo").get("divisao"), dict)
                 else None
             )
             result.append(
                 CNAEClass(
-                    codigo=item.get("id", ""),
-                    descricao=item.get("descricao", ""),
+                    código=item.get("id", ""),
+                    descrição=item.get("descrição", ""),
                     grupo=grupo,
                     divisao=divisao,
                 )
@@ -125,20 +125,20 @@ class CNAEClient:
                 item = data[0] if isinstance(data, list) else data
 
                 grupo = (
-                    item.get("grupo", {}).get("descricao")
+                    item.get("grupo", {}).get("descrição")
                     if isinstance(item.get("grupo"), dict)
                     else None
                 )
                 divisao = (
-                    item.get("grupo", {}).get("divisao", {}).get("descricao")
+                    item.get("grupo", {}).get("divisao", {}).get("descrição")
                     if isinstance(item.get("grupo"), dict)
                     and isinstance(item.get("grupo").get("divisao"), dict)
                     else None
                 )
 
                 return CNAEClass(
-                    codigo=item.get("id", ""),
-                    descricao=item.get("descricao", ""),
+                    código=item.get("id", ""),
+                    descrição=item.get("descrição", ""),
                     grupo=grupo,
                     divisao=divisao,
                 )

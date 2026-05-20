@@ -1,4 +1,4 @@
-"""Modulo NFe: consulta, validacao de chave e status SEFAZ."""
+"""Modulo NFe: consulta, validação de chave e status SEFAZ."""
 
 from .schemas import NFeResponse, StatusSEFAZResponse
 from .tools import consultar_nfe, consultar_status_sefaz, validar_chave_nfe

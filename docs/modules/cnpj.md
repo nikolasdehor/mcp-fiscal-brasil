@@ -26,7 +26,7 @@ class CNPJResponse(BaseModel):
     data_abertura: date | None
     atividade_principal: AtividadeCNAE | None
     atividades_secundarias: list[AtividadeCNAE]
-    endereco: Endereco
+    endereço: Endereco
     telefone: str | None
     email: str | None
     qsa: list[QSASocio]
@@ -44,4 +44,4 @@ class CNPJResponse(BaseModel):
 - **ReceitaWS**: https://receitaws.com.br/ (fallback)
 - Rate limit publico: 3 req/min por IP em ambos (~)
 
-Habilite cache em producao para nao bater no rate limit.
+Habilite cache em produção para não bater no rate limit.

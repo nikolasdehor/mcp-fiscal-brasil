@@ -37,7 +37,7 @@ async def validate_nfe_full(xml_path: str | Path) -> NFeValidationReport:
     """
     path = Path(xml_path)
     if not path.exists():
-        raise FileNotFoundError(f"Arquivo XML nao encontrado: {xml_path}")
+        raise FileNotFoundError(f"Arquivo XML não encontrado: {xml_path}")
 
     issues: list[NFeValidationIssue] = []
     xml_content = path.read_bytes()
@@ -65,8 +65,8 @@ async def validate_nfe_full(xml_path: str | Path) -> NFeValidationReport:
         issues.append(
             NFeValidationIssue(
                 severidade="critico",
-                codigo="XML_PARSE_ERROR",
-                descricao=f"Falha ao parsear XML: {exc}",
+                código="XML_PARSE_ERROR",
+                descrição=f"Falha ao parsear XML: {exc}",
             )
         )
 
@@ -75,13 +75,13 @@ async def validate_nfe_full(xml_path: str | Path) -> NFeValidationReport:
     if chave_acesso:
         try:
             chave_result = await validar_chave_nfe(chave_acesso)
-            chave_consistente = bool(chave_result.get("valida", False))
+            chave_consistente = bool(chave_result.get("válida", False))
             if not chave_consistente:
                 issues.append(
                     NFeValidationIssue(
                         severidade="alto",
-                        codigo="CHAVE_INVALIDA",
-                        descricao="Digito verificador da chave de acesso nao confere.",
+                        código="CHAVE_INVALIDA",
+                        descrição="Digito verificador da chave de acesso não confere.",
                         campo="chave_acesso",
                     )
                 )
@@ -89,8 +89,8 @@ async def validate_nfe_full(xml_path: str | Path) -> NFeValidationReport:
             issues.append(
                 NFeValidationIssue(
                     severidade="medio",
-                    codigo="CHAVE_VALIDACAO_FALHOU",
-                    descricao=f"Nao foi possivel validar chave: {exc}",
+                    código="CHAVE_VALIDACAO_FALHOU",
+                    descrição=f"Não foi possivel validar chave: {exc}",
                 )
             )
 
@@ -106,8 +106,8 @@ async def validate_nfe_full(xml_path: str | Path) -> NFeValidationReport:
                 issues.append(
                     NFeValidationIssue(
                         severidade="alto",
-                        codigo="EMISSOR_INATIVO",
-                        descricao=f"CNPJ emissor com situacao '{emissor_data.situacao_cadastral}'.",
+                        código="EMISSOR_INATIVO",
+                        descrição=f"CNPJ emissor com situacao '{emissor_data.situacao_cadastral}'.",
                         campo="emit/CNPJ",
                     )
                 )
@@ -116,9 +116,9 @@ async def validate_nfe_full(xml_path: str | Path) -> NFeValidationReport:
             emissor_ativo = None
 
     if valida_estrut and not issues:
-        resumo = f"NFe valida estruturalmente, chave {chave_acesso} consistente, emissor ativo."
+        resumo = f"NFe válida estruturalmente, chave {chave_acesso} consistente, emissor ativo."
     elif valida_estrut:
-        resumo = f"NFe parseou ok mas tem {len(issues)} issue(s) ({issues[0].codigo})."
+        resumo = f"NFe parseou ok mas tem {len(issues)} issue(s) ({issues[0].código})."
     else:
         resumo = "NFe falhou no parse XML. Verifique arquivo e schema."
 

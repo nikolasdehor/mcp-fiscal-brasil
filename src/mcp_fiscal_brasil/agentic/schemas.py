@@ -38,7 +38,7 @@ class ComplianceReport(BaseModel):
     """Relatorio agregado de compliance fiscal de um CNPJ.
 
     Combina dados de CNPJ, Simples Nacional, MEI, CNAE e certidoes em uma
-    visao unica orientada a decisao (contratar, recusar, investigar).
+    visao unica orientada a decisão (contratar, recusar, investigar).
     """
 
     cnpj: str = Field(description="CNPJ analisado (somente digitos).")
@@ -62,7 +62,7 @@ class ComplianceReport(BaseModel):
 
 
 class TaxRegimeOption(BaseModel):
-    """Comparativo de um regime tributario para um cenario especifico."""
+    """Comparativo de um regime tributário para um cenário especifico."""
 
     regime: Literal["simples_nacional", "lucro_presumido", "lucro_real", "mei"]
     aplicavel: bool = Field(description="Se o regime e legalmente acessivel ao perfil.")
@@ -75,19 +75,19 @@ class TaxRegimeOption(BaseModel):
         description="Aliquota efetiva estimada (%) sobre faturamento, considerando anexo/setor.",
     )
     imposto_anual_estimado: float | None = Field(
-        default=None, description="Imposto anual estimado em reais para o cenario fornecido."
+        default=None, description="Imposto anual estimado em reais para o cenário fornecido."
     )
     pros: list[str] = Field(default_factory=list, description="Vantagens do regime.")
     contras: list[str] = Field(default_factory=list, description="Desvantagens do regime.")
 
 
 class TaxRegimeComparison(BaseModel):
-    """Comparativo entre regimes tributarios para um cenario."""
+    """Comparativo entre regimes tributarios para um cenário."""
 
     cenario_faturamento_anual: float = Field(
-        description="Faturamento anual usado no calculo (reais)."
+        description="Faturamento anual usado no cálculo (reais)."
     )
-    cenario_setor: Literal["comercio", "servicos", "industria"] = Field(
+    cenario_setor: Literal["comércio", "serviços", "indústria"] = Field(
         description="Setor da empresa (impacta anexo do Simples)."
     )
     folha_pagamento_anual: float | None = Field(
@@ -103,7 +103,7 @@ class TaxRegimeComparison(BaseModel):
         description="Economia anual estimada do melhor versus pior regime aplicavel."
     )
     observacoes: str = Field(
-        description="Notas qualitativas: limitacoes do calculo, premissas, alertas."
+        description="Notas qualitativas: limitacoes do cálculo, premissas, alertas."
     )
 
 
@@ -124,16 +124,16 @@ class SupplierRiskScore(BaseModel):
 
 
 class NFeValidationIssue(BaseModel):
-    """Problema individual detectado em validacao de NFe."""
+    """Problema individual detectado em validação de NFe."""
 
     severidade: RiskLevel
-    codigo: str = Field(description="Codigo curto do tipo de problema (ex: CHAVE_INVALIDA).")
-    descricao: str
+    código: str = Field(description="Codigo curto do tipo de problema (ex: CHAVE_INVALIDA).")
+    descrição: str
     campo: str | None = Field(default=None, description="Campo XML afetado, se aplicavel.")
 
 
 class NFeValidationReport(BaseModel):
-    """Relatorio completo de validacao de uma NFe (XML)."""
+    """Relatorio completo de validação de uma NFe (XML)."""
 
     chave_acesso: str = Field(description="Chave de 44 digitos.")
     valida_estruturalmente: bool = Field(description="XML bem-formado e schema-compatible.")
@@ -156,7 +156,7 @@ class SPEDSummary(BaseModel):
     tipo: Literal["fiscal", "contribuicoes", "ecf", "ecd"] = Field(description="Tipo do SPED.")
     periodo_inicio: date | None = None
     periodo_fim: date | None = None
-    total_registros: int = Field(ge=0, description="Numero total de registros validos.")
+    total_registros: int = Field(ge=0, description="Numero total de registros válidos.")
     total_blocos: int = Field(ge=0)
     cnpj: str | None = None
     razao_social: str | None = None

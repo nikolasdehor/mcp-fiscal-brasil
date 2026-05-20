@@ -1,6 +1,6 @@
 # Modulo Simples Nacional
 
-Consulta de regime tributario Simples Nacional via API publica da Receita.
+Consulta de regime tributário Simples Nacional via API publica da Receita.
 
 ## Uso
 
@@ -22,8 +22,8 @@ print(status.data_exclusao)  # date | None
 
 A API publica retorna apenas:
 
-- Optante (sim/nao)
-- Datas de opcao / exclusao
+- Optante (sim/não)
+- Datas de opção / exclusão
 - Modalidade (MEI ou Simples)
 
-**Nao retorna**: anexo, faixa atual, valor recolhido. Para isso, e necessario acesso autenticado ao Portal do Simples Nacional.
+**Não retorna**: anexo, faixa atual, valor recolhido. Para isso, e necessário acesso autenticado ao Portal do Simples Nacional.

@@ -15,7 +15,7 @@ Uso básico:
     print(empresa.razao_social)
 
     # Validar CPF
-    valido = fiscal.validar_cpf("123.456.789-09")
+    válido = fiscal.validar_cpf("123.456.789-09")
 
     # Status SEFAZ
     status = await fiscal.status_sefaz("SP")
@@ -198,13 +198,13 @@ class FiscalBrasil:
 
         Returns:
             Dicionário com campos extraídos:
-            - valida (bool): Se o dígito verificador é correto.
+            - válida (bool): Se o dígito verificador é correto.
             - uf (str): UF de emissão.
             - ano_mes (str): Ano/mês de emissão no formato MM/AAAA.
             - cnpj_emitente (str): CNPJ do emitente (14 dígitos).
             - modelo (str): Modelo do documento ("55"=NFe, "65"=NFCe).
             - serie (str): Série da nota.
-            - numero (str): Número da nota fiscal.
+            - número (str): Número da nota fiscal.
 
         Exemplo:
             info = fiscal.validar_chave_nfe("35230112345678901234550010000000011000000018")
@@ -213,24 +213,24 @@ class FiscalBrasil:
         """
         from .shared.constants import CODIGO_UF
 
-        numeros = "".join(c for c in chave if c.isdigit())
-        valida = validate_chave_nfe(chave)
+        números = "".join(c for c in chave if c.isdigit())
+        válida = validate_chave_nfe(chave)
 
-        if len(numeros) != 44:
-            return {"valida": False, "erro": f"Chave deve ter 44 dígitos, recebeu {len(numeros)}"}
+        if len(números) != 44:
+            return {"válida": False, "erro": f"Chave deve ter 44 dígitos, recebeu {len(números)}"}
 
-        cod_uf = int(numeros[:2])
+        cod_uf = int(números[:2])
         return {
-            "valida": valida,
+            "válida": válida,
             "uf": CODIGO_UF.get(cod_uf, f"UF {cod_uf}"),
-            "ano_mes": f"{numeros[4:6]}/{numeros[2:4]}",
-            "cnpj_emitente": numeros[6:20],
-            "modelo": numeros[20:22],
-            "serie": numeros[22:25],
-            "numero": numeros[25:34],
-            "tipo_emissao": numeros[34],
-            "codigo_numerico": numeros[35:43],
-            "digito_verificador": numeros[43],
+            "ano_mes": f"{números[4:6]}/{números[2:4]}",
+            "cnpj_emitente": números[6:20],
+            "modelo": números[20:22],
+            "serie": números[22:25],
+            "número": números[25:34],
+            "tipo_emissao": números[34],
+            "codigo_numerico": números[35:43],
+            "digito_verificador": números[43],
         }
 
     async def status_sefaz(self, uf: str, ambiente: str = "producao") -> StatusSEFAZResponse:
@@ -327,7 +327,7 @@ class FiscalBrasil:
         o Portal Nacional ABRASF como alternativa.
 
         Args:
-            municipio: Nome do município (ex: "Sao Paulo", "Belo Horizonte").
+            municipio: Nome do município (ex: "São Paulo", "Belo Horizonte").
             uf: Sigla do estado (ex: "SP", "MG").
 
         Returns:
@@ -338,14 +338,14 @@ class FiscalBrasil:
             - status (str): "consulta_manual_necessaria".
 
         Exemplo:
-            portal = await fiscal.portal_nfse("Sao Paulo", "SP")
+            portal = await fiscal.portal_nfse("São Paulo", "SP")
             print(portal["portal_municipio"])  # URL da prefeitura de SP
             print(portal["sistema_nfse"])      # "ABRASF"
         """
         from .nfse.tools import consultar_nfse
 
         resultado = await consultar_nfse(
-            numero="",
+            número="",
             municipio=municipio,
             uf=uf,
         )
@@ -361,21 +361,21 @@ class FiscalBrasil:
 
         Args:
             grupo: Filtrar por grupo do evento. Valores válidos:
-                   "Tabelas", "Nao Periodicos", "Periodicos",
+                   "Tabelas", "Não Periodicos", "Periodicos",
                    "Exclusao", "Totalizadores".
                    Se None, retorna todos os 45+ eventos catalogados.
 
         Returns:
             Lista de dicionários com campos:
-            - codigo (str): Código do evento (ex: "S-2200").
+            - código (str): Código do evento (ex: "S-2200").
             - nome (str): Nome completo do evento.
             - grupo (str): Grupo ao qual pertence.
-            - descricao (str): Descrição do propósito do evento.
+            - descrição (str): Descrição do propósito do evento.
 
         Exemplo:
             eventos = await fiscal.listar_eventos_esocial("Periodicos")
             for e in eventos:
-                print(f"{e['codigo']}: {e['nome']}")
+                print(f"{e['código']}: {e['nome']}")
         """
         from .esocial.tools import listar_eventos_esocial
 

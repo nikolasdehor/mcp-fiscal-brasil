@@ -17,11 +17,11 @@ class EnderecoNFe(Endereco):
 
 
 class ItemNFe(BaseModel):
-    """Item (produto ou servico) de uma NFe."""
+    """Item (produto ou serviço) de uma NFe."""
 
-    numero: int
+    número: int
     codigo_produto: str
-    descricao: str
+    descrição: str
     ncm: str | None = None
     cfop: str
     unidade: str
@@ -62,7 +62,7 @@ class NFeResponse(BaseResponse):
     """Dados de uma NFe consultada."""
 
     chave_acesso: str
-    numero: str | None = None
+    número: str | None = None
     serie: str | None = None
     modelo: str = "55"
     emitente: EnderecoNFe | None = None
@@ -81,11 +81,11 @@ class NFeResponse(BaseResponse):
 
 
 class StatusSEFAZResponse(BaseResponse):
-    """Status do servico SEFAZ de uma UF."""
+    """Status do serviço SEFAZ de uma UF."""
 
     uf: str
     status: str
-    descricao: str
-    codigo: int | None = None
+    descrição: str
+    código: int | None = None
     ambiente: str = "producao"
-    versao: str | None = None
+    versão: str | None = None

@@ -18,7 +18,7 @@ DEFAULT_TIMEOUT = httpx.Timeout(connect=5.0, read=30.0, write=10.0, pool=5.0)
 class FiscalHTTPClient:
     """
     Cliente HTTP assincrono com:
-    - Retry automatico com backoff exponencial
+    - Retry automático com backoff exponencial
     - Integracao com SlidingWindowRateLimiter
     - Mapeamento de erros HTTP para excecoes fiscais
     - Logging estruturado
@@ -147,7 +147,7 @@ class FiscalHTTPClient:
                 )
 
             except httpx.HTTPStatusError as e:
-                # Erros 5xx sao retriaveis; 4xx nao
+                # Erros 5xx são retriaveis; 4xx não
                 if e.response.status_code < 500:
                     raise self._map_http_error(e, url) from e
                 last_error = self._map_http_error(e, url)
@@ -194,13 +194,13 @@ class FiscalHTTPClient:
         return response.text
 
     def _map_http_error(self, exc: httpx.HTTPStatusError, url: str) -> APIError:
-        """Mapeia erros HTTP para APIError com mensagens em portugues."""
+        """Mapeia erros HTTP para APIError com mensagens em português."""
         status = exc.response.status_code
         messages = {
             400: "Requisicao invalida",
-            401: "Nao autorizado",
+            401: "Não autorizado",
             403: "Acesso negado",
-            404: "Recurso nao encontrado",
+            404: "Recurso não encontrado",
             422: "Dados invalidos",
             429: "Muitas requisicoes - tente novamente mais tarde",
             500: "Erro interno do servidor",

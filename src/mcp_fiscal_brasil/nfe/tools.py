@@ -96,16 +96,16 @@ async def validar_chave_nfe(chave_acesso: str) -> dict[str, object]:
         Dictionary with validity and decoded fields when valid.
     """
     chave_limpa = "".join(c for c in chave_acesso if c.isdigit())
-    valido = validate_chave_nfe(chave_limpa)
+    válido = validate_chave_nfe(chave_limpa)
 
     resultado: dict[str, object] = {
-        "valido": valido,
+        "válido": válido,
         "chave_formatada": " ".join(chave_limpa[i : i + 4] for i in range(0, 44, 4))
         if len(chave_limpa) == 44
         else None,
     }
 
-    if valido and len(chave_limpa) == 44:
+    if válido and len(chave_limpa) == 44:
         from ..shared.constants import CODIGO_UF
 
         cod_uf = int(chave_limpa[:2])
@@ -116,7 +116,7 @@ async def validar_chave_nfe(chave_acesso: str) -> dict[str, object]:
                 "cnpj_emitente": chave_limpa[6:20],
                 "modelo": chave_limpa[20:22],
                 "serie": chave_limpa[22:25],
-                "numero": chave_limpa[25:34],
+                "número": chave_limpa[25:34],
             }
         )
 

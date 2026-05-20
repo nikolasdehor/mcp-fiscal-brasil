@@ -83,15 +83,15 @@ Adicione em Settings -> MCP Servers:
 
 ### Outros clientes MCP
 
-Qualquer cliente compativel com MCP funciona. O servidor expoe via stdio por padrao. Para HTTP transport:
+Qualquer cliente compatível com MCP funciona. O servidor expoe via stdio por padrao. Para HTTP transport:
 
 ```bash
 mcp-fiscal-brasil --transport http --port 8000
 ```
 
-## Cache em producao
+## Cache em produção
 
-Em producao, prefira `sqlite` ou `redis`:
+Em produção, prefira `sqlite` ou `redis`:
 
 ```bash
 MCP_FISCAL_CACHE_BACKEND=sqlite
@@ -103,7 +103,7 @@ MCP_FISCAL_REDIS_URL=redis://localhost:6379/0
 
 ## Logs estruturados
 
-Em producao, logs sao emitidos como JSON via `structlog`:
+Em produção, logs são emitidos como JSON via `structlog`:
 
 ```json
 {

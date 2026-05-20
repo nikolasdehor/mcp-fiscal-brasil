@@ -36,7 +36,7 @@ class InfoAberturaSPED(BaseModel):
 
 
 class ResumoPeriodoSPED(BaseModel):
-    """Resumo de um periodo do SPED Fiscal."""
+    """Resumo de um período do SPED Fiscal."""
 
     periodo_inicial: date | None = None
     periodo_final: date | None = None

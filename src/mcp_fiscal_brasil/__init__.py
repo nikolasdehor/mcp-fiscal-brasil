@@ -7,7 +7,7 @@ __description__ = (
     "Consulte CNPJ, NFe, NFSe, SPED, eSocial e mais via linguagem natural."
 )
 
-# SDK publica - disponivel como `from mcp_fiscal_brasil import FiscalBrasil`
+# SDK publica - disponível como `from mcp_fiscal_brasil import FiscalBrasil`
 from .cep import CEPClient, Endereco, validate_cep
 from .certidoes import (
     CertidaoURL,
@@ -25,7 +25,7 @@ from .ibge import Estado, IBGEClient, Municipio
 from .mei import MEIClient, MEIStatus
 from .sdk import FiscalBrasil
 
-# Validadores offline - disponivel como `from mcp_fiscal_brasil import validate_cpf`
+# Validadores offline - disponível como `from mcp_fiscal_brasil import validate_cpf`
 from .shared.validators import (
     format_chave_nfe,
     format_cnpj,

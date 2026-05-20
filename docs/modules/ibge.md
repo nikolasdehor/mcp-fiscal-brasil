@@ -1,6 +1,6 @@
 # Modulo IBGE
 
-Dados geograficos: municipios, UFs e codigos IBGE.
+Dados geograficos: municipios, UFs e códigos IBGE.
 
 ## Uso
 
@@ -18,7 +18,7 @@ go = await client.get_state("GO")
 # Listar municipios de GO
 municipios_go = await client.get_municipalities("GO")
 
-# Municipio por codigo IBGE
+# Municipio por código IBGE
 goiania = await client.get_municipality(5208707)
 ```
 

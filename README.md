@@ -17,8 +17,8 @@
 
 <p align="center">
   <a href="https://nikolasdehor.github.io/mcp-fiscal-brasil/">📚 Documentação</a> ·
-  <a href="#-instalacao">Instalação</a> ·
-  <a href="#-ferramentas-disponiveis">Ferramentas</a> ·
+  <a href="#-instalação">Instalação</a> ·
+  <a href="#-ferramentas-disponíveis">Ferramentas</a> ·
   <a href="#-demonstracao">Exemplos</a> ·
   <a href="#-roadmap">Roadmap</a> ·
   <a href="#-contribuindo">Contribuindo</a>
@@ -51,7 +51,7 @@ Versão de evolução com 4 frentes:
 # CLI standalone
 mcp-fiscal cnpj 12345678000190
 mcp-fiscal compliance 12345678000190
-mcp-fiscal regimes --faturamento 500000 --setor servicos --folha 180000
+mcp-fiscal regimes --faturamento 500000 --setor serviços --folha 180000
 
 # REST API + Web UI demo
 mcp-fiscal-api  # http://localhost:8000
@@ -375,10 +375,10 @@ fiscal = FiscalBrasil()
 documentos = ["529.982.247-25", "000.000.000-00", "11.222.333/0001-81"]
 
 resultados = [
-    {"doc": doc, "valido": fiscal.validate_cpf(doc) or fiscal.validate_cnpj(doc)}
+    {"doc": doc, "válido": fiscal.validate_cpf(doc) or fiscal.validate_cnpj(doc)}
     for doc in documentos
 ]
-# [{'doc': '529.982.247-25', 'valido': True}, ...]
+# [{'doc': '529.982.247-25', 'válido': True}, ...]
 ```
 
 ---
@@ -429,7 +429,7 @@ cd mcp-fiscal-brasil
 
 # 2. Instale dependências de desenvolvimento
 pip install -e ".[dev]"
-pre-commit install
+pré-commit install
 
 # 3. Crie sua branch
 git checkout -b feature/meu-recurso

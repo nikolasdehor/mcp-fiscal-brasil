@@ -1,13 +1,13 @@
 """CLI standalone do mcp-fiscal-brasil.
 
 Permite usar as ferramentas fiscais direto no terminal sem precisar
-de servidor MCP. Util para automacao em scripts shell e exploracao rapida.
+de servidor MCP. Util para automação em scripts shell e exploracao rápida.
 
 Exemplos:
     mcp-fiscal-brasil cnpj 12345678000190
     mcp-fiscal-brasil cnpj 12345678000190 --json
     mcp-fiscal-brasil compliance 12345678000190
-    mcp-fiscal-brasil regimes --faturamento 500000 --setor servicos --folha 180000
+    mcp-fiscal-brasil regimes --faturamento 500000 --setor serviços --folha 180000
     mcp-fiscal-brasil cpf 12345678909
     mcp-fiscal-brasil cep 01001000
 """
@@ -76,40 +76,40 @@ def _pretty(value: Any, indent: int) -> None:
 
 @app.command()
 def version() -> None:
-    """Exibe versao do pacote."""
+    """Exibe versão do pacote."""
     typer.echo(f"mcp-fiscal-brasil {__version__}")
 
 
 @app.command()
 def cnpj(
-    numero: str = typer.Argument(..., help="CNPJ com ou sem formatacao"),
+    número: str = typer.Argument(..., help="CNPJ com ou sem formatacao"),
     as_json: bool = typer.Option(False, "--json", help="Saida em JSON puro"),
 ) -> None:
     """Consulta dados cadastrais de um CNPJ."""
-    resultado = asyncio.run(consultar_cnpj(numero))
+    resultado = asyncio.run(consultar_cnpj(número))
     _print(resultado, as_json)
 
 
 @app.command()
 def cpf(
-    numero: str = typer.Argument(..., help="CPF com ou sem formatacao"),
+    número: str = typer.Argument(..., help="CPF com ou sem formatacao"),
     as_json: bool = typer.Option(False, "--json", help="Saida em JSON puro"),
 ) -> None:
     """Valida CPF brasileiro (digito verificador, offline)."""
-    resultado = asyncio.run(validar_cpf_tool(numero))
+    resultado = asyncio.run(validar_cpf_tool(número))
     _print(resultado, as_json)
 
 
 @app.command()
 def cep(
-    numero: str = typer.Argument(..., help="CEP com ou sem hifen"),
+    número: str = typer.Argument(..., help="CEP com ou sem hifen"),
     as_json: bool = typer.Option(False, "--json", help="Saida em JSON puro"),
 ) -> None:
     """Consulta endereco pelo CEP."""
 
     async def run() -> Any:
         client = CEPClient()
-        return await client.get_address(numero)
+        return await client.get_address(número)
 
     resultado = asyncio.run(run())
     _print(resultado, as_json)
@@ -135,7 +135,7 @@ def municipio(
     codigo_ibge: str = typer.Argument(..., help="Codigo IBGE do municipio"),
     as_json: bool = typer.Option(False, "--json", help="Saida em JSON puro"),
 ) -> None:
-    """Consulta dados de um municipio pelo codigo IBGE."""
+    """Consulta dados de um municipio pelo código IBGE."""
 
     async def run() -> Any:
         client = IBGEClient()
@@ -169,13 +169,13 @@ def supplier(
 @app.command()
 def regimes(
     faturamento: float = typer.Option(..., "--faturamento", help="Faturamento anual em reais"),
-    setor: str = typer.Option(..., "--setor", help="comercio, servicos ou industria"),
+    setor: str = typer.Option(..., "--setor", help="comércio, serviços ou indústria"),
     folha: float | None = typer.Option(None, "--folha", help="Folha anual (impacta Fator R)"),
     as_json: bool = typer.Option(False, "--json", help="Saida em JSON puro"),
 ) -> None:
     """Compara regimes tributarios (MEI/Simples/Lucro Presumido/Lucro Real)."""
-    if setor not in ("comercio", "servicos", "industria"):
-        typer.echo("Erro: setor deve ser comercio, servicos ou industria", err=True)
+    if setor not in ("comércio", "serviços", "indústria"):
+        typer.echo("Erro: setor deve ser comércio, serviços ou indústria", err=True)
         raise typer.Exit(code=1)
     resultado = compare_tax_regimes(
         faturamento_anual=faturamento,
@@ -190,7 +190,7 @@ def main() -> None:
     try:
         app()
     except KeyboardInterrupt:
-        typer.echo("\nInterrompido pelo usuario", err=True)
+        typer.echo("\nInterrompido pelo usuário", err=True)
         sys.exit(130)
 
 

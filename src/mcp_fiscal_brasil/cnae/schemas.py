@@ -2,12 +2,12 @@ from pydantic import BaseModel
 
 
 class CNAEActivity(BaseModel):
-    codigo: str
-    descricao: str
+    código: str
+    descrição: str
 
 
 class CNAEClass(BaseModel):
-    codigo: str
-    descricao: str
+    código: str
+    descrição: str
     grupo: str | None = None
     divisao: str | None = None

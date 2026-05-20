@@ -2,7 +2,7 @@
 
 Pacote npm `mcp-fiscal-brasil` que envelopa o CLI Python para uso em apps JavaScript/TypeScript.
 
-## Pre-requisito
+## Pré-requisito
 
 O CLI Python precisa estar instalado no `PATH`:
 
@@ -43,10 +43,10 @@ console.log(`Risco: ${report.risco_geral} (score ${report.score}/100)`);
 const score = await scoreSupplier("12345678000190", { estrito: true });
 console.log(score.recomendacao);  // "aprovar" | "investigar" | etc
 
-// Planejamento tributario
+// Planejamento tributário
 const regimes = await compareRegimes({
   faturamento: 500_000,
-  setor: "servicos",
+  setor: "serviços",
   folha: 180_000,
 });
 console.log(regimes.melhor_opcao);
@@ -56,7 +56,7 @@ console.log(regimes.melhor_opcao);
 
 ```bash
 npx mcp-fiscal cnpj 12345678000190
-npx mcp-fiscal regimes --faturamento 500000 --setor servicos
+npx mcp-fiscal regimes --faturamento 500000 --setor serviços
 ```
 
 ## Trade-offs
@@ -64,7 +64,7 @@ npx mcp-fiscal regimes --faturamento 500000 --setor servicos
 Como o wrapper spawna o CLI Python via subprocess:
 
 - **Overhead**: 50-150ms por chamada
-- **Pre-requisito**: Python instalado
+- **Pré-requisito**: Python instalado
 - **Beneficio**: zero drift entre ecossistemas Python e Node
 
 Para apps Node de alto throughput, considere usar a [REST API](rest-api.md) em vez do wrapper.

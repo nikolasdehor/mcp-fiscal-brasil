@@ -1,6 +1,6 @@
 # Instalacao
 
-## Pre-requisitos
+## Pré-requisitos
 
 - **Python 3.10+** (verifique com `python --version`)
 - Conexao com internet (para consultar APIs publicas)
@@ -13,15 +13,15 @@
     pipx install mcp-fiscal-brasil
     ```
 
-    Isola o pacote em ambiente proprio. Apos instalar, `mcp-fiscal`, `mcp-fiscal-brasil` e `mcp-fiscal-api` ficam disponiveis no `PATH`.
+    Isola o pacote em ambiente próprio. Apos instalar, `mcp-fiscal`, `mcp-fiscal-brasil` e `mcp-fiscal-api` ficam disponíveis no `PATH`.
 
-=== "uv tool (rapido)"
+=== "uv tool (rápido)"
 
     ```bash
     uv tool install mcp-fiscal-brasil
     ```
 
-    Mesmo resultado que pipx, com [`uv`](https://docs.astral.sh/uv/) (mais rapido).
+    Mesmo resultado que pipx, com [`uv`](https://docs.astral.sh/uv/) (mais rápido).
 
 === "pip (em um venv)"
 
@@ -59,7 +59,7 @@
     pip install mcp-fiscal-brasil
     ```
 
-## Verificar a instalacao
+## Verificar a instalação
 
 ```bash
 mcp-fiscal version

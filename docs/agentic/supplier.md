@@ -72,4 +72,4 @@ async def cadastrar_fornecedor(cnpj: str) -> bool:
 
 ### Via agente IA
 
-> "Faz a due diligence completa do CNPJ 12.345.678/0001-90 com criterios estritos e me da a recomendacao"
+> "Faz a due diligence completa do CNPJ 12.345.678/0001-90 com critérios estritos e me da a recomendacao"

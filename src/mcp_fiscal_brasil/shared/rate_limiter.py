@@ -59,13 +59,13 @@ class SlidingWindowRateLimiter:
 
 # Limiters pre-configurados para as principais APIs
 
-# Receita Federal / BrasilAPI: conservador para nao ser bloqueado
+# Receita Federal / BrasilAPI: conservador para não ser bloqueado
 receita_limiter = SlidingWindowRateLimiter(max_requests=3, window_seconds=60.0)
 
 # BrasilAPI: documentado em 3 req/s por IP
 brasil_api_limiter = SlidingWindowRateLimiter(max_requests=3, window_seconds=1.0)
 
-# SEFAZ: muito conservador, servico governamental sensivel
+# SEFAZ: muito conservador, serviço governamental sensivel
 sefaz_limiter = SlidingWindowRateLimiter(max_requests=10, window_seconds=60.0)
 
 # APIs de NFSe (variam por prefeitura, usar limite padrao)

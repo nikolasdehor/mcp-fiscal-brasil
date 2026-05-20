@@ -9,7 +9,7 @@ mcp-fiscal-api
 # Abrir http://localhost:8000
 ```
 
-## Demos disponiveis
+## Demos disponíveis
 
 ### Consulta de CNPJ
 
@@ -17,11 +17,11 @@ Input: CNPJ com ou sem formatacao. Output: dados cadastrais completos.
 
 ### Compliance consolidado
 
-Input: CNPJ. Output: relatorio com score 0-100, risco classificado e achados.
+Input: CNPJ. Output: relatório com score 0-100, risco classificado e achados.
 
-### Comparativo de regimes tributarios
+### Comparativo de regimes tributários
 
-Inputs: faturamento, setor, folha (opcional). Output: comparativo MEI/Simples/LP/LR com melhor opcao e economia.
+Inputs: faturamento, setor, folha (opcional). Output: comparativo MEI/Simples/LP/LR com melhor opção e economia.
 
 ## Stack
 

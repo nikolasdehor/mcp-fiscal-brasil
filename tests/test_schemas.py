@@ -36,15 +36,15 @@ class TestEndereco:
     def test_formatado_completo(self) -> None:
         end = Endereco(
             logradouro="Rua das Flores",
-            numero="100",
+            número="100",
             bairro="Centro",
-            municipio="Sao Paulo",
+            municipio="São Paulo",
             uf="SP",
             cep="01310-100",
         )
         formatado = end.formatado()
         assert "Rua das Flores" in formatado
-        assert "Sao Paulo/SP" in formatado
+        assert "São Paulo/SP" in formatado
         assert "01310-100" in formatado
 
     def test_formatado_parcial(self) -> None:

@@ -4,7 +4,7 @@ Servidor MCP, CLI, REST API e SDK para o sistema fiscal brasileiro.
 
 [![PyPI](https://img.shields.io/pypi/v/mcp-fiscal-brasil?color=009c3b&label=PyPI)](https://pypi.org/project/mcp-fiscal-brasil/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-002776?logo=python&logoColor=white)](https://www.python.org/)
-[![MCP](https://img.shields.io/badge/MCP-compativel-7c3aed)](https://modelcontextprotocol.io)
+[![MCP](https://img.shields.io/badge/MCP-compatível-7c3aed)](https://modelcontextprotocol.io)
 [![Licenca MIT](https://img.shields.io/badge/licenca-MIT-FFDF00?labelColor=002776)](https://github.com/nikolasdehor/mcp-fiscal-brasil/blob/main/LICENSE)
 
 ## O que e
@@ -13,7 +13,7 @@ O `mcp-fiscal-brasil` integra dados fiscais brasileiros (CNPJ, NFe, SPED, Simple
 
 ```mermaid
 flowchart LR
-    A[Sua aplicacao ou agente IA] -->|MCP| M[Servidor MCP]
+    A[Sua aplicação ou agente IA] -->|MCP| M[Servidor MCP]
     A -->|HTTP| R[REST API]
     A -->|stdin/stdout| C[CLI]
     A -->|import| S[SDK Python]
@@ -26,9 +26,9 @@ flowchart LR
 
 ## Por que existe
 
-O Brasil tem o sistema fiscal mais complexo do mundo: 27 SEFAZs, NFe + NFSe + SPED + eSocial, cada municipio com seu portal proprio. Integrar IA com dados fiscais brasileiros antes desse projeto significava semanas de codigo de cola.
+O Brasil tem o sistema fiscal mais complexo do mundo: 27 SEFAZs, NFe + NFSe + SPED + eSocial, cada municipio com seu portal próprio. Integrar IA com dados fiscais brasileiros antes desse projeto significava semanas de código de cola.
 
-Com o `mcp-fiscal-brasil`, **uma linha de codigo** consulta CNPJ, valida NFe, analisa compliance, compara regimes tributarios.
+Com o `mcp-fiscal-brasil`, **uma linha de código** consulta CNPJ, válida NFe, analisa compliance, compara regimes tributários.
 
 ## Recursos chave (v0.2.0)
 
@@ -36,11 +36,11 @@ Com o `mcp-fiscal-brasil`, **uma linha de codigo** consulta CNPJ, valida NFe, an
 
     Combinacoes pensadas para uso por agentes de IA:
 
-    - `analyze_cnpj_compliance` - relatorio consolidado com score 0-100
+    - `analyze_cnpj_compliance` - relatório consolidado com score 0-100
     - `compare_tax_regimes` - MEI vs Simples vs Lucro Presumido vs Real
     - `risk_score_supplier` - due diligence com recomendacao acionavel
-    - `validate_nfe_full` - parse XML + chave + situacao do emissor
-    - `summarize_sped` - sumario executivo de arquivo SPED
+    - `validate_nfe_full` - parse XML + chave + situação do emissor
+    - `summarize_sped` - sumário executivo de arquivo SPED
 
 === "Multiplas interfaces"
 
@@ -73,7 +73,7 @@ uv tool install mcp-fiscal-brasil
 # CLI
 mcp-fiscal cnpj 12345678000190
 mcp-fiscal compliance 12345678000190
-mcp-fiscal regimes --faturamento 500000 --setor servicos --folha 180000
+mcp-fiscal regimes --faturamento 500000 --setor serviços --folha 180000
 
 # REST API + Web UI demo
 mcp-fiscal-api  # http://localhost:8000
@@ -94,6 +94,6 @@ asyncio.run(main())
 
 ## Onde ir agora
 
-[:material-rocket: Comece pelo guia rapido](getting-started/quickstart.md){ .md-button .md-button--primary }
+[:material-rocket: Comece pelo guia rápido](getting-started/quickstart.md){ .md-button .md-button--primary }
 [:material-tools: Explore as tools agenticas](agentic/index.md){ .md-button }
 [:material-github: Ver no GitHub](https://github.com/nikolasdehor/mcp-fiscal-brasil){ .md-button }

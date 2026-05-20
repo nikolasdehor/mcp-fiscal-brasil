@@ -1,4 +1,4 @@
-"""Parser de XML de NFe (versao 4.00)."""
+"""Parser de XML de NFe (versão 4.00)."""
 
 from datetime import datetime
 from typing import cast
@@ -69,7 +69,7 @@ def _parse_endereco(element: etree._Element | None, ns: dict[str, str]) -> Ender
             element, "nfe:enderEmit/nfe:xLgr/text()", "enderEmit/xLgr/text()", ns
         )
         or _xpath_text_any(element, "nfe:enderDest/nfe:xLgr/text()", "enderDest/xLgr/text()", ns),
-        numero=_xpath_text_any(element, "nfe:enderEmit/nfe:nro/text()", "enderEmit/nro/text()", ns)
+        número=_xpath_text_any(element, "nfe:enderEmit/nfe:nro/text()", "enderEmit/nro/text()", ns)
         or _xpath_text_any(element, "nfe:enderDest/nfe:nro/text()", "enderDest/nro/text()", ns),
         bairro=_xpath_text_any(
             element, "nfe:enderEmit/nfe:xBairro/text()", "enderEmit/xBairro/text()", ns
@@ -100,9 +100,9 @@ def _parse_item(det: etree._Element, ns: dict[str, str]) -> ItemNFe:
             icms_el = icms_group[0]  # ICMS00, ICMS10, etc.
 
     return ItemNFe(
-        numero=int(numero_str),
+        número=int(numero_str),
         codigo_produto=_xpath_text_any(prod, "nfe:cProd/text()", "cProd/text()", ns) or "",
-        descricao=_xpath_text_any(prod, "nfe:xProd/text()", "xProd/text()", ns) or "",
+        descrição=_xpath_text_any(prod, "nfe:xProd/text()", "xProd/text()", ns) or "",
         ncm=_xpath_text_any(prod, "nfe:NCM/text()", "NCM/text()", ns),
         cfop=_xpath_text_any(prod, "nfe:CFOP/text()", "CFOP/text()", ns) or "",
         unidade=_xpath_text_any(prod, "nfe:uCom/text()", "uCom/text()", ns) or "",
@@ -121,7 +121,7 @@ def parse_nfe_xml(xml_content: str | bytes, chave: str) -> NFeResponse:
     """
     Parseia o XML de uma NFe e retorna NFeResponse.
 
-    Suporta NFe versao 4.00 com namespace do portal fiscal.
+    Suporta NFe versão 4.00 com namespace do portal fiscal.
     """
     root = parse_xml(xml_content)
     ns = NS_NFE
@@ -140,7 +140,7 @@ def parse_nfe_xml(xml_content: str | bytes, chave: str) -> NFeResponse:
     dest = _find_any(inf_nfe, "nfe:dest", "dest", ns)
     total = _find_any(inf_nfe, "nfe:total/nfe:ICMSTot", "total/ICMSTot", ns)
 
-    # Data de emissao
+    # Data de emissão
     data_emissao = None
     raw_dhemi = _xpath_text_any(ide, "nfe:dhEmi/text()", "dhEmi/text()", ns)
     if raw_dhemi:
@@ -188,7 +188,7 @@ def parse_nfe_xml(xml_content: str | bytes, chave: str) -> NFeResponse:
 
     return NFeResponse(
         chave_acesso=chave,
-        numero=_xpath_text_any(ide, "nfe:nNF/text()", "nNF/text()", ns),
+        número=_xpath_text_any(ide, "nfe:nNF/text()", "nNF/text()", ns),
         serie=_xpath_text_any(ide, "nfe:serie/text()", "serie/text()", ns),
         modelo=_xpath_text_any(ide, "nfe:mod/text()", "mod/text()", ns) or "55",
         emitente=_parse_endereco(emit, ns),

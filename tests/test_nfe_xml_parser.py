@@ -22,7 +22,7 @@ def test_parse_nfe_xml_without_namespace_extracts_basic_fields() -> None:
             <xLgr>Rua Fiscal</xLgr>
             <nro>100</nro>
             <xBairro>Centro</xBairro>
-            <xMun>Sao Paulo</xMun>
+            <xMun>São Paulo</xMun>
             <UF>SP</UF>
             <CEP>01001000</CEP>
           </enderEmit>
@@ -60,7 +60,7 @@ def test_parse_nfe_xml_without_namespace_extracts_basic_fields() -> None:
 
     response = parse_nfe_xml(xml, "35240112345678000195550010000001231000000012")
 
-    assert response.numero == "123"
+    assert response.número == "123"
     assert response.serie == "1"
     assert response.natureza_operacao == "Venda de mercadoria"
     assert response.emitente is not None

@@ -18,10 +18,10 @@ Este documento consolida a descoberta técnica do estado atual do `mcp-fiscal-br
 - `mcp_fiscal_brasil.cnpj`: consulta dados cadastrais por CNPJ via BrasilAPI e usa ReceitaWS como fallback.
   Falta busca real por nome, filtros por CNAE, UF, porte e situação, enriquecimento por Inscrição Estadual e testes determinísticos dos fluxos HTTP.
 
-- `mcp_fiscal_brasil.cpf`: valida CPF matematicamente de forma offline.
+- `mcp_fiscal_brasil.cpf`: válida CPF matematicamente de forma offline.
   Falta deixar explícito que não há consulta cadastral pública segura para CPF e que qualquer consulta de situação cadastral exigiria fonte oficial autenticada ou decisão legal.
 
-- `mcp_fiscal_brasil.nfe`: valida chave NFe, consulta BrasilAPI, tenta Portal Nacional NFe e retorna dados parciais extraídos da chave quando as fontes falham.
+- `mcp_fiscal_brasil.nfe`: válida chave NFe, consulta BrasilAPI, tenta Portal Nacional NFe e retorna dados parciais extraídos da chave quando as fontes falham.
   Falta integração SOAP SEFAZ com certificado digital, distribuição de DF-e, eventos, cancelamento, validação XSD e testes completos de XML com namespace e protocolo.
 
 - `mcp_fiscal_brasil.nfse`: retorna orientação e portal de consulta para 50 ou mais municípios, com fallback para o Portal Nacional NFSe.
@@ -33,10 +33,10 @@ Este documento consolida a descoberta técnica do estado atual do `mcp-fiscal-br
 - `mcp_fiscal_brasil.sped`: analisa texto SPED pipe-delimitado, identifica registro `0000`, período, empresa, contagem de registros e registros por tipo.
   Falta validação por leiaute, regras por bloco, conferência de encerramentos e totais, análise de EFD-Contribuições, ECD e ECF além da estrutura básica.
 
-- `mcp_fiscal_brasil.esocial`: mantém catálogo hard-coded de eventos e valida XML básico.
+- `mcp_fiscal_brasil.esocial`: mantém catálogo hard-coded de eventos e válida XML básico.
   Falta catálogo versionado, validação XSD, assinatura, envio, consulta de recibos, retorno oficial e identificação precisa do código `S-*` a partir do XML.
 
-- `mcp_fiscal_brasil.certidoes`: orienta consulta de CND federal e CRF FGTS com URLs oficiais e valida CPF/CNPJ de entrada.
+- `mcp_fiscal_brasil.certidoes`: orienta consulta de CND federal e CRF FGTS com URLs oficiais e válida CPF/CNPJ de entrada.
   Falta automação real de emissão ou verificação, suporte CNDT trabalhista, uso do schema `CertidaoResponse` e definição clara do que depende de CAPTCHA, gov.br ou certificado.
 
 ### Cobertura de testes atual
@@ -161,7 +161,7 @@ Objetivo: adicionar 8 módulos de dados, entre novos pacotes e expansões de pac
    - Arquivos: `client.py`, `schemas.py`, `tools.py`, `normalization.py`, `__init__.py`.
 
 6. `src/mcp_fiscal_brasil/junta_comercial/`
-   - Fonte alvo: Redesim `https://www.gov.br/empresas-e-negocios/pt-br/redesim` e portais estaduais por UF.
+   - Fonte alvo: Redesim `https://www.gov.br/empresas-e-negócios/pt-br/redesim` e portais estaduais por UF.
    - Autenticação: varia por estado; muitos fluxos exigem gov.br, certificado, pagamento ou sessão web.
    - Limite: não padronizado.
    - Retorno: orientação por UF, URLs de consulta, campos necessários, riscos e status de automação suportada.
@@ -228,7 +228,7 @@ FastAPI REST:
 
 - Dependências: `fastapi>=0.115`, `uvicorn[standard]>=0.30`.
 - Arquivos: `src/mcp_fiscal_brasil/api/app.py`, `api/routes_cnpj.py`, `api/routes_nfe.py`, `api/routes_enrichment.py`, `api/errors.py`, `tests/test_api.py`.
-- Endpoints iniciais: `GET /health`, `GET /cnpj/{cnpj}`, `GET /cpf/{cpf}/validacao`, `GET /nfe/{chave}/validacao`, `GET /sefaz/{uf}/status`, `GET /cnae/{codigo}`, `POST /empresas/enriquecer-lote`.
+- Endpoints iniciais: `GET /health`, `GET /cnpj/{cnpj}`, `GET /cpf/{cpf}/validação`, `GET /nfe/{chave}/validação`, `GET /sefaz/{uf}/status`, `GET /cnae/{código}`, `POST /empresas/enriquecer-lote`.
 - OpenAPI deve expor exemplos reais, erros padronizados e cabeçalhos de rate limit quando aplicável.
 
 Web UI demo:
