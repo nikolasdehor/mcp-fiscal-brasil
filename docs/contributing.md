@@ -45,8 +45,8 @@ uv run mkdocs serve
 ## Padroes
 
 - **Estilo**: PEP 8 + ruff format
-- **Tipos**: mypy --strict, type hints em todas as funcoes publicas
-- **Testes**: pytest, cobertura minima 80% em novo código
+- **Tipos**: mypy --strict, type hints em todas as funções publicas
+- **Testes**: pytest, cobertura mínima 80% em novo código
 - **Mensagens de commit**: imperativo curto, sem AI footers (`Co-Authored-By`, `Generated with Claude` etc)
 - **Portugues**: pt-BR com acentos corretos em strings/docs user-facing. Codigo e comentários em ingles.
 

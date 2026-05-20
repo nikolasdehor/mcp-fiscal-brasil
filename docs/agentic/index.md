@@ -1,6 +1,6 @@
 # Tools agenticas
 
-Tools de **alto nivel** desenhadas para uso por agentes de IA (Claude, GPT, Gemini). Cada tool combina multiplos clientes de baixo nivel em uma chamada com saida estruturada e rica em descrições (otimizada para LLMs).
+Tools de **alto nivel** desenhadas para uso por agentes de IA (Claude, GPT, Gemini). Cada tool combina múltiplos clientes de baixo nivel em uma chamada com saida estruturada e rica em descrições (otimizada para LLMs).
 
 ## Disponiveis (v0.2.0)
 
@@ -8,7 +8,7 @@ Tools de **alto nivel** desenhadas para uso por agentes de IA (Claude, GPT, Gemi
 |------|-----------|
 | [`analyze_cnpj_compliance`](compliance.md) | Relatorio consolidado: CNPJ + Simples + MEI + CNAE, score 0-100, risco |
 | [`compare_tax_regimes`](regimes.md) | Comparativo MEI/Simples/Lucro Presumido/Lucro Real |
-| [`risk_score_supplier`](supplier.md) | Due diligence de fornecedor com recomendacao |
+| [`risk_score_supplier`](supplier.md) | Due diligence de fornecedor com recomendação |
 | [`validate_nfe_full`](nfe.md) | NFe: parse XML + chave + situação do emissor |
 | [`summarize_sped`](sped.md) | Sumario executivo de arquivo SPED |
 
@@ -16,7 +16,7 @@ Tools de **alto nivel** desenhadas para uso por agentes de IA (Claude, GPT, Gemi
 
 Tools de baixo nivel (ex: `consultar_cnpj`, `validar_chave_nfe`) são úteis, mas exigem que o agente saiba combinar várias chamadas para uma decisão. Tools agenticas resolvem isso:
 
-- Composem multiplos clientes em uma chamada
+- Composem múltiplos clientes em uma chamada
 - Retornam respostas com **score normalizado**, **risco classificado** e **resumo executivo**
 - Schema pydantic com `description` em cada campo (auto-explicativo para LLMs)
 - Capturam falhas parciais sem bloquear a analise (uma fonte offline não quebra a tool)
@@ -34,7 +34,7 @@ Cenario: agente IA precisa decidir se contratar um fornecedor.
 **Com agentic** (1 chamada):
 ```python
 score = await risk_score_supplier("12345678000190", criterios_estritos=True)
-if score.recomendacao == "recusar":
+if score.recomendação == "recusar":
     return "Bloqueado: " + ", ".join(score.fatores)
 ```
 

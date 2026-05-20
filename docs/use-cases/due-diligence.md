@@ -1,6 +1,6 @@
 # Due diligence de fornecedores
 
-Como usar o `mcp-fiscal-brasil` para automatizar verificacao de fornecedores em larga escala.
+Como usar o `mcp-fiscal-brasil` para automatizar verificação de fornecedores em larga escala.
 
 ## Cenario
 
@@ -51,18 +51,18 @@ async def processar_cadastro_fornecedor(cnpj: str, contratante: dict) -> dict:
         "supplier_evaluated",
         cnpj=cnpj,
         score=score.score,
-        recomendacao=score.recomendacao,
+        recomendação=score.recomendação,
         contratante=contratante["id"],
     )
 
-    if score.recomendacao == "recusar":
+    if score.recomendação == "recusar":
         return {"status": "bloqueado", "motivos": score.fatores}
 
-    if score.recomendacao == "investigar":
+    if score.recomendação == "investigar":
         await enfileirar_revisao_manual(cnpj, score)
         return {"status": "pendente_revisao"}
 
-    if score.recomendacao == "aprovar_com_ressalvas":
+    if score.recomendação == "aprovar_com_ressalvas":
         await notificar_compliance(cnpj, score)
         return {"status": "aprovado", "flag": "ressalvas"}
 
@@ -81,7 +81,7 @@ async def avaliar_em_massa(cnpjs: list[str]) -> dict[str, str]:
     async def _avaliar_um(cnpj: str) -> tuple[str, str]:
         async with sem:
             score = await risk_score_supplier(cnpj, criterios_estritos=True)
-            return cnpj, score.recomendacao
+            return cnpj, score.recomendação
 
     resultados = await asyncio.gather(*(_avaliar_um(c) for c in cnpjs))
     return dict(resultados)
@@ -89,7 +89,7 @@ async def avaliar_em_massa(cnpjs: list[str]) -> dict[str, str]:
 
 ## Auditoria
 
-O score inclui `fatores` (lista de strings) que explicam **porque** a recomendacao foi essa. Armazene-os no log de auditoria:
+O score inclui `fatores` (lista de strings) que explicam **porque** a recomendação foi essa. Armazene-os no log de auditoria:
 
 ```python
 log.info(
@@ -98,7 +98,7 @@ log.info(
     razao_social=score.razao_social,
     score=score.score,
     risco=score.risco,
-    recomendacao=score.recomendacao,
+    recomendação=score.recomendação,
     fatores=score.fatores,
     data_analise=score.data_analise.isoformat(),
 )

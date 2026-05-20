@@ -22,7 +22,7 @@ Free tier com 750h/mês. Servico dorme apos 15min de inatividade (cold start de 
 
 ## Fly.io (recomendado para produção)
 
-Free allowance pequeno mas estavel. Latencia minima do BR (region `gru` = São Paulo). Sempre ativo (sem cold start).
+Free allowance pequeno mas estavel. Latencia mínima do BR (region `gru` = São Paulo). Sempre ativo (sem cold start).
 
 ### Setup
 

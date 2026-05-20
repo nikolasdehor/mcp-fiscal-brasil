@@ -17,7 +17,7 @@ Consulta **em paralelo**:
 3. Status MEI
 4. CNAE principal e secundarios
 
-Aplica heuristicas e retorna um relatório unico com:
+Aplica heuristicas e retorna um relatório único com:
 
 - **`risco_geral`** (`baixo` / `medio` / `alto` / `critico`)
 - **`score`** (0-100, calibrado: 90 = excelente, 5 = critico)
@@ -40,7 +40,7 @@ class ComplianceReport(BaseModel):
 
 ## Tolerancia a falhas
 
-Se uma das fontes (Simples, MEI) estiver offline, a tool **não falha**. So a fonte CNPJ e mandatoria (se ela falhar, a tool levanta `RuntimeError`). As demais são usadas se disponíveis.
+Se uma das fontes (Simples, MEI) estiver offline, a tool **não falha**. Só a fonte CNPJ e mandatória (se ela falhar, a tool levanta `RuntimeError`). As demais são usadas se disponíveis.
 
 Verifique `fontes_consultadas` para saber quais responderam.
 
@@ -55,7 +55,7 @@ Verifique `fontes_consultadas` para saber quais responderam.
 | QSA não disponível | medio |
 | Tudo regular | baixo |
 
-Risco geral = severidade maxima dos achados.
+Risco geral = severidade máxima dos achados.
 
 ## Exemplos
 

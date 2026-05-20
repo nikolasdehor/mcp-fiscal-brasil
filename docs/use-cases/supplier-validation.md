@@ -4,7 +4,7 @@ Integracao com sistemas ERP para validar fornecedores antes de emissão de NFe.
 
 ## Cenario
 
-Antes de emitir NFe contra um CNPJ destinatario, você quer confirmar que:
+Antes de emitir NFe contra um CNPJ destinatário, você quer confirmar que:
 
 1. CNPJ existe e esta ativo
 2. Empresa não foi baixada / suspensa

@@ -1,6 +1,6 @@
 # REST API
 
-API HTTP via FastAPI. Util para integracoes que não falam MCP (frontends, no-code, microservicos legados).
+API HTTP via FastAPI. Util para integrações que não falam MCP (frontends, no-code, microservicos legados).
 
 ## Executar
 

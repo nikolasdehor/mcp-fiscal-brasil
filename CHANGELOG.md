@@ -25,7 +25,7 @@ Release focada em produzir o MCP fiscal brasileiro mais completo do mercado.
 #### Fase 3 - Tools agenticas (`agentic/`)
 - `analyze_cnpj_compliance` - relatório consolidado (CNPJ + Simples + MEI + CNAE) com score 0-100 e risco classificado
 - `compare_tax_regimes` - comparativo MEI/Simples/Lucro Presumido/Lucro Real com alíquota efetiva e imposto estimado
-- `risk_score_supplier` - due diligence de fornecedor com recomendacao (aprovar/aprovar_com_ressalvas/investigar/recusar)
+- `risk_score_supplier` - due diligence de fornecedor com recomendação (aprovar/aprovar_com_ressalvas/investigar/recusar)
 - `validate_nfe_full` - validação consolidada de NFe (parse XML + chave + situação do emissor)
 - `summarize_sped` - sumário executivo de arquivo SPED
 

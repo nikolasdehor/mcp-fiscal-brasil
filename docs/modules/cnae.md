@@ -28,6 +28,6 @@ class CNAEClass(BaseModel):
 
 ## Casos de uso
 
-- Validar compatibilidade entre atividade economica e operação
+- Validar compatibilidade entre atividade econômica e operação
 - Sugerir CNAE para novos cadastros
 - Mapear empresa -> setor para analise de carteira

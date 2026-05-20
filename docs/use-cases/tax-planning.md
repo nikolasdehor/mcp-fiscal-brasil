@@ -32,7 +32,7 @@ def sugerir_regime(cenário: dict) -> dict:
     )
 
     return {
-        "recomendacao": plano.melhor_opcao,
+        "recomendação": plano.melhor_opcao,
         "economia_anual": plano.economia_anual_vs_pior,
         "ranking": [
             {
