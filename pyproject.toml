@@ -73,8 +73,12 @@ testpaths = ["tests"]
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
+    "mkdocs-gen-files>=0.6.1",
+    "mkdocs-git-revision-date-localized-plugin>=1.5.2",
+    "mkdocs-literate-nav>=0.6.3",
     "mkdocs-material>=9.7.6",
     "mkdocs-mermaid2-plugin>=1.2.3",
+    "mkdocstrings[python]>=1.0.4",
     "pymdown-extensions>=10.21.3",
     "pytest-cov>=7.1.0",
     "types-cachetools>=7.0.0.20260518",

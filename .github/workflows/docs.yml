@@ -8,6 +8,7 @@ on:
       - "mkdocs.yml"
       - ".github/workflows/docs.yml"
       - "CHANGELOG.md"
+      - "src/mcp_fiscal_brasil/**/*.py"
   workflow_dispatch:
 
 permissions:
@@ -42,7 +43,12 @@ jobs:
           pip install \
             mkdocs-material \
             mkdocs-mermaid2-plugin \
+            "mkdocstrings[python]" \
+            mkdocs-git-revision-date-localized-plugin \
+            mkdocs-gen-files \
+            mkdocs-literate-nav \
             pymdown-extensions
+          pip install -e .
 
       - name: Build site
         run: mkdocs build --strict
