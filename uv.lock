@@ -1424,7 +1424,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.136.1" },
     { name = "fastmcp", specifier = ">=3.2.0" },
     { name = "httpx", specifier = ">=0.27.0" },
-    { name = "lxml", specifier = ">=5.0" },
+    { name = "lxml", specifier = ">=6.0.2" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.10" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.7" },
     { name = "pydantic", specifier = ">=2.0" },
