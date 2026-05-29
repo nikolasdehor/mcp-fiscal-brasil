@@ -56,7 +56,20 @@ app = FastMCP(
     ),
 )
 async def tool_consultar_cnpj(cnpj: str) -> dict[str, Any]:
-    """Consulta dados de empresa pelo CNPJ."""
+    """Consulta o cadastro completo de uma empresa brasileira pelo CNPJ.
+
+    Recupera os dados publicos da pessoa juridica na Receita Federal (via BrasilAPI/ReceitaWS):
+    razao social, nome fantasia, endereco, situacao cadastral, natureza juridica, porte,
+    capital social, CNAE principal e secundarias e quadro de socios e administradores (QSA).
+    Util para identificar empresas, validar fornecedores/clientes e preencher dados fiscais.
+
+    Args:
+        cnpj: Numero do CNPJ com 14 digitos, com ou sem formatacao
+            (ex.: "11.222.333/0001-81" ou "11222333000181").
+
+    Returns:
+        dict com os dados cadastrais completos da empresa.
+    """
     resultado = await consultar_cnpj(cnpj)
     return resultado.model_dump(mode="json", exclude_none=True)
 
@@ -69,7 +82,18 @@ async def tool_consultar_cnpj(cnpj: str) -> dict[str, Any]:
     ),
 )
 async def tool_listar_cnpjs_por_nome(nome: str, uf: str | None = None) -> list[dict[str, str]]:
-    """Busca empresas pelo nome."""
+    """Busca empresas pelo nome empresarial ou razao social.
+
+    A busca textual por nome de empresa nao e coberta por APIs publicas gratuitas, entao
+    esta ferramenta retorna um aviso orientando o uso de consultar_cnpj com o CNPJ exato.
+
+    Args:
+        nome: Nome empresarial ou parte da razao social a procurar.
+        uf: Sigla do estado para restringir a busca (ex.: "SP", "MG"). Opcional.
+
+    Returns:
+        list de dicts; atualmente contem um aviso de funcionalidade limitada.
+    """
     return await listar_cnpjs_por_nome(nome, uf)
 
 
@@ -87,7 +111,18 @@ async def tool_listar_cnpjs_por_nome(nome: str, uf: str | None = None) -> list[d
     ),
 )
 async def tool_validar_cpf(cpf: str) -> dict[str, Any]:
-    """Valida CPF brasileiro."""
+    """Valida o digito verificador de um CPF brasileiro (offline, modulo 11).
+
+    Confere apenas a estrutura do numero (11 digitos, nao-repetidos, digitos verificadores).
+    Nao consulta a Receita Federal nem confirma a existencia ou a situacao do titular.
+
+    Args:
+        cpf: Numero do CPF com 11 digitos, com ou sem formatacao
+            (ex.: "123.456.789-09" ou "12345678909").
+
+    Returns:
+        dict indicando se o CPF e matematicamente valido, com versao formatada e motivo da reprovacao.
+    """
     resultado = await validar_cpf_tool(cpf)
     return resultado.model_dump(mode="json", exclude_none=True)
 
@@ -106,7 +141,17 @@ async def tool_validar_cpf(cpf: str) -> dict[str, Any]:
     ),
 )
 async def tool_consultar_nfe(chave_acesso: str) -> dict[str, Any]:
-    """Consulta NFe pela chave de acesso."""
+    """Consulta uma NF-e (Nota Fiscal Eletronica) pela chave de acesso de 44 digitos.
+
+    Recupera emitente, destinatario, itens, valores e o protocolo de autorizacao da SEFAZ.
+    Use para conferencia, escrituracao fiscal/contabil ou auditoria de notas ja emitidas.
+
+    Args:
+        chave_acesso: Chave de acesso da NF-e com 44 digitos (aceita com ou sem espacos).
+
+    Returns:
+        dict com emitente, destinatario, itens, totais e protocolo da nota.
+    """
     resultado = await consultar_nfe(chave_acesso)
     return resultado.model_dump(mode="json", exclude_none=True)
 
@@ -120,7 +165,18 @@ async def tool_consultar_nfe(chave_acesso: str) -> dict[str, Any]:
     ),
 )
 async def tool_validar_chave_nfe(chave_acesso: str) -> dict[str, Any]:
-    """Valida chave de acesso de NFe."""
+    """Valida o formato e o digito verificador de uma chave de acesso de NF-e (offline, modulo 11).
+
+    Nao consulta a SEFAZ; apenas confere o calculo e decodifica os metadados da chave
+    (UF, ano/mes de emissao, CNPJ emitente, modelo, serie e numero da nota).
+
+    Args:
+        chave_acesso: Chave de acesso com 44 digitos (aceita com ou sem espacos).
+
+    Returns:
+        dict com "valido", "chave_formatada" e, se valida, "uf", "ano_mes_emissao",
+        "cnpj_emitente", "modelo", "serie" e "numero".
+    """
     return await validar_chave_nfe(chave_acesso)
 
 
@@ -133,7 +189,17 @@ async def tool_validar_chave_nfe(chave_acesso: str) -> dict[str, Any]:
     ),
 )
 async def tool_consultar_status_sefaz(uf: str) -> dict[str, Any]:
-    """Consulta status SEFAZ de uma UF."""
+    """Consulta o status do servico de autorizacao de NF-e da SEFAZ de uma UF.
+
+    Indica se o webservice da SEFAZ do estado esta operacional, util para diagnosticar
+    falhas na transmissao de notas fiscais.
+
+    Args:
+        uf: Sigla do estado com 2 letras (ex.: "SP", "MG", "RJ"). Validada contra as UFs do Brasil.
+
+    Returns:
+        dict com o status atual do servico e a descricao correspondente.
+    """
     resultado = await consultar_status_sefaz(uf)
     return resultado.model_dump(mode="json", exclude_none=True)
 
@@ -157,7 +223,21 @@ async def tool_consultar_nfse(
     uf: str,
     cnpj_prestador: str | None = None,
 ) -> dict[str, str]:
-    """Consulta NFSe com orientacoes por municipio."""
+    """Orienta a consulta de uma NFS-e (Nota Fiscal de Servicos eletronica) por municipio.
+
+    A NFS-e e municipal e nao tem padrao nacional unico, entao esta ferramenta retorna o portal
+    da prefeitura, o tipo de sistema (ABRASF, ISS.net etc.) e alternativas de integracao, em vez
+    de buscar os dados da nota diretamente.
+
+    Args:
+        numero: Numero da NFS-e.
+        municipio: Nome do municipio emissor (ex.: "Sao Paulo", "Belo Horizonte").
+        uf: Sigla do estado com 2 letras (ex.: "SP", "MG").
+        cnpj_prestador: CNPJ do prestador de servico. Opcional.
+
+    Returns:
+        dict com orientacoes de consulta, portal e sistema do municipio e alternativas de automacao.
+    """
     return await consultar_nfse(número, municipio, uf, cnpj_prestador)
 
 
@@ -174,7 +254,17 @@ async def tool_consultar_nfse(
     ),
 )
 async def tool_consultar_simples_nacional(cnpj: str) -> dict[str, Any]:
-    """Consulta situacao no Simples Nacional."""
+    """Consulta a situacao de uma empresa no Simples Nacional e no MEI pelo CNPJ.
+
+    Retorna se e optante do Simples Nacional e/ou MEI, com datas de opcao e exclusao.
+    Util para definir o regime tributario antes de calcular impostos ou tributar notas fiscais.
+
+    Args:
+        cnpj: Numero do CNPJ com 14 digitos, com ou sem formatacao.
+
+    Returns:
+        dict com a situacao no Simples Nacional e no MEI e respectivas datas.
+    """
     resultado = await consultar_simples_nacional(cnpj)
     return resultado.model_dump(mode="json", exclude_none=True)
 
@@ -193,7 +283,18 @@ async def tool_consultar_simples_nacional(cnpj: str) -> dict[str, Any]:
     ),
 )
 async def tool_analisar_sped(conteudo: str, nome_arquivo: str | None = None) -> dict[str, Any]:
-    """Analisa arquivo SPED."""
+    """Analisa um arquivo SPED e extrai periodo, empresa, contagem de registros e erros.
+
+    Identifica o tipo de escrituracao pelo registro 0000 (EFD-ICMS/IPI, EFD-Contribuicoes, ECD, ECF)
+    e devolve um resumo estruturado, com avisos e erros de integridade basica.
+
+    Args:
+        conteudo: Texto do arquivo SPED (layout delimitado por pipe "|"), nao um caminho.
+        nome_arquivo: Nome do arquivo, apenas informativo. Opcional.
+
+    Returns:
+        dict com tipo de SPED, dados de abertura, periodo, contagem de registros, avisos e erros.
+    """
     resultado = await analisar_sped(conteudo, nome_arquivo)
     return resultado.model_dump(mode="json", exclude_none=True)
 
@@ -206,7 +307,18 @@ async def tool_analisar_sped(conteudo: str, nome_arquivo: str | None = None) -> 
     ),
 )
 async def tool_listar_registros_sped(conteudo: str, tipo_registro: str) -> list[dict[str, str]]:
-    """Lista registros de um tipo especifico no SPED."""
+    """Lista todas as ocorrencias de um tipo de registro dentro de um arquivo SPED.
+
+    Para cada linha cujo codigo inicial coincide com tipo_registro, retorna o codigo,
+    os campos concatenados por pipe e a linha bruta.
+
+    Args:
+        conteudo: Texto do arquivo SPED (layout delimitado por pipe "|").
+        tipo_registro: Codigo do registro a buscar (ex.: "C100", "E110", "0150"). Case-insensitive.
+
+    Returns:
+        list de dicts com "registro", "campos" e "raw" para cada ocorrencia encontrada.
+    """
     return await listar_registros_sped(conteudo, tipo_registro)
 
 
@@ -223,7 +335,18 @@ async def tool_listar_registros_sped(conteudo: str, tipo_registro: str) -> list[
     ),
 )
 async def tool_listar_eventos_esocial(grupo: str | None = None) -> list[dict[str, Any]]:
-    """Lista eventos eSocial."""
+    """Lista os eventos do eSocial (layouts da serie S-) do catalogo interno.
+
+    Retorna codigo, nome, grupo e descricao de cada evento, opcionalmente filtrados por grupo.
+
+    Args:
+        grupo: Filtro por grupo, com correspondencia parcial e sem distincao de maiusculas
+            (ex.: "Tabelas", "Nao Periodicos", "Periodicos", "Exclusao", "Totalizadores").
+            Se None, retorna todos os eventos ordenados por codigo.
+
+    Returns:
+        list de dicts com codigo, nome, grupo e descricao de cada evento.
+    """
     eventos = await listar_eventos_esocial(grupo)
     return [e.model_dump() for e in eventos]
 
@@ -236,7 +359,17 @@ async def tool_listar_eventos_esocial(grupo: str | None = None) -> list[dict[str
     ),
 )
 async def tool_validar_evento_esocial(xml_conteudo: str) -> dict[str, Any]:
-    """Valida XML de evento eSocial."""
+    """Valida a estrutura basica de um XML de evento do eSocial.
+
+    Verifica o elemento raiz, identifica o codigo do evento (elemento "evt...") e extrai a
+    versao do leiaute. Nao substitui a validacao contra o schema XSD oficial.
+
+    Args:
+        xml_conteudo: Conteudo (texto) do XML do evento eSocial.
+
+    Returns:
+        dict com o evento detectado, a versao, o resultado da validacao e listas de erros e avisos.
+    """
     resultado = await validar_evento_esocial(xml_conteudo)
     return resultado.model_dump(mode="json", exclude_none=True)
 
@@ -255,7 +388,17 @@ async def tool_validar_evento_esocial(xml_conteudo: str) -> dict[str, Any]:
     ),
 )
 async def tool_consultar_certidao_federal(cnpj_cpf: str) -> dict[str, str]:
-    """Orienta consulta de CND na Receita Federal."""
+    """Orienta a obtencao da Certidao Negativa de Debitos federais (CND da RFB/PGFN) por CPF ou CNPJ.
+
+    Detecta o tipo de documento, valida o numero e retorna as URLs oficiais de emissao e verificacao,
+    o acesso ao e-CAC e alternativas de automacao. Nao emite a certidao (nao ha API publica).
+
+    Args:
+        cnpj_cpf: CPF (11 digitos) ou CNPJ (14 digitos), com ou sem formatacao.
+
+    Returns:
+        dict com tipo de documento, motivo da consulta manual, URLs de emissao/verificacao e alternativas.
+    """
     return await consultar_certidao_federal(cnpj_cpf)
 
 
@@ -267,7 +410,17 @@ async def tool_consultar_certidao_federal(cnpj_cpf: str) -> dict[str, str]:
     ),
 )
 async def tool_consultar_certidao_fgts(cnpj: str) -> dict[str, str]:
-    """Orienta consulta de CRF do FGTS."""
+    """Orienta a obtencao do Certificado de Regularidade do FGTS (CRF) por CNPJ.
+
+    Valida o CNPJ e retorna a URL de consulta no portal da Caixa, o Conectividade Social e
+    orientacoes de automacao. Nao emite o certificado (nao ha API publica aberta).
+
+    Args:
+        cnpj: CNPJ do empregador com 14 digitos, com ou sem formatacao.
+
+    Returns:
+        dict com orgao, motivo da consulta manual, URLs de consulta e orientacoes de automacao.
+    """
     return await consultar_certidao_fgts(cnpj)
 
 

@@ -1334,7 +1334,7 @@ wheels = [
 
 [[package]]
 name = "mcp-fiscal-brasil"
-version = "0.2.0"
+version = "0.2.1"
 source = { editable = "." }
 dependencies = [
     { name = "aiolimiter" },
@@ -1371,6 +1371,7 @@ dev = [
     { name = "mkdocs-mermaid2-plugin" },
     { name = "mkdocstrings", extra = ["python"] },
     { name = "pymdown-extensions" },
+    { name = "pytest-asyncio" },
     { name = "pytest-cov" },
     { name = "types-cachetools" },
 ]
@@ -1408,6 +1409,7 @@ dev = [
     { name = "mkdocs-mermaid2-plugin", specifier = ">=1.2.3" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.4" },
     { name = "pymdown-extensions", specifier = ">=10.21.3" },
+    { name = "pytest-asyncio", specifier = ">=0.23" },
     { name = "pytest-cov", specifier = ">=7.1.0" },
     { name = "types-cachetools", specifier = ">=7.0.0.20260518" },
 ]

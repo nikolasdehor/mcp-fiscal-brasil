@@ -1,0 +1,23 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.nikolasdehor/mcp-fiscal-brasil",
+  "title": "MCP Fiscal Brasil",
+  "description": "Servidor MCP para integrar IAs com o sistema fiscal brasileiro. Consulte CNPJ, NFe, NFSe, SPED, eSocial e mais via linguagem natural.",
+  "version": "0.2.1",
+  "repository": {
+    "url": "https://github.com/nikolasdehor/mcp-fiscal-brasil",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "mcp-fiscal-brasil",
+      "version": "0.2.1",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

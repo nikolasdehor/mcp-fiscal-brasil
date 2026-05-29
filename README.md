@@ -1,3 +1,5 @@
+mcp-name: io.github.nikolasdehor/mcp-fiscal-brasil
+
 <p align="center">
   <img src="assets/banner.svg" width="800" alt="MCP Fiscal Brasil">
 </p>
