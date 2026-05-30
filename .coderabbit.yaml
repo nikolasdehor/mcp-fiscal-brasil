@@ -57,19 +57,19 @@ reviews:
     - "!uv.lock"
     - "!.coderabbit.yaml"
 
-tools:
-  ruff:
-    enabled: true
-  flake8:
-    enabled: true
-  semgrep:
-    enabled: true
-  gitleaks:
-    enabled: true
-  presidio:
-    enabled: true
-  markdownlint:
-    enabled: true
+  tools:
+    ruff:
+      enabled: true
+    flake8:
+      enabled: true
+    semgrep:
+      enabled: true
+    gitleaks:
+      enabled: true
+    presidio:
+      enabled: true
+    markdownlint:
+      enabled: true
 
 knowledge_base:
   web_search:
