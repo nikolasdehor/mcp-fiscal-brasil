@@ -298,8 +298,9 @@ fallback automático, de forma transparente.
   sem depender de janelas de sincronização de bases intermediárias.
 - **Sem bases vazadas ou raspadas:** os dados vêm de fontes oficiais, com
   procedência conhecida, e não de dumps de terceiros.
-- **Conformidade com certificações ISO/IEC de segurança da informação**
-  (norma <ISO_CERT>), reforçando privacidade e tratamento adequado dos dados.
+- **Conformidade com certificações internacionais** (ISO/IEC 27001 de segurança
+  da informação, ISO/IEC 27701 de privacidade e ISO 37301 de gestão de
+  conformidade), reforçando privacidade e tratamento adequado dos dados.
 - **Cobre a consulta de NF-e por chave**, que hoje depende de fontes públicas
   instáveis, e adiciona **NFC-e (modelo 65)**, ainda não coberta pelas APIs
   gratuitas.
