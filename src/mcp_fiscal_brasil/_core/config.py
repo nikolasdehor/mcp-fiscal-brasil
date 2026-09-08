@@ -15,6 +15,15 @@ class Settings(BaseSettings):
     mcp_fiscal_file_base_dir: str = "~/.local/share/mcp-fiscal-brasil/files"
     brasilapi_base_url: str = "https://brasilapi.com.br/api"
     receita_base_url: str = "https://receitaws.com.br/v1"
+
+    # Provedor premium opcional cpfcnpj.com.br (opt-in). Sem token configurado, o
+    # servico opera exatamente como antes, usando apenas as fontes gratuitas. Ao
+    # definir CPFCNPJ_TOKEN, as consultas de CNPJ (pacotes 5/6) e de NF-e/NFC-e por
+    # chave (pacotes 100/102) passam a tentar primeiro a cpfcnpj.com.br, com dados
+    # oficiais em tempo real, e mantem as fontes gratuitas como fallback.
+    cpfcnpj_token: str = ""
+    cpfcnpj_base_url: str = "https://api.cpfcnpj.com.br"
+    cpfcnpj_cnpj_packet: int = 6
     ibge_cnae_base_url: str = "https://servicodados.ibge.gov.br/api/v2/cnae"
     ibge_localidades_base_url: str = "https://servicodados.ibge.gov.br/api/v1/localidades"
     bcb_sgs_base_url: str = "https://api.bcb.gov.br/dados/serie"

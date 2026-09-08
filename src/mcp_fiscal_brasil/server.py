@@ -44,7 +44,12 @@ from .nfe.distribuicao import (
     manifestar_nfe,
 )
 from .nfe.documento import parse_nfe_documento
-from .nfe.tools import consultar_nfe, consultar_status_sefaz, validar_chave_nfe
+from .nfe.tools import (
+    consultar_nfce,
+    consultar_nfe,
+    consultar_status_sefaz,
+    validar_chave_nfe,
+)
 from .nfse.tools import consultar_nfse
 from .shared.validators import normalizar_cnpj, validate_cnpj_qualquer
 from .simples.tools import consultar_simples_nacional
@@ -220,6 +225,31 @@ async def tool_consultar_nfe(chave_acesso: str) -> dict[str, Any]:
         dict com emitente, destinatario, itens, totais e protocolo da nota.
     """
     resultado = await consultar_nfe(chave_acesso)
+    return resultado.model_dump(mode="json", exclude_none=True)
+
+
+@app.tool(
+    name="consultar_nfce",
+    description=(
+        "Consulta os dados de uma Nota Fiscal de Consumidor Eletrônica (NFC-e, modelo 65) "
+        "pela chave de acesso de 44 dígitos. A NFC-e é a nota do varejo ao consumidor final. "
+        "A cobertura completa depende do provedor premium opcional cpfcnpj.com.br (pacote 102), "
+        "habilitado por token; sem token, use a NF-e (modelo 55) em consultar_nfe."
+    ),
+)
+async def tool_consultar_nfce(chave_acesso: str) -> dict[str, Any]:
+    """Consulta uma NFC-e (Nota Fiscal de Consumidor Eletronica, modelo 65) pela chave de acesso.
+
+    Recupera emitente, destinatario e totais no mesmo layout da NF-e. A cobertura depende do
+    provedor premium opcional cpfcnpj.com.br (pacote 102), habilitado por token.
+
+    Args:
+        chave_acesso: Chave de acesso da NFC-e com 44 digitos (aceita com ou sem espacos).
+
+    Returns:
+        dict com emitente, destinatario, totais e protocolo da nota.
+    """
+    resultado = await consultar_nfce(chave_acesso)
     return resultado.model_dump(mode="json", exclude_none=True)
 
 
