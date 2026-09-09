@@ -120,7 +120,8 @@ async def health(_request: Request) -> JSONResponse:
         "Consulta os dados cadastrais completos de uma empresa pelo CNPJ. "
         "Retorna razão social, endereço, atividades econômicas (CNAE), "
         "sócios (QSA), situação cadastral e porte da empresa. "
-        "Aceita CNPJ com ou sem formatação (pontos, barra, traço)."
+        "Aceita CNPJ numérico ou alfanumérico (IN RFB 2.229/2024), "
+        "com ou sem formatação (pontos, barra, traço)."
     ),
 )
 async def tool_consultar_cnpj(cnpj: str) -> dict[str, Any]:
@@ -132,7 +133,8 @@ async def tool_consultar_cnpj(cnpj: str) -> dict[str, Any]:
     Util para identificar empresas, validar fornecedores/clientes e preencher dados fiscais.
 
     Args:
-        cnpj: Numero do CNPJ com 14 digitos, com ou sem formatacao
+        cnpj: Numero do CNPJ com 14 caracteres (numerico ou alfanumerico, IN RFB 2.229/2024),
+            com ou sem formatacao
             (ex.: "11.222.333/0001-81" ou "11222333000181").
 
     Returns:
@@ -644,7 +646,7 @@ async def tool_consultar_simples_nacional(cnpj: str) -> dict[str, Any]:
     Util para definir o regime tributario antes de calcular impostos ou tributar notas fiscais.
 
     Args:
-        cnpj: Numero do CNPJ com 14 digitos, com ou sem formatacao.
+        cnpj: Numero do CNPJ com 14 caracteres (numerico ou alfanumerico, IN RFB 2.229/2024), com ou sem formatacao.
 
     Returns:
         dict com a situacao no Simples Nacional e no MEI e respectivas datas.
@@ -832,7 +834,7 @@ async def tool_analyze_cnpj_compliance(cnpj: str) -> dict[str, Any]:
     um relatorio com score 0-100, classificacao de risco e achados acionaveis.
 
     Args:
-        cnpj: Numero do CNPJ com 14 digitos, com ou sem formatacao.
+        cnpj: Numero do CNPJ com 14 caracteres (numerico ou alfanumerico, IN RFB 2.229/2024), com ou sem formatacao.
 
     Returns:
         dict com score, risco, situacao, regime, cnae e lista de achados.
@@ -999,7 +1001,7 @@ async def tool_risk_score_supplier(cnpj: str, criterios_estritos: bool = False) 
     politicas anti-corrupcao (ex: Lei 12.846/2013).
 
     Args:
-        cnpj: Numero do CNPJ com 14 digitos, com ou sem formatacao.
+        cnpj: Numero do CNPJ com 14 caracteres (numerico ou alfanumerico, IN RFB 2.229/2024), com ou sem formatacao.
         criterios_estritos: Se True, aplica pesos mais rigorosos. Padrao: False.
 
     Returns:

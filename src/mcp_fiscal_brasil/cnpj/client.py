@@ -9,7 +9,7 @@ comportamento e identico ao anterior: apenas as fontes gratuitas sao usadas.
 from datetime import date
 from typing import Any
 
-from mcp_fiscal_brasil._core import HTTPClient, Settings, get_logger
+from mcp_fiscal_brasil._core import FiscalError, HTTPClient, Settings, get_logger
 
 from ..shared import cpfcnpj as cpfcnpj_provider
 from ..shared.schemas import Endereco
@@ -55,6 +55,18 @@ class CNPJClient:
 
         Quando o provedor premium cpfcnpj.com.br esta configurado, ele e tentado
         primeiro. Em seguida, tenta BrasilAPI e, por fim, ReceitaWS.
+
+        Suporte a CNPJ alfanumerico (IN RFB 2.229/2024, vigencia jul/2026) por
+        provedor:
+        - cpfcnpj.com.br: aceita o formato alfanumerico no caminho da URL
+          (confirmado pelo provedor).
+        - BrasilAPI: aceita, pois apenas faz proxy para o projeto minha-receita,
+          que valida o CNPJ com a lib go-cnpj (com tratamento alfanumerico).
+          Ref.: BrasilAPI issues #789 e #827 (fechadas) e services/cnpj.js
+          (repassa o parametro sem remover letras).
+        - ReceitaWS: a documentacao publica nao confirma suporte ao formato
+          alfanumerico; por isso NAO usamos essa fonte como fallback quando o
+          CNPJ contem letras, evitando respostas incorretas.
         """
         # Normaliza removendo mascara e preservando letras: o CNPJ alfanumerico
         # (IN RFB 2.229/2024, vigencia jul/2026) tem 12 posicoes alfanumericas
@@ -62,7 +74,8 @@ class CNPJClient:
         # letras e quebraria a consulta. normalizar_cnpj remove separadores e
         # mantem A-Z (em maiusculas), aceito pela cpfcnpj.com.br no caminho da URL.
         cnpj_limpo = normalizar_cnpj(cnpj)
-        logger.info("cnpj_lookup_started", cnpj=cnpj_limpo)
+        alfanumerico = bool(cnpj_limpo) and not cnpj_limpo.isdigit()
+        logger.info("cnpj_lookup_started", cnpj=cnpj_limpo, alfanumerico=alfanumerico)
 
         if cpfcnpj_provider.provedor_configurado():
             try:
@@ -78,6 +91,19 @@ class CNPJClient:
         try:
             return await self._consultar_brasil_api(cnpj_limpo)
         except Exception as exc:
+            if alfanumerico:
+                # ReceitaWS nao tem suporte documentado a CNPJ alfanumerico:
+                # nao fazemos fallback para nao devolver dados incorretos.
+                logger.warning(
+                    "receitaws_skip_alfanumerico",
+                    cnpj=cnpj_limpo,
+                    error=str(exc),
+                )
+                raise FiscalError(
+                    "CNPJ alfanumérico não obtido na BrasilAPI e a ReceitaWS não "
+                    "atende o formato alfanumérico (IN RFB 2.229/2024). Configure o "
+                    "provedor cpfcnpj.com.br (CPFCNPJ_TOKEN) para consultas alfanuméricas."
+                ) from exc
             logger.warning(
                 "brasilapi_cnpj_lookup_failed",
                 cnpj=cnpj_limpo,

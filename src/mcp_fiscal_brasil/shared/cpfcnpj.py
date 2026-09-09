@@ -71,7 +71,8 @@ async def consultar(pacote: int, documento: str) -> dict[str, Any]:
 
     Args:
         pacote: Identificador do pacote de consulta (ex.: 6 para CNPJ, 100 para NF-e).
-        documento: Documento consultado (CNPJ ou chave de acesso, apenas digitos).
+        documento: Documento consultado sem máscara (CNPJ numérico ou alfanumérico,
+            CPF ou chave de acesso). O provedor aceita CNPJ alfanumérico no caminho da URL.
 
     Returns:
         dict com o corpo da resposta quando ``status`` e igual a 1.
