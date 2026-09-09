@@ -214,7 +214,7 @@ Funcionam 100% sem chaves de API. Instale e use imediatamente.
 | CNPJ | `consultar_simples_nacional` | Optante Simples/MEI com datas de entrada e exclusão | BrasilAPI (grátis) |
 | NFe | `validar_chave_nfe` | Valida dígito + extrai UF, CNPJ, data, número | Offline |
 | NFe | `consultar_nfe` | Consulta NFe completa pela chave de 44 dígitos | BrasilAPI (grátis) + cpfcnpj.com.br (premium, opt-in) |
-| NFe | `consultar_nfce` | Consulta NFC-e (modelo 65) pela chave de 44 dígitos | cpfcnpj.com.br (premium, opt-in) |
+| NFe | `consultar_nfce` | NFC-e (modelo 65) pela chave de 44 dígitos; consulta completa exige token (pacote 102), senão tenta fontes públicas com dados parciais | cpfcnpj.com.br (pacote 102) + fontes públicas (parcial) |
 | NFe | `parse_nfe_xml` | Parseia XML bruto de NF-e/NFC-e e retorna dados estruturados | Offline |
 | NFe | `gerar_danfe` | Gera DANFE PDF (A4) a partir do XML de NF-e (mod 55) | Offline |
 | NFe | `validar_assinatura_nfe` | Valida assinatura XMLDSig e extrai dados do certificado | Offline |
@@ -312,6 +312,13 @@ fallback automático, de forma transparente.
 | `consultar_cnpj` | cpfcnpj.com.br | 5 ou 6 | [dev/](https://www.cpfcnpj.com.br/dev/) |
 | `consultar_nfe` | cpfcnpj.com.br | 100 (modelo 55) | [#op-get-token-100-chave](https://www.cpfcnpj.com.br/dev/#op-get-token-100-chave) |
 | `consultar_nfce` | cpfcnpj.com.br | 102 (modelo 65) | [#op-get-token-102-chave](https://www.cpfcnpj.com.br/dev/#op-get-token-102-chave) |
+
+O `consultar_nfce` retorna a NFC-e completa apenas com o token configurado (pacote
+102). Sem token, ele recorre às fontes públicas e pode devolver dados parciais da
+chave. A cobertura on-line do pacote 102 está disponível em São Paulo (SP) e Minas
+Gerais (MG); as demais UFs exigem habilitação sob demanda e podem retornar o erro
+204 (sem consumo de crédito). Detalhes de cobertura em
+[cpfcnpj.com.br/dev/](https://www.cpfcnpj.com.br/dev/).
 
 **Configuração** (todas opcionais, ver `.env.example`):
 

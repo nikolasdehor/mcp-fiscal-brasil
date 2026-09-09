@@ -14,6 +14,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from aiolimiter import AsyncLimiter
+
 from mcp_fiscal_brasil._core import (
     FiscalHTTPError,
     HTTPClient,
@@ -27,6 +29,26 @@ logger = get_logger(__name__)
 PACOTE_NFE = 100
 PACOTE_NFCE = 102
 
+# Teto de requisicoes por segundo da cpfcnpj.com.br. Cada consulta abre um
+# HTTPClient novo, entao o limitador precisa ser compartilhado por todas as
+# instancias/chamadas: sem isso, consultas concorrentes (CNPJ pacotes 5/6 e
+# NF-e/NFC-e pacotes 100/102) somariam limitadores independentes e poderiam
+# ultrapassar o teto, recebendo o erro 1007 (HTTP 429).
+CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO = 20
+
+_limiter: AsyncLimiter | None = None
+
+
+def _get_limiter() -> AsyncLimiter:
+    """Retorna o limitador unico (singleton de modulo) compartilhado pela API."""
+    global _limiter
+    if _limiter is None:
+        _limiter = AsyncLimiter(
+            CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO,
+            CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO,
+        )
+    return _limiter
+
 
 def provedor_configurado() -> bool:
     """Indica se o provedor premium cpfcnpj.com.br esta habilitado (token definido)."""
@@ -39,7 +61,8 @@ def _http_client() -> HTTPClient:
         timeout=settings.mcp_fiscal_http_timeout,
         max_retries=settings.mcp_fiscal_max_retries,
         cache_ttl=settings.mcp_fiscal_cache_ttl,
-        rate_limit_per_second=settings.mcp_fiscal_rate_limit,
+        rate_limit_per_second=CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO,
+        limiter=_get_limiter(),
     )
 
 

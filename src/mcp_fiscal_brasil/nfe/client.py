@@ -7,6 +7,7 @@ tempo real. As fontes gratuitas seguem como fallback. Sem token, o comportamento
 e identico ao anterior.
 """
 
+import re
 from datetime import datetime
 from typing import Any, cast
 
@@ -44,14 +45,28 @@ def _parse_datetime_br(valor: str | None) -> datetime | None:
 
 
 def _parse_valor_br(valor: str | None) -> float | None:
-    """Converte um valor monetario no formato brasileiro (1.234,56) em float."""
+    """Converte um valor monetario em float.
+
+    Aceita o formato brasileiro (``1.234,56``) e o formato decimal com ponto
+    (``1234.56``), este ultimo comum no ``valorTotalDaNotaFiscal`` dos pacotes
+    100/102 da cpfcnpj.com.br. Regra: havendo virgula, ela e o separador decimal
+    e o ponto e separador de milhar; sem virgula, um unico ponto seguido de 1 ou
+    2 digitos e tratado como decimal, e qualquer outra ocorrencia de ponto e
+    tratada como separador de milhar.
+    """
     if valor is None:
         return None
     texto = str(valor).strip()
     if not texto:
         return None
+    if "," in texto:
+        normalizado = texto.replace(".", "").replace(",", ".")
+    elif re.fullmatch(r"-?\d+\.\d{1,2}", texto):
+        normalizado = texto
+    else:
+        normalizado = texto.replace(".", "")
     try:
-        return float(texto.replace(".", "").replace(",", "."))
+        return float(normalizado)
     except ValueError:
         return None
 

@@ -112,6 +112,21 @@ async def consultar_nfce(chave_acesso: str) -> NFeResponse:
             ),
         )
 
+    # As posicoes 21-22 da chave (indice 20:22) carregam o modelo do documento.
+    # A NFC-e e o modelo 65; uma chave de modelo 55 (NF-e) passa na validacao de
+    # digito verificador, mas nao deve ser consultada aqui, senao o provedor
+    # escolheria o pacote 100 e devolveria uma NF-e onde se prometeu NFC-e.
+    modelo = chave_limpa[20:22]
+    if modelo != "65":
+        raise NFeValidationError(
+            field="chave_acesso",
+            value=chave_acesso,
+            reason=(
+                f"Chave de modelo {modelo}, esperado modelo 65 (NFC-e). "
+                "Para NF-e (modelo 55) use consultar_nfe."
+            ),
+        )
+
     return await _client.consultar_por_chave(chave_limpa)
 
 

@@ -13,6 +13,7 @@ from mcp_fiscal_brasil._core import HTTPClient, Settings, get_logger
 
 from ..shared import cpfcnpj as cpfcnpj_provider
 from ..shared.schemas import Endereco
+from ..shared.validators import normalizar_cnpj
 from .schemas import AtividadeCNAE, CNPJResponse, QSASocio
 
 logger = get_logger(__name__)
@@ -55,7 +56,12 @@ class CNPJClient:
         Quando o provedor premium cpfcnpj.com.br esta configurado, ele e tentado
         primeiro. Em seguida, tenta BrasilAPI e, por fim, ReceitaWS.
         """
-        cnpj_limpo = "".join(c for c in cnpj if c.isdigit())
+        # Normaliza removendo mascara e preservando letras: o CNPJ alfanumerico
+        # (IN RFB 2.229/2024, vigencia jul/2026) tem 12 posicoes alfanumericas
+        # seguidas de 2 digitos verificadores. Usar isdigit() aqui descartaria as
+        # letras e quebraria a consulta. normalizar_cnpj remove separadores e
+        # mantem A-Z (em maiusculas), aceito pela cpfcnpj.com.br no caminho da URL.
+        cnpj_limpo = normalizar_cnpj(cnpj)
         logger.info("cnpj_lookup_started", cnpj=cnpj_limpo)
 
         if cpfcnpj_provider.provedor_configurado():

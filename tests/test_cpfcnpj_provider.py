@@ -142,7 +142,10 @@ def provedor_habilitado(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cpfcnpj_provider, "HTTPClient", _FakeHTTPClient)
 
 
-def test_provedor_desligado_por_padrao() -> None:
+def test_provedor_desligado_por_padrao(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Isola o token do ambiente/.env: sem forcar o valor vazio, uma execucao com
+    # CPFCNPJ_TOKEN definido faria provedor_configurado() retornar True.
+    monkeypatch.setattr(settings, "cpfcnpj_token", "", raising=False)
     assert cpfcnpj_provider.provedor_configurado() is False
 
 
@@ -254,3 +257,51 @@ async def test_nfce_modelo_65_usa_pacote_102(provedor_habilitado: None) -> None:
     resposta = await NFEClient().consultar_por_chave(NFCE_102_CHAVE)
     assert resposta.modelo == "65"
     assert _FakeHTTPClient.ultimo_path == f"/token_de_teste/102/{NFCE_102_CHAVE}"
+
+
+def _gerar_cnpj_alfanumerico(base12: str) -> str:
+    """Gera um CNPJ alfanumerico com os 2 DVs corretos (IN RFB 2.229/2024)."""
+    valores = [ord(c) - 48 for c in base12]
+    pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    soma = sum(valores[i] * pesos1[i] for i in range(12))
+    resto = soma % 11
+    dv1 = 0 if resto < 2 else 11 - resto
+    valores2 = [*valores, dv1]
+    soma = sum(valores2[i] * pesos2[i] for i in range(13))
+    resto = soma % 11
+    dv2 = 0 if resto < 2 else 11 - resto
+    return f"{base12}{dv1}{dv2}"
+
+
+def test_cnpj_alfanumerico_gerado_tem_dv_valido() -> None:
+    from mcp_fiscal_brasil.shared.validators import (
+        validate_cnpj_alfanumerico,
+        validate_cnpj_qualquer,
+    )
+
+    cnpj = _gerar_cnpj_alfanumerico("12ABC34501DE")
+    assert validate_cnpj_alfanumerico(cnpj) is True
+    # DV alterado deve invalidar
+    dv_errado = cnpj[:13] + str((int(cnpj[13]) + 1) % 10)
+    assert validate_cnpj_alfanumerico(dv_errado) is False
+    # CNPJ numerico valido continua aceito
+    assert validate_cnpj_qualquer("33.000.167/0001-01") is True
+
+
+async def test_cnpj_alfanumerico_usa_provedor(provedor_habilitado: None) -> None:
+    # CNPJ alfanumerico com mascara deve ser normalizado (letras preservadas em
+    # maiusculas) e enviado inteiro no caminho da consulta.
+    _FakeHTTPClient.payload = {"status": 1, "cnpj": "12ABC34501DE35"}
+    await CNPJClient().consultar("12.ABC.345/01DE-35")
+    assert _FakeHTTPClient.ultimo_path == "/token_de_teste/6/12ABC34501DE35"
+
+
+def test_limitador_cpfcnpj_compartilhado() -> None:
+    # Duas instancias/chamadas devem compartilhar o mesmo AsyncLimiter (singleton).
+    limitador = cpfcnpj_provider._get_limiter()
+    assert limitador is cpfcnpj_provider._get_limiter()
+    cliente_a = cpfcnpj_provider._http_client()
+    cliente_b = cpfcnpj_provider._http_client()
+    assert cliente_a._limiter is cliente_b._limiter
+    assert cliente_a._limiter is limitador

@@ -1,5 +1,6 @@
 """Application configuration for mcp-fiscal-brasil."""
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -38,6 +39,23 @@ class Settings(BaseSettings):
     nfe_ambiente: str = "producao"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    @field_validator("cpfcnpj_base_url")
+    @classmethod
+    def _exigir_https_cpfcnpj(cls, valor: str) -> str:
+        """Exige HTTPS na base da cpfcnpj.com.br.
+
+        O token da conta viaja no caminho da URL (``/{token}/{pacote}/{documento}``),
+        portanto a base nao pode usar ``http://``, mesmo quando sobrescrita por
+        variavel de ambiente, sob pena de expor o token sem criptografia.
+        """
+        normalizado = valor.strip()
+        if not normalizado.lower().startswith("https://"):
+            raise ValueError(
+                "CPFCNPJ_BASE_URL deve usar https:// (o token da conta viaja no "
+                "caminho da URL e nao pode trafegar sem criptografia)."
+            )
+        return normalizado
 
 
 settings = Settings()

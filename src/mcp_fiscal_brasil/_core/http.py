@@ -43,6 +43,7 @@ class HTTPClient:
         max_retries: int = 3,
         cache_ttl: int = 300,
         rate_limit_per_second: int = 10,
+        limiter: AsyncLimiter | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/") + "/"
         self.timeout = timeout
@@ -58,9 +59,13 @@ class HTTPClient:
             maxsize=1024,
             ttl=self.cache_ttl,
         )
-        self._limiter = AsyncLimiter(
-            self.rate_limit_per_second,
-            self.rate_limit_per_second,
+        # Um limitador pode ser injetado para ser compartilhado entre varias
+        # instancias (ex.: o teto global da cpfcnpj.com.br). Quando ausente, cada
+        # instancia usa o proprio, derivado de rate_limit_per_second.
+        self._limiter = (
+            limiter
+            if limiter is not None
+            else AsyncLimiter(self.rate_limit_per_second, self.rate_limit_per_second)
         )
 
     async def __aenter__(self) -> HTTPClient:
