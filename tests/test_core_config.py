@@ -82,14 +82,14 @@ def test_cpfcnpj_base_url_padrao_e_https() -> None:
     assert settings.cpfcnpj_base_url == "https://api.cpfcnpj.com.br"
 
 
-def test_cpfcnpj_base_url_http_e_rejeitada(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+def test_cpfcnpj_base_url_http_e_rejeitada(monkeypatch: pytest.MonkeyPatch) -> None:
     # O token viaja no caminho da URL: http:// deve ser rejeitado mesmo via env.
     monkeypatch.setenv("CPFCNPJ_BASE_URL", "http://api.cpfcnpj.com.br")
     with pytest.raises(ValueError):
         Settings(_env_file=None)
 
 
-def test_cpfcnpj_base_url_https_customizada_e_aceita(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+def test_cpfcnpj_base_url_https_customizada_e_aceita(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("CPFCNPJ_BASE_URL", "https://proxy.interno.example/cpfcnpj")
     settings = Settings(_env_file=None)
     assert settings.cpfcnpj_base_url == "https://proxy.interno.example/cpfcnpj"
