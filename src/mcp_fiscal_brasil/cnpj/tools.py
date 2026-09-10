@@ -52,9 +52,11 @@ async def consultar_cnpj(cnpj: str) -> CNPJResponse:
         NotFoundError: Se o CNPJ não for encontrado na Receita Federal.
         APIError: Em caso de falha nas APIs consultadas.
     """
-    cnpj_normalizado = normalizar_cnpj(cnpj)
-    if not validate_cnpj_qualquer(cnpj_normalizado):
+    # Valida o valor bruto (aceita só a máscara padrão; espaços e outros
+    # caracteres são rejeitados) e normaliza somente depois de aceito.
+    if not validate_cnpj_qualquer(cnpj):
         raise _CNPJValidationError(field="cnpj", value=cnpj, reason=_INVALID_CNPJ_REASON)
+    cnpj_normalizado = normalizar_cnpj(cnpj)
 
     cnpj_formatado = format_cnpj(cnpj_normalizado)
     logger.info("cnpj_lookup_requested", cnpj=cnpj_formatado)

@@ -212,3 +212,10 @@ async def test_receitaws_fallback_preservado_para_numerico(
 
     resposta = await CNPJClient().consultar(CNPJ_NUM)
     assert resposta.origem == "ReceitaWS"
+
+
+async def test_tool_rejeita_espacos_mesmo_com_digito_valido() -> None:
+    """validate_cnpj_qualquer roda sobre o valor bruto: espacos nao sao mascara aceita."""
+    with pytest.raises(ValidationError) as exc_info:
+        await consultar_cnpj("33 000 167 0001 01")
+    assert exc_info.value.field == "cnpj"

@@ -62,6 +62,19 @@ logger = logging.getLogger(__name__)
 MAX_CNPJS_POR_LOTE = 50
 
 
+def _validar_cnpj_ou_erro(cnpj: str) -> None:
+    """Rejeita CNPJ com dígito verificador inválido antes de qualquer consulta externa.
+
+    Evita que as tools agenticas disparem consultas (Receita, Simples, MEI) para
+    um valor que nunca poderia existir.
+    """
+    if not validate_cnpj_qualquer(cnpj):
+        raise ValueError(
+            f"CNPJ inválido: {cnpj}. Verifique o formato e o dígito verificador "
+            "(numérico ou alfanumérico, com ou sem máscara)."
+        )
+
+
 def _normalizar_e_validar_cnpjs(cnpjs: list[str]) -> list[str]:
     if len(cnpjs) > MAX_CNPJS_POR_LOTE:
         raise ValueError(
@@ -839,6 +852,7 @@ async def tool_analyze_cnpj_compliance(cnpj: str) -> dict[str, Any]:
     Returns:
         dict com score, risco, situacao, regime, cnae e lista de achados.
     """
+    _validar_cnpj_ou_erro(cnpj)
     resultado = await analyze_cnpj_compliance(cnpj)
     return resultado.model_dump(mode="json", exclude_none=True)
 
@@ -1007,6 +1021,7 @@ async def tool_risk_score_supplier(cnpj: str, criterios_estritos: bool = False) 
     Returns:
         dict com score, recomendacao e justificativa da classificacao.
     """
+    _validar_cnpj_ou_erro(cnpj)
     resultado = await risk_score_supplier(cnpj, criterios_estritos)
     return resultado.model_dump(mode="json", exclude_none=True)
 

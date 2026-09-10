@@ -305,3 +305,32 @@ def test_limitador_cpfcnpj_compartilhado() -> None:
     cliente_b = cpfcnpj_provider._http_client()
     assert cliente_a._limiter is cliente_b._limiter
     assert cliente_a._limiter is limitador
+
+
+def test_parse_nfe_preserva_cnpj_alfanumerico_de_emitente_e_destinatario() -> None:
+    """CNPJ alfanumerico (IN RFB 2.229/2024) nao pode perder as letras no parse da NF-e."""
+    chave = "35170608530528000184550000000154301000771561"
+    cnpj_alfa = _gerar_cnpj_alfanumerico("12ABC34501DE")
+    amostra = {
+        **NFE_100_SAMPLE,
+        "emitente": {**NFE_100_SAMPLE["emitente"], "cnpj": _mascara_cnpj(cnpj_alfa)},
+        "destinatario": {
+            "nomeRazaoSocial": "Cliente PJ",
+            "cnpj": cnpj_alfa.lower(),
+            "endereco": "Rua C, 300",
+            "municipio": "Sao Paulo",
+            "uf": "SP",
+        },
+    }
+
+    resposta = NFEClient()._parse_cpfcnpj(amostra, chave)
+
+    assert resposta.emitente is not None
+    assert resposta.emitente.cnpj == cnpj_alfa
+    assert resposta.destinatario is not None
+    assert resposta.destinatario.cnpj == cnpj_alfa
+    assert resposta.destinatario.cpf is None
+
+
+def _mascara_cnpj(cnpj: str) -> str:
+    return f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}"

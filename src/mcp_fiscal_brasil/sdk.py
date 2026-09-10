@@ -96,8 +96,11 @@ class FiscalBrasil:
         """
         Consulta os dados de um CNPJ na Receita Federal.
 
-        Tenta BrasilAPI primeiro; em caso de falha, usa ReceitaWS como
-        fallback automático.
+        Ordem das fontes: com ``CPFCNPJ_TOKEN`` configurado, tenta primeiro o
+        provedor premium cpfcnpj.com.br; depois a BrasilAPI e, por fim, a
+        ReceitaWS. Sem token, começa direto na BrasilAPI. A ReceitaWS só entra
+        como fallback para CNPJ numérico: para CNPJ alfanumérico a cadeia termina
+        na BrasilAPI.
 
         Args:
             cnpj: CNPJ numérico ou alfanumérico (IN RFB 2.229/2024), com ou sem

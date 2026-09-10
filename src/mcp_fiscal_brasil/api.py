@@ -57,13 +57,13 @@ app = FastAPI(
 
 
 def _validated_cnpj(cnpj: str) -> str:
-    # Aceita CNPJ numérico ou alfanumérico (IN RFB 2.229/2024). normalizar_cnpj
-    # remove a máscara e mantém as letras (A-Z em maiúsculas); validate_cnpj_qualquer
-    # valida o dígito verificador em ambos os formatos.
-    normalizado = normalizar_cnpj(cnpj)
-    if len(normalizado) != 14 or not validate_cnpj_qualquer(normalizado):
+    # Aceita CNPJ numérico ou alfanumérico (IN RFB 2.229/2024). A validação roda
+    # sobre o valor original: validate_cnpj_qualquer tolera apenas a máscara padrão
+    # (ponto, barra e traço) e rejeita espaços ou outros caracteres. Só depois de
+    # aceito o valor é normalizado (máscara removida, letras em maiúsculas).
+    if not validate_cnpj_qualquer(cnpj):
         raise HTTPException(status_code=400, detail="CNPJ inválido")
-    return normalizado
+    return normalizar_cnpj(cnpj)
 
 
 def _allowed_file_base_dir() -> Path:

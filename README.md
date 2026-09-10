@@ -325,7 +325,7 @@ Gerais (MG); as demais UFs exigem habilitação sob demanda e podem retornar o e
 | Variável | Descrição | Padrão |
 |----------|-----------|--------|
 | `CPFCNPJ_TOKEN` | Token da conta em cpfcnpj.com.br. **Vazio = fonte premium desligada.** | (vazio) |
-| `CPFCNPJ_BASE_URL` | URL base da API premium | `https://api.cpfcnpj.com.br` |
+| `CPFCNPJ_BASE_URL` | URL base da API premium. Aceita somente `https://` (o token trafega no caminho da URL) | `https://api.cpfcnpj.com.br` |
 | `CPFCNPJ_CNPJ_PACKET` | Pacote de CNPJ: `5` (enxuto) ou `6` (completo) | `6` |
 
 Trate o token como segredo: use o gestor de segredos do seu provedor de deploy,
@@ -458,7 +458,7 @@ Todas as variáveis são opcionais. O servidor funciona sem nenhuma configuraç�
 | `BRASILAPI_BASE_URL` | URL base da BrasilAPI (para ambientes customizados) | `https://brasilapi.com.br/api` |
 | `HTTP_TIMEOUT` | Timeout em segundos para chamadas HTTP | `30` |
 | `CPFCNPJ_TOKEN` | Token do provedor premium opt-in [cpfcnpj.com.br](https://www.cpfcnpj.com.br/dev/). Vazio = desligado (padrão gratuito intacto) | (vazio) |
-| `CPFCNPJ_BASE_URL` | URL base da API premium cpfcnpj.com.br | `https://api.cpfcnpj.com.br` |
+| `CPFCNPJ_BASE_URL` | URL base da API premium cpfcnpj.com.br. Aceita somente `https://` | `https://api.cpfcnpj.com.br` |
 | `CPFCNPJ_CNPJ_PACKET` | Pacote de CNPJ na cpfcnpj.com.br: `5` ou `6` | `6` |
 
 ---

@@ -21,6 +21,7 @@ from mcp_fiscal_brasil._core import (
 
 from ..shared import cpfcnpj as cpfcnpj_provider
 from ..shared.constants import CODIGO_UF
+from ..shared.validators import normalizar_cnpj
 from .schemas import EnderecoNFe, NFeResponse, StatusSEFAZResponse, TotaisNFe
 from .status_sefaz import consultar_status_real
 from .xml_parser import parse_nfe_xml
@@ -288,13 +289,20 @@ class NFEClient:
             somente = "".join(c for c in str(valor) if c.isdigit())
             return somente or None
 
+        def _cnpj(valor: Any) -> str | None:
+            # CNPJ pode ser alfanumerico (IN RFB 2.229/2024): remove so a mascara
+            # e preserva as letras. CPF segue numerico.
+            if not valor:
+                return None
+            return normalizar_cnpj(str(valor)) or None
+
         return EnderecoNFe(
             logradouro=raw.get("endereco"),
             bairro=raw.get("bairroDistrito"),
             municipio=raw.get("municipio"),
             uf=raw.get("uf"),
             cep=raw.get("cep"),
-            cnpj=_digitos(raw.get("cnpj")),
+            cnpj=_cnpj(raw.get("cnpj")),
             cpf=_digitos(raw.get("cpf")),
             ie=raw.get("inscricaoEstadual"),
             nome=raw.get("nomeRazaoSocial"),
