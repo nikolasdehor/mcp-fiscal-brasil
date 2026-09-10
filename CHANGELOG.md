@@ -16,6 +16,13 @@ portadas seletivamente para o repositório canônico.
 
 ### Novas funcionalidades
 
+* tool `consultar_cpf` (premium, opt-in via `CPFCNPJ_TOKEN`) consulta a situação
+  cadastral do CPF na Receita Federal para conferir destinatário de NF-e/NFC-e ou
+  tomador de NFS-e (pessoa física) antes de emitir; deriva `apto_emissao` (verdadeiro
+  só quando Regular), valida o dígito verificador antes de gastar crédito, mascara o
+  CPF em todo log e não expõe campos operacionais do provedor. Pacote configurável por
+  `CPFCNPJ_CPF_PACKET` (`26` padrão, `8`, `3` ou `1`). Exposta também no endpoint REST
+  `GET /v1/cpf/{cpf}/cadastro` e no SDK (`consultar_cpf` / `consultar_cpf_sync`)
 * consulta real de status da SEFAZ via NfeStatusServico4 (mTLS), substituindo
   o antigo proxy da BrasilAPI que retornava 404 para toda UF
 * endpoint `GET /v1/fiscal/certificado/status` informa apenas

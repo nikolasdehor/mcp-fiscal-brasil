@@ -28,6 +28,9 @@ logger = get_logger(__name__)
 # Pacotes de consulta na cpfcnpj.com.br.
 PACOTE_NFE = 100
 PACOTE_NFCE = 102
+# Pacote padrao de CPF: 26 (CPF D Simplificado), o mais barato que traz situacao
+# cadastral. O pacote efetivo vem de settings.cpfcnpj_cpf_packet.
+PACOTE_CPF = 26
 
 # Teto de requisicoes por segundo da cpfcnpj.com.br. Cada consulta abre um
 # HTTPClient novo, entao o limitador precisa ser compartilhado por todas as
@@ -107,6 +110,7 @@ async def consultar(pacote: int, documento: str) -> dict[str, Any]:
 
 
 __all__ = [
+    "PACOTE_CPF",
     "PACOTE_NFCE",
     "PACOTE_NFE",
     "consultar",
