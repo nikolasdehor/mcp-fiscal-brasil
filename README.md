@@ -210,10 +210,11 @@ Funcionam 100% sem chaves de API. Instale e use imediatamente.
 
 | Módulo | Ferramenta | Descrição | API |
 |--------|-----------|-----------|-----|
-| CNPJ | `consultar_cnpj` | Dados completos: razão social, sócios, CNAE, endereço | BrasilAPI (grátis) |
+| CNPJ | `consultar_cnpj` | Dados completos: razão social, sócios, CNAE, endereço | BrasilAPI (grátis) + cpfcnpj.com.br (premium, opt-in) |
 | CNPJ | `consultar_simples_nacional` | Optante Simples/MEI com datas de entrada e exclusão | BrasilAPI (grátis) |
 | NFe | `validar_chave_nfe` | Valida dígito + extrai UF, CNPJ, data, número | Offline |
-| NFe | `consultar_nfe` | Consulta NFe completa pela chave de 44 dígitos | BrasilAPI (grátis) |
+| NFe | `consultar_nfe` | Consulta NFe completa pela chave de 44 dígitos | BrasilAPI (grátis) + cpfcnpj.com.br (premium, opt-in) |
+| NFe | `consultar_nfce` | NFC-e (modelo 65) pela chave de 44 dígitos; consulta completa exige token (pacote 102), senão tenta fontes públicas com dados parciais | cpfcnpj.com.br (pacote 102) + fontes públicas (parcial) |
 | NFe | `parse_nfe_xml` | Parseia XML bruto de NF-e/NFC-e e retorna dados estruturados | Offline |
 | NFe | `gerar_danfe` | Gera DANFE PDF (A4) a partir do XML de NF-e (mod 55) | Offline |
 | NFe | `validar_assinatura_nfe` | Valida assinatura XMLDSig e extrai dados do certificado | Offline |
@@ -276,6 +277,59 @@ sim, degrada omitindo a UF em vez de derrubar a chamada). `GET
 /v1/fiscal/certificado/status` informa apenas se há certificado configurado e
 válido (sem titular nem CNPJ - endpoint sem autenticação, não deve permitir
 reconhecimento de identidade), sem nunca expor o arquivo ou a senha.
+
+---
+
+### ☁️ Provedor premium opcional: cpfcnpj.com.br (opt-in)
+
+O projeto continua **gratuito, sem cadastro e sem chave de API por padrão**. Para
+quem precisa de cobertura e atualidade de nível empresarial, a
+[cpfcnpj.com.br](https://www.cpfcnpj.com.br/dev/) pode ser habilitada como uma
+fonte premium **opt-in**, sem alterar em nada o comportamento gratuito padrão.
+
+Enquanto o token não é configurado, tudo funciona como antes, usando apenas as
+fontes gratuitas (BrasilAPI, ReceitaWS e Portal NFe). Ao definir `CPFCNPJ_TOKEN`,
+o provedor passa a ser consultado **primeiro**, e as fontes gratuitas seguem como
+fallback automático, de forma transparente.
+
+**O que a fonte premium acrescenta a este projeto fiscal:**
+
+- **Dados oficiais em tempo real (D+0):** cadastro atualizado direto na origem,
+  sem depender de janelas de sincronização de bases intermediárias.
+- **Sem bases vazadas ou raspadas:** os dados vêm de fontes oficiais, com
+  procedência conhecida, e não de dumps de terceiros.
+- **Conformidade com certificações internacionais** (ISO/IEC 27001 de segurança
+  da informação, ISO/IEC 27701 de privacidade e ISO 37301 de gestão de
+  conformidade), reforçando privacidade e tratamento adequado dos dados.
+- **Cobre a consulta de NF-e por chave**, que hoje depende de fontes públicas
+  instáveis, e adiciona **NFC-e (modelo 65)**, ainda não coberta pelas APIs
+  gratuitas.
+
+**Ferramentas cobertas quando o token está ativo:**
+
+| Ferramenta | Fonte premium | Pacote | Documentação |
+|-----------|---------------|--------|--------------|
+| `consultar_cnpj` | cpfcnpj.com.br | 5 ou 6 | [dev/](https://www.cpfcnpj.com.br/dev/) |
+| `consultar_nfe` | cpfcnpj.com.br | 100 (modelo 55) | [#op-get-token-100-chave](https://www.cpfcnpj.com.br/dev/#op-get-token-100-chave) |
+| `consultar_nfce` | cpfcnpj.com.br | 102 (modelo 65) | [#op-get-token-102-chave](https://www.cpfcnpj.com.br/dev/#op-get-token-102-chave) |
+
+O `consultar_nfce` retorna a NFC-e completa apenas com o token configurado (pacote
+102). Sem token, ele recorre às fontes públicas e pode devolver dados parciais da
+chave. A cobertura on-line do pacote 102 está disponível em São Paulo (SP) e Minas
+Gerais (MG); as demais UFs exigem habilitação sob demanda e podem retornar o erro
+204 (sem consumo de crédito). Detalhes de cobertura em
+[cpfcnpj.com.br/dev/](https://www.cpfcnpj.com.br/dev/).
+
+**Configuração** (todas opcionais, ver `.env.example`):
+
+| Variável | Descrição | Padrão |
+|----------|-----------|--------|
+| `CPFCNPJ_TOKEN` | Token da conta em cpfcnpj.com.br. **Vazio = fonte premium desligada.** | (vazio) |
+| `CPFCNPJ_BASE_URL` | URL base da API premium. Aceita somente `https://` (o token trafega no caminho da URL) | `https://api.cpfcnpj.com.br` |
+| `CPFCNPJ_CNPJ_PACKET` | Pacote de CNPJ: `5` (enxuto) ou `6` (completo) | `6` |
+
+Trate o token como segredo: use o gestor de segredos do seu provedor de deploy,
+nunca um `.env` versionado em produção.
 
 ---
 
@@ -403,6 +457,9 @@ Todas as variáveis são opcionais. O servidor funciona sem nenhuma configuraç�
 | `MCP_FISCAL_LOG_LEVEL` | Nível de log: `DEBUG`, `INFO`, `WARNING` | `INFO` |
 | `BRASILAPI_BASE_URL` | URL base da BrasilAPI (para ambientes customizados) | `https://brasilapi.com.br/api` |
 | `HTTP_TIMEOUT` | Timeout em segundos para chamadas HTTP | `30` |
+| `CPFCNPJ_TOKEN` | Token do provedor premium opt-in [cpfcnpj.com.br](https://www.cpfcnpj.com.br/dev/). Vazio = desligado (padrão gratuito intacto) | (vazio) |
+| `CPFCNPJ_BASE_URL` | URL base da API premium cpfcnpj.com.br. Aceita somente `https://` | `https://api.cpfcnpj.com.br` |
+| `CPFCNPJ_CNPJ_PACKET` | Pacote de CNPJ na cpfcnpj.com.br: `5` ou `6` | `6` |
 
 ---
 
