@@ -6,6 +6,7 @@ garantia de que, sem token configurado, o comportamento gratuito padrao nao muda
 """
 
 import asyncio
+import time
 from typing import Any, ClassVar
 
 import httpx
@@ -316,9 +317,9 @@ async def test_cnpj_alfanumerico_usa_provedor(provedor_habilitado: None) -> None
 
 
 def test_limitador_cpfcnpj_compartilhado() -> None:
-    # Fora de um event loop em execucao (construcao sincrona), o mesmo grupo de req/s
-    # devolve o mesmo AsyncLimiter, via o conjunto de fallback de modulo. Pacotes 6 e 26
-    # sao do mesmo grupo (20 req/s), entao compartilham o limitador.
+    # O mesmo grupo de req/s devolve sempre o mesmo limitador de processo (singleton
+    # de modulo). Pacotes 6 e 26 sao do mesmo grupo (20 req/s), entao os clientes
+    # abertos para eles compartilham o limitador.
     limitador = cpfcnpj_provider._get_limiter(6)
     assert limitador is cpfcnpj_provider._get_limiter(6)
     cliente_a = cpfcnpj_provider._http_client(6)
@@ -327,11 +328,11 @@ def test_limitador_cpfcnpj_compartilhado() -> None:
     assert cliente_a._limiter is limitador
 
 
-def test_limitador_cpfcnpj_por_event_loop() -> None:
-    # Cada event loop tem o seu proprio limitador: dois asyncio.run consecutivos (como
-    # consultar_cpf_sync/consultar_cnpj_sync do SDK) NAO reusam o AsyncLimiter, que o
-    # aiolimiter amarra ao loop corrente. Dentro do mesmo loop, o mesmo grupo devolve o
-    # mesmo objeto, e grupos distintos (padrao x NF-e) permanecem separados.
+def test_limitador_cpfcnpj_compartilhado_entre_event_loops() -> None:
+    # O limitador e por processo, nao por loop: dois asyncio.run consecutivos (como
+    # consultar_cpf_sync/consultar_cnpj_sync do SDK, que abrem um loop novo a cada
+    # chamada) recebem o MESMO objeto para o mesmo grupo. Grupos distintos (padrao x
+    # NF-e) permanecem separados em qualquer loop.
     async def _limitadores() -> tuple[Any, Any, Any]:
         return (
             cpfcnpj_provider._get_limiter(6),
@@ -342,13 +343,56 @@ def test_limitador_cpfcnpj_por_event_loop() -> None:
     a_padrao, a_padrao_26, a_nfe = asyncio.run(_limitadores())
     b_padrao, _b_padrao_26, b_nfe = asyncio.run(_limitadores())
 
-    # Mesmo loop, mesmo grupo -> mesmo objeto.
+    # Mesmo grupo -> mesmo objeto, dentro do loop e entre loops distintos.
     assert a_padrao is a_padrao_26
-    # Mesmo loop, grupos distintos (20 req/s x 2 req/s) -> objetos distintos.
+    assert a_padrao is b_padrao
+    assert a_nfe is b_nfe
+    # Grupos distintos (20 req/s x 2 req/s) -> objetos distintos.
     assert a_padrao is not a_nfe
-    # Loops distintos -> limitadores distintos, sem reuso entre loops.
-    assert a_padrao is not b_padrao
-    assert a_nfe is not b_nfe
+
+
+def test_limitador_orcamento_compartilhado_entre_event_loops() -> None:
+    # O orcamento e dividido entre loops: com 2 req/s, tres acquires espalhados por
+    # dois asyncio.run consecutivos precisam esperar a janela liberar, gastando tempo
+    # real. Dois acquires no mesmo segundo cabem na janela e nao esperam.
+    limitador = cpfcnpj_provider._LimitadorDeProcesso(2)
+
+    async def _dois_acquires() -> None:
+        await limitador.acquire()
+        await limitador.acquire()
+
+    async def _um_acquire() -> None:
+        await limitador.acquire()
+
+    inicio = time.monotonic()
+    asyncio.run(_dois_acquires())
+    sem_espera = time.monotonic() - inicio
+    asyncio.run(_um_acquire())
+    total = time.monotonic() - inicio
+
+    # Os dois primeiros (mesma janela de 1 s) nao esperam.
+    assert sem_espera < 0.3
+    # O terceiro estoura a janela e espera ate a vaga liberar (tolerancia ampla).
+    assert total >= 0.5
+
+
+def test_limitador_thread_safe_basico() -> None:
+    # Chamadas concorrentes de threads distintas nao corrompem o agendamento interno:
+    # com 2 req/s e 6 acquires, restam no maximo `taxa` vagas ativas na janela.
+    import threading
+
+    limitador = cpfcnpj_provider._LimitadorDeProcesso(2, janela=5.0)
+
+    def _bate() -> None:
+        asyncio.run(limitador.acquire())
+
+    threads = [threading.Thread(target=_bate) for _ in range(6)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert len(limitador._agendadas) <= limitador.taxa
 
 
 def test_limitador_nfe_separado_dos_demais() -> None:

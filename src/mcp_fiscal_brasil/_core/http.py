@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from importlib import import_module
 from inspect import Parameter, signature
-from typing import Any, cast
+from typing import Any, Protocol, cast
 
 import httpx
 from aiolimiter import AsyncLimiter
@@ -17,9 +17,21 @@ from tenacity import (
     wait_exponential,
 )
 
-__all__ = ["HTTPClient"]
+__all__ = ["HTTPClient", "RateLimiter"]
 
 _CacheKey = tuple[str, str, tuple[tuple[str, Any], ...]]
+
+
+class RateLimiter(Protocol):
+    """Interface estrutural do limitador aceito pelo :class:`HTTPClient`.
+
+    Cobre o ``AsyncLimiter`` do aiolimiter (padrao interno das fontes gratuitas) e
+    limitadores proprios, como o limitador de processo do provedor cpfcnpj.com.br,
+    sem exigir heranca: basta expor ``acquire``. O ``AsyncLimiter`` satisfaz o
+    protocolo estruturalmente.
+    """
+
+    async def acquire(self, amount: float = 1) -> None: ...
 
 
 class _ReadableQuery(bytes):
@@ -43,7 +55,7 @@ class HTTPClient:
         max_retries: int = 3,
         cache_ttl: int = 300,
         rate_limit_per_second: int = 10,
-        limiter: AsyncLimiter | None = None,
+        limiter: RateLimiter | None = None,
         mask_first_path_segment: bool = False,
         mask_secret: str | None = None,
     ) -> None:
@@ -76,7 +88,7 @@ class HTTPClient:
         # Um limitador pode ser injetado para ser compartilhado entre varias
         # instancias (ex.: o teto global da cpfcnpj.com.br). Quando ausente, cada
         # instancia usa o proprio, derivado de rate_limit_per_second.
-        self._limiter = (
+        self._limiter: RateLimiter = (
             limiter
             if limiter is not None
             else AsyncLimiter(self.rate_limit_per_second, self.rate_limit_per_second)

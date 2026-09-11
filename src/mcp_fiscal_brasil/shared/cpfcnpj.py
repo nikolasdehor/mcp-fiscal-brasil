@@ -13,10 +13,10 @@ dos campos ``erro`` e ``erroCodigo``.
 from __future__ import annotations
 
 import asyncio
-import weakref
+import threading
+import time
+from collections import deque
 from typing import Any
-
-from aiolimiter import AsyncLimiter
 
 from mcp_fiscal_brasil._core import (
     FiscalHTTPError,
@@ -35,30 +35,57 @@ PACOTE_NFCE = 102
 PACOTE_CPF = 26
 
 # Teto de requisicoes por segundo da cpfcnpj.com.br. Cada consulta abre um
-# HTTPClient novo, entao o limitador precisa ser compartilhado por todas as
-# instancias/chamadas do mesmo event loop: sem isso, consultas concorrentes
-# somariam limitadores independentes e poderiam ultrapassar o teto, recebendo o
-# erro 1007 (HTTP 429). A maioria dos pacotes (CPF/CNPJ/IE) segue 20 req/s. Os
-# pacotes de NF-e/NFC-e por chave (100/102) tem teto proprio de 2 req/s por conta
-# na documentacao do provedor; ultrapassar devolve HTTP 429 + erroCodigo 1007
-# (sem cobrar credito).
+# HTTPClient novo, entao o limitador precisa coordenar o teto por todo o processo,
+# entre event loops distintos: os metodos sincronos do SDK (consultar_cpf_sync/
+# consultar_cnpj_sync) chamam asyncio.run, abrindo um loop novo a cada chamada. Sem
+# isso, chamadas sincronas sucessivas somariam orcamentos independentes e poderiam
+# ultrapassar o teto, recebendo o erro 1007 (HTTP 429). A maioria dos pacotes
+# (CPF/CNPJ/IE) segue 20 req/s. Os pacotes de NF-e/NFC-e por chave (100/102) tem teto
+# proprio de 2 req/s por conta na documentacao do provedor; ultrapassar devolve
+# HTTP 429 + erroCodigo 1007 (sem cobrar credito).
 CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO = 20
 CPFCNPJ_NFE_MAX_REQUISICOES_POR_SEGUNDO = 2
 
 # Pacotes com teto reduzido de requisicoes por segundo.
 PACOTES_LIMITE_REDUZIDO = frozenset({PACOTE_NFE, PACOTE_NFCE})
 
-# Limitadores por (event loop em execucao, grupo de req/s). O aiolimiter amarra o
-# AsyncLimiter ao event loop corrente (usa call_later/eventos do loop ao adquirir),
-# entao reusar o mesmo objeto entre loops quebra: consultar_cpf_sync/consultar_cnpj_sync
-# do SDK chamam asyncio.run, abrindo um loop novo a cada chamada. Guardar um
-# limitador por loop, com WeakKeyDictionary, deixa o GC recolher a entrada quando o
-# loop e coletado, sem vazar limitadores de loops mortos. Fora de um loop em
-# execucao (construcao sincrona, ex.: testes), cai no conjunto de fallback de modulo.
-_limiters_por_loop: weakref.WeakKeyDictionary[
-    asyncio.AbstractEventLoop, dict[int, AsyncLimiter]
-] = weakref.WeakKeyDictionary()
-_limiters_sem_loop: dict[int, AsyncLimiter] = {}
+
+class _LimitadorDeProcesso:
+    """Limitador de requisicoes por segundo compartilhado por todo o processo.
+
+    Independe do event loop: nao guarda referencia a loop algum. Ao adquirir, calcula
+    sob o lock o instante em que a proxima requisicao pode partir, reserva a vaga e
+    dorme no loop corrente ate ela (asyncio.sleep). Assim varios ``asyncio.run``
+    consecutivos (como os dos metodos sincronos do SDK) dividem o mesmo orcamento e
+    nada acumula por loop. O agendamento e protegido por um ``threading.Lock``, entao
+    tambem e seguro entre threads.
+
+    Usa uma janela deslizante de ``janela`` segundos: ate ``taxa`` requisicoes cabem
+    na janela sem espera; a seguinte so parte quando a mais antiga sai da janela.
+    """
+
+    def __init__(self, taxa: int, janela: float = 1.0) -> None:
+        self.taxa = taxa
+        self.janela = janela
+        self._lock = threading.Lock()
+        self._agendadas: deque[float] = deque()
+
+    async def acquire(self, amount: float = 1) -> None:
+        with self._lock:
+            agora = time.monotonic()
+            limite = agora - self.janela
+            while self._agendadas and self._agendadas[0] <= limite:
+                self._agendadas.popleft()
+            if len(self._agendadas) < self.taxa:
+                parte_em = agora
+            else:
+                parte_em = self._agendadas[0] + self.janela
+            self._agendadas.append(parte_em)
+            if len(self._agendadas) > self.taxa:
+                self._agendadas.popleft()
+            espera = parte_em - agora
+        if espera > 0:
+            await asyncio.sleep(espera)
 
 
 def _rate_limit_para(pacote: int) -> int:
@@ -68,28 +95,28 @@ def _rate_limit_para(pacote: int) -> int:
     return CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO
 
 
-def _get_limiter(pacote: int) -> AsyncLimiter:
-    """Retorna o limitador do grupo do pacote para o event loop em execucao.
+# Um limitador por grupo de req/s (20 padrao, 2 para NF-e/NFC-e), singleton de
+# modulo compartilhado entre todos os event loops e threads do processo.
+_limitadores_por_grupo: dict[int, _LimitadorDeProcesso] = {}
+_limitadores_lock = threading.Lock()
+
+
+def _get_limiter(pacote: int) -> _LimitadorDeProcesso:
+    """Retorna o limitador de processo do grupo do pacote (singleton por grupo).
 
     Pacotes 100/102 compartilham um limitador de 2 req/s; os demais, um de 20 req/s.
-    Cada event loop tem o seu proprio conjunto: o AsyncLimiter nao pode ser reusado
-    entre loops (o aiolimiter o amarra ao loop corrente), entao dentro de um mesmo
-    loop o mesmo grupo devolve o mesmo objeto, e loops distintos recebem objetos
-    distintos. Sem loop em execucao, usa um conjunto de fallback de modulo.
+    O mesmo objeto e devolvido em qualquer event loop ou thread, entao o teto vale
+    por processo e nao acumula estado por loop.
     """
     grupo = _rate_limit_para(pacote)
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        por_grupo = _limiters_sem_loop
-    else:
-        por_grupo = _limiters_por_loop.setdefault(loop, {})
-
-    limiter = por_grupo.get(grupo)
-    if limiter is None:
-        limiter = AsyncLimiter(grupo, grupo)
-        por_grupo[grupo] = limiter
-    return limiter
+    limitador = _limitadores_por_grupo.get(grupo)
+    if limitador is None:
+        with _limitadores_lock:
+            limitador = _limitadores_por_grupo.get(grupo)
+            if limitador is None:
+                limitador = _LimitadorDeProcesso(grupo)
+                _limitadores_por_grupo[grupo] = limitador
+    return limitador
 
 
 def provedor_configurado() -> bool:
