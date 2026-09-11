@@ -7,9 +7,11 @@ garantia de que, sem token configurado, o comportamento gratuito padrao nao muda
 
 from typing import Any, ClassVar
 
+import httpx
 import pytest
 
 from mcp_fiscal_brasil._core import FiscalHTTPError, settings
+from mcp_fiscal_brasil._core.http import HTTPClient
 from mcp_fiscal_brasil.cnpj.client import CNPJClient
 from mcp_fiscal_brasil.nfe.client import NFEClient
 from mcp_fiscal_brasil.shared import cpfcnpj as cpfcnpj_provider
@@ -298,13 +300,41 @@ async def test_cnpj_alfanumerico_usa_provedor(provedor_habilitado: None) -> None
 
 
 def test_limitador_cpfcnpj_compartilhado() -> None:
-    # Duas instancias/chamadas devem compartilhar o mesmo AsyncLimiter (singleton).
-    limitador = cpfcnpj_provider._get_limiter()
-    assert limitador is cpfcnpj_provider._get_limiter()
-    cliente_a = cpfcnpj_provider._http_client()
-    cliente_b = cpfcnpj_provider._http_client()
+    # Duas instancias/chamadas do mesmo pacote compartilham o AsyncLimiter (singleton).
+    limitador = cpfcnpj_provider._get_limiter(6)
+    assert limitador is cpfcnpj_provider._get_limiter(6)
+    cliente_a = cpfcnpj_provider._http_client(6)
+    cliente_b = cpfcnpj_provider._http_client(26)
     assert cliente_a._limiter is cliente_b._limiter
     assert cliente_a._limiter is limitador
+
+
+def test_limitador_nfe_separado_dos_demais() -> None:
+    # Pacotes 100/102 (NF-e/NFC-e) compartilham um limitador de 2 req/s entre si,
+    # distinto do limitador de 20 req/s usado por CPF/CNPJ (6, 26).
+    limitador_nfe = cpfcnpj_provider._get_limiter(100)
+    assert limitador_nfe is cpfcnpj_provider._get_limiter(102)
+    assert limitador_nfe is not cpfcnpj_provider._get_limiter(6)
+    assert cpfcnpj_provider._rate_limit_para(100) == 2
+    assert cpfcnpj_provider._rate_limit_para(102) == 2
+    assert cpfcnpj_provider._rate_limit_para(6) == 20
+    assert cpfcnpj_provider._rate_limit_para(26) == 20
+    cliente_nfe = cpfcnpj_provider._http_client(100)
+    assert cliente_nfe.rate_limit_per_second == 2
+    assert cpfcnpj_provider._http_client(6).rate_limit_per_second == 20
+
+
+def test_http_client_usa_timeout_do_provedor(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(settings, "cpfcnpj_timeout", 60.0, raising=False)
+    assert cpfcnpj_provider._http_client(6).timeout == 60.0
+    assert cpfcnpj_provider._http_client(6).mask_first_path_segment is True
+
+
+def test_http_client_passa_token_como_mask_secret(monkeypatch: pytest.MonkeyPatch) -> None:
+    # O token e passado como segredo literal: defesa em profundidade para bases
+    # com prefixo de path, removendo-o mesmo fora do formato esperado de URL.
+    monkeypatch.setattr(settings, "cpfcnpj_token", "token_de_teste", raising=False)
+    assert cpfcnpj_provider._http_client(6).mask_secret == "token_de_teste"
 
 
 def test_parse_nfe_preserva_cnpj_alfanumerico_de_emitente_e_destinatario() -> None:
@@ -334,3 +364,74 @@ def test_parse_nfe_preserva_cnpj_alfanumerico_de_emitente_e_destinatario() -> No
 
 def _mascara_cnpj(cnpj: str) -> str:
     return f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}"
+
+
+_TOKEN_SECRETO = "SEGREDO_TOKEN_12345"
+_URL_COM_TOKEN = f"https://api.cpfcnpj.com.br/{_TOKEN_SECRETO}/26/11144477735"
+
+
+def _sem_token(erro: Exception) -> None:
+    assert _TOKEN_SECRETO not in str(erro)
+    assert _TOKEN_SECRETO not in repr(erro)
+    assert _TOKEN_SECRETO not in str(getattr(erro, "url", ""))
+    assert _TOKEN_SECRETO not in str(getattr(erro, "endpoint", ""))
+    assert _TOKEN_SECRETO not in str(getattr(erro, "detail", ""))
+    assert "***" in str(getattr(erro, "url", ""))
+
+
+def test_http_error_mascara_token_no_path() -> None:
+    cliente = HTTPClient("https://api.cpfcnpj.com.br", mask_first_path_segment=True)
+    requisicao = httpx.Request("GET", _URL_COM_TOKEN)
+    resposta = httpx.Response(400, request=requisicao, text='{"status":0,"erroCodigo":100}')
+    erro = cliente._http_error("GET", resposta)
+    _sem_token(erro)
+
+
+def test_request_error_mascara_token_no_path() -> None:
+    cliente = HTTPClient("https://api.cpfcnpj.com.br", mask_first_path_segment=True)
+    requisicao = httpx.Request("GET", _URL_COM_TOKEN)
+    exc = httpx.ConnectError(f"falha ao conectar em {_URL_COM_TOKEN}", request=requisicao)
+    erro = cliente._request_error("GET", exc)
+    _sem_token(erro)
+
+
+def test_fontes_gratuitas_nao_mascaram_path() -> None:
+    # Sem o flag, o path das fontes gratuitas continua intacto (nao ha segredo la).
+    cliente = HTTPClient("https://brasilapi.com.br/api")
+    url = "https://brasilapi.com.br/api/cnpj/v1/00000000000191"
+    requisicao = httpx.Request("GET", url)
+    resposta = httpx.Response(404, request=requisicao, text="{}")
+    erro = cliente._http_error("GET", resposta)
+    assert "00000000000191" in str(getattr(erro, "url", ""))
+
+
+# Base com prefixo de path (documentada no README: CPFCNPJ_BASE_URL=https://proxy/cpfcnpj).
+_URL_PREFIXO_COM_TOKEN = f"https://proxy.exemplo/cpfcnpj/{_TOKEN_SECRETO}/26/11144477735"
+
+
+def test_http_error_mascara_token_com_base_url_prefixada() -> None:
+    # Com prefixo de path, o token vem DEPOIS do prefixo: o mascaramento deve
+    # trocar o token, nao o segmento "cpfcnpj" do prefixo. Sem mask_secret aqui,
+    # provando que a logica ciente do prefixo ja resolve o vazamento.
+    cliente = HTTPClient("https://proxy.exemplo/cpfcnpj", mask_first_path_segment=True)
+    requisicao = httpx.Request("GET", _URL_PREFIXO_COM_TOKEN)
+    resposta = httpx.Response(400, request=requisicao, text='{"status":0,"erroCodigo":100}')
+    erro = cliente._http_error("GET", resposta)
+    _sem_token(erro)
+    url_mascarada = str(getattr(erro, "url", ""))
+    assert "cpfcnpj" in url_mascarada
+    assert "/cpfcnpj/***/26/" in url_mascarada
+
+
+def test_request_error_mascara_token_com_base_url_prefixada() -> None:
+    # Idem para erro de rede: o token some da url, do endpoint, do detail e da mensagem.
+    cliente = HTTPClient(
+        "https://proxy.exemplo/cpfcnpj",
+        mask_first_path_segment=True,
+        mask_secret=_TOKEN_SECRETO,
+    )
+    requisicao = httpx.Request("GET", _URL_PREFIXO_COM_TOKEN)
+    exc = httpx.ConnectError(f"falha ao conectar em {_URL_PREFIXO_COM_TOKEN}", request=requisicao)
+    erro = cliente._request_error("GET", exc)
+    _sem_token(erro)
+    assert _TOKEN_SECRETO not in str(getattr(erro, "detail", ""))

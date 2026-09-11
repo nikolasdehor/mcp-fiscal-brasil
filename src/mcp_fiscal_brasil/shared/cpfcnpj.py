@@ -34,23 +34,48 @@ PACOTE_CPF = 26
 
 # Teto de requisicoes por segundo da cpfcnpj.com.br. Cada consulta abre um
 # HTTPClient novo, entao o limitador precisa ser compartilhado por todas as
-# instancias/chamadas: sem isso, consultas concorrentes (CNPJ pacotes 5/6 e
-# NF-e/NFC-e pacotes 100/102) somariam limitadores independentes e poderiam
-# ultrapassar o teto, recebendo o erro 1007 (HTTP 429).
+# instancias/chamadas: sem isso, consultas concorrentes somariam limitadores
+# independentes e poderiam ultrapassar o teto, recebendo o erro 1007 (HTTP 429).
+# A maioria dos pacotes (CPF/CNPJ/IE) segue 20 req/s. Os pacotes de NF-e/NFC-e
+# por chave (100/102) tem teto proprio de 2 req/s por conta na documentacao do
+# provedor; ultrapassar devolve HTTP 429 + erroCodigo 1007 (sem cobrar credito).
 CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO = 20
+CPFCNPJ_NFE_MAX_REQUISICOES_POR_SEGUNDO = 2
 
-_limiter: AsyncLimiter | None = None
+# Pacotes com teto reduzido de requisicoes por segundo.
+PACOTES_LIMITE_REDUZIDO = frozenset({PACOTE_NFE, PACOTE_NFCE})
+
+_limiter_padrao: AsyncLimiter | None = None
+_limiter_nfe: AsyncLimiter | None = None
 
 
-def _get_limiter() -> AsyncLimiter:
-    """Retorna o limitador unico (singleton de modulo) compartilhado pela API."""
-    global _limiter
-    if _limiter is None:
-        _limiter = AsyncLimiter(
+def _rate_limit_para(pacote: int) -> int:
+    """Teto de req/s do pacote: 2 para NF-e/NFC-e (100/102), 20 para os demais."""
+    if pacote in PACOTES_LIMITE_REDUZIDO:
+        return CPFCNPJ_NFE_MAX_REQUISICOES_POR_SEGUNDO
+    return CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO
+
+
+def _get_limiter(pacote: int) -> AsyncLimiter:
+    """Retorna o limitador (singleton de modulo) do pacote.
+
+    Os pacotes 100/102 compartilham um limitador de 2 req/s entre si; todos os
+    demais compartilham o limitador de 20 req/s. Cada limitador e criado uma vez.
+    """
+    global _limiter_padrao, _limiter_nfe
+    if pacote in PACOTES_LIMITE_REDUZIDO:
+        if _limiter_nfe is None:
+            _limiter_nfe = AsyncLimiter(
+                CPFCNPJ_NFE_MAX_REQUISICOES_POR_SEGUNDO,
+                CPFCNPJ_NFE_MAX_REQUISICOES_POR_SEGUNDO,
+            )
+        return _limiter_nfe
+    if _limiter_padrao is None:
+        _limiter_padrao = AsyncLimiter(
             CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO,
             CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO,
         )
-    return _limiter
+    return _limiter_padrao
 
 
 def provedor_configurado() -> bool:
@@ -58,14 +83,20 @@ def provedor_configurado() -> bool:
     return bool(settings.cpfcnpj_token.strip())
 
 
-def _http_client() -> HTTPClient:
+def _http_client(pacote: int) -> HTTPClient:
     return HTTPClient(
         settings.cpfcnpj_base_url,
-        timeout=settings.mcp_fiscal_http_timeout,
+        timeout=settings.cpfcnpj_timeout,
         max_retries=settings.mcp_fiscal_max_retries,
         cache_ttl=settings.mcp_fiscal_cache_ttl,
-        rate_limit_per_second=CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO,
-        limiter=_get_limiter(),
+        rate_limit_per_second=_rate_limit_para(pacote),
+        limiter=_get_limiter(pacote),
+        # O token viaja no primeiro segmento do path: mascarar nos erros. Passar
+        # o token como segredo literal cobre tambem bases com prefixo de path
+        # (ex.: CPFCNPJ_BASE_URL=https://proxy/cpfcnpj), removendo-o de qualquer
+        # url/mensagem/details mesmo fora do formato esperado.
+        mask_first_path_segment=True,
+        mask_secret=settings.cpfcnpj_token.strip() or None,
     )
 
 
@@ -93,7 +124,7 @@ async def consultar(pacote: int, documento: str) -> dict[str, Any]:
         )
 
     path = f"/{token}/{pacote}/{documento}"
-    async with _http_client() as client:
+    async with _http_client(pacote) as client:
         data = await client.get(path)
 
     if data.get("status") != 1:

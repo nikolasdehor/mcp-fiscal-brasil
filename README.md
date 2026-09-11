@@ -344,6 +344,7 @@ Gerais (MG); as demais UFs exigem habilitação sob demanda e podem retornar o e
 |----------|-----------|--------|
 | `CPFCNPJ_TOKEN` | Token da conta em cpfcnpj.com.br. **Vazio = fonte premium desligada.** | (vazio) |
 | `CPFCNPJ_BASE_URL` | URL base da API premium. Aceita somente `https://` (o token trafega no caminho da URL) | `https://api.cpfcnpj.com.br` |
+| `CPFCNPJ_TIMEOUT` | Timeout (segundos) das consultas ao provedor. A documentação recomenda 60 (valor menor pode cortar a requisição após o crédito já ter sido consumido) | `60` |
 | `CPFCNPJ_CNPJ_PACKET` | Pacote de CNPJ: `5` (enxuto) ou `6` (completo) | `6` |
 | `CPFCNPJ_CPF_PACKET` | Pacote de CPF do `consultar_cpf`: `26` (nome, nascimento, situação), `8` (situação + PDF do comprovante e óbito), `3` (nome, nascimento, gênero, endereço) ou `1` (só nome) | `26` |
 
@@ -478,6 +479,7 @@ Todas as variáveis são opcionais. O servidor funciona sem nenhuma configuraç�
 | `HTTP_TIMEOUT` | Timeout em segundos para chamadas HTTP | `30` |
 | `CPFCNPJ_TOKEN` | Token do provedor premium opt-in [cpfcnpj.com.br](https://www.cpfcnpj.com.br/dev/). Vazio = desligado (padrão gratuito intacto) | (vazio) |
 | `CPFCNPJ_BASE_URL` | URL base da API premium cpfcnpj.com.br. Aceita somente `https://` | `https://api.cpfcnpj.com.br` |
+| `CPFCNPJ_TIMEOUT` | Timeout (segundos) das consultas à cpfcnpj.com.br (recomendado 60 pela documentação) | `60` |
 | `CPFCNPJ_CNPJ_PACKET` | Pacote de CNPJ na cpfcnpj.com.br: `5` ou `6` | `6` |
 | `CPFCNPJ_CPF_PACKET` | Pacote de CPF na cpfcnpj.com.br: `1`, `3`, `8` ou `26` | `26` |
 

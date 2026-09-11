@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     # oficiais em tempo real, e mantem as fontes gratuitas como fallback.
     cpfcnpj_token: str = ""
     cpfcnpj_base_url: str = "https://api.cpfcnpj.com.br"
+    # Timeout dedicado da cpfcnpj.com.br. A documentacao do provedor recomenda 60s:
+    # com um valor menor a requisicao pode ser cortada depois de o credito ja ter
+    # sido consumido. Nao afeta o timeout global das fontes gratuitas.
+    cpfcnpj_timeout: float = 60.0
     cpfcnpj_cnpj_packet: int = 6
     # Pacote de CPF usado por consultar_cpf. Padrao 26 (CPF D Simplificado): nome,
     # nascimento e situacao cadastral, o mais barato que traz situacao. Aceita
@@ -61,6 +65,14 @@ class Settings(BaseSettings):
                 "caminho da URL e nao pode trafegar sem criptografia)."
             )
         return normalizado
+
+    @field_validator("cpfcnpj_timeout")
+    @classmethod
+    def _validar_timeout_cpfcnpj(cls, valor: float) -> float:
+        """Garante um timeout positivo para o provedor premium."""
+        if valor <= 0:
+            raise ValueError(f"CPFCNPJ_TIMEOUT deve ser maior que zero (recebido: {valor}).")
+        return valor
 
     @field_validator("cpfcnpj_cpf_packet")
     @classmethod

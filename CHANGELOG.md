@@ -5,6 +5,18 @@
 Correções originadas do fork de Italo9 (github.com/Italo9/mcp-fiscal-brasil),
 portadas seletivamente para o repositório canônico.
 
+### Ajustes de conformidade com a documentação do provedor cpfcnpj.com.br
+
+* timeout dedicado `CPFCNPJ_TIMEOUT` (padrão 60s, recomendado pela documentação),
+  usado só nas consultas ao provedor premium, sem alterar o timeout global das
+  fontes gratuitas
+* rate limit por pacote: NF-e/NFC-e por chave (100/102) usam um limitador próprio
+  de 2 req/s por conta (HTTP 429 + erroCodigo 1007), separado do de 20 req/s dos
+  demais pacotes (CPF/CNPJ/IE)
+* token do provedor mascarado na origem: o primeiro segmento do path (onde viaja o
+  token) é substituído por `***` nas URLs carregadas pelos erros de transporte,
+  apenas para o cliente do provedor premium (fontes gratuitas intactas)
+
 ### BREAKING CHANGES
 
 * `consultar_status_sefaz` agora consulta o webservice real da SEFAZ
