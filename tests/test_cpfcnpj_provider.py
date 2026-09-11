@@ -7,6 +7,7 @@ garantia de que, sem token configurado, o comportamento gratuito padrao nao muda
 
 import asyncio
 import time
+from itertools import pairwise
 from typing import Any, ClassVar
 
 import httpx
@@ -381,7 +382,7 @@ def test_limitador_thread_safe_basico() -> None:
     # com 2 req/s e 6 acquires, restam no maximo `taxa` vagas ativas na janela.
     import threading
 
-    limitador = cpfcnpj_provider._LimitadorDeProcesso(2, janela=5.0)
+    limitador = cpfcnpj_provider._LimitadorDeProcesso(2, janela=0.01)
 
     def _bate() -> None:
         asyncio.run(limitador.acquire())
@@ -521,3 +522,37 @@ def test_request_error_mascara_token_com_base_url_prefixada() -> None:
     erro = cliente._request_error("GET", exc)
     _sem_token(erro)
     assert _TOKEN_SECRETO not in str(getattr(erro, "detail", ""))
+
+
+@pytest.mark.asyncio
+async def test_limitador_reavalia_janela_ao_acordar(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Uma tarefa que acorda atrasada nao pode partir junto com outra na mesma janela.
+
+    Relogio e sleep falsos, deterministicos: o primeiro sleep "atrasa" 0,6 s ao
+    retomar (como um loop ocupado faria). Com taxa 1 e janela 1 s, a requisicao
+    atrasada parte em 1,6 s; a seguinte so pode partir em 2,6 s. Se a vaga fosse
+    reservada antes de dormir, sem reavaliar a janela ao acordar, a seguinte
+    partiria em 2,0 s, ou seja, duas requisicoes em menos de 1 s (HTTP 429/1007).
+    """
+    relogio = {"agora": 0.0, "atrasos": [0.6]}
+
+    def monotonic_falso() -> float:
+        return relogio["agora"]
+
+    async def sleep_falso(segundos: float) -> None:
+        atraso = relogio["atrasos"].pop(0) if relogio["atrasos"] else 0.0
+        relogio["agora"] += segundos + atraso
+
+    monkeypatch.setattr(cpfcnpj_provider.time, "monotonic", monotonic_falso)
+    monkeypatch.setattr(cpfcnpj_provider.asyncio, "sleep", sleep_falso)
+
+    limitador = cpfcnpj_provider._LimitadorDeProcesso(1, janela=1.0)
+    partidas: list[float] = []
+    for _ in range(3):
+        await limitador.acquire()
+        partidas.append(relogio["agora"])
+
+    assert partidas[0] == 0.0
+    assert partidas[1] == pytest.approx(1.6)
+    intervalos = [b - a for a, b in pairwise(partidas)]
+    assert all(i >= 1.0 for i in intervalos), partidas

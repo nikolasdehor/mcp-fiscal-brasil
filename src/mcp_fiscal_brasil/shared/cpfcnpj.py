@@ -71,21 +71,21 @@ class _LimitadorDeProcesso:
         self._agendadas: deque[float] = deque()
 
     async def acquire(self, amount: float = 1) -> None:
-        with self._lock:
-            agora = time.monotonic()
-            limite = agora - self.janela
-            while self._agendadas and self._agendadas[0] <= limite:
-                self._agendadas.popleft()
-            if len(self._agendadas) < self.taxa:
-                parte_em = agora
-            else:
-                parte_em = self._agendadas[0] + self.janela
-            self._agendadas.append(parte_em)
-            if len(self._agendadas) > self.taxa:
-                self._agendadas.popleft()
-            espera = parte_em - agora
-        if espera > 0:
-            await asyncio.sleep(espera)
+        # A vaga so e registrada quando existe de fato: depois de dormir, a janela
+        # e reavaliada sob o lock, porque outra tarefa (ou thread) pode ter ocupado
+        # o espaco enquanto esta esperava. Assim nenhuma requisicao parte com a
+        # janela cheia, mesmo se o sleep retomar atrasado.
+        while True:
+            with self._lock:
+                agora = time.monotonic()
+                limite = agora - self.janela
+                while self._agendadas and self._agendadas[0] <= limite:
+                    self._agendadas.popleft()
+                if len(self._agendadas) < self.taxa:
+                    self._agendadas.append(agora)
+                    return
+                espera = self._agendadas[0] + self.janela - agora
+            await asyncio.sleep(max(0.0, espera))
 
 
 def _rate_limit_para(pacote: int) -> int:
