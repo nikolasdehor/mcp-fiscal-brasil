@@ -222,9 +222,11 @@ async def tool_validar_cpf(cpf: str) -> dict[str, Any]:
         "o documento fiscal. Não é ferramenta de localização de pessoas. "
         "Requer o provedor premium opcional cpfcnpj.com.br (CPFCNPJ_TOKEN): não há fonte "
         "gratuita de dados de CPF. Valida o dígito verificador localmente antes de "
-        "consultar. Retorna situação (Regular, Suspensa, Cancelada, Titular Falecido, "
-        "Nula) e o campo apto_emissao (verdadeiro só quando Regular). CPF mascarado em "
-        "todo log; pacote definido por CPFCNPJ_CPF_PACKET (padrão 26)."
+        "consultar. Só os pacotes 26 e 8 retornam situação cadastral (Regular, Suspensa, "
+        "Titular Falecido, Pendente de Regularização, Cancelada por Multiplicidade, Nula, "
+        "Cancelada de Ofício) e o campo apto_emissao (verdadeiro só quando Regular); nos "
+        "pacotes 1 e 3 esses campos ficam ausentes, e a ausência não autoriza emissão "
+        "fiscal. CPF mascarado em todo log; pacote definido por CPFCNPJ_CPF_PACKET (padrão 26)."
     ),
 )
 async def tool_consultar_cpf(cpf: str) -> dict[str, Any]:

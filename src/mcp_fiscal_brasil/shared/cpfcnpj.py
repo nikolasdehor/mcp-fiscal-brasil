@@ -12,6 +12,8 @@ dos campos ``erro`` e ``erroCodigo``.
 
 from __future__ import annotations
 
+import asyncio
+import weakref
 from typing import Any
 
 from aiolimiter import AsyncLimiter
@@ -34,19 +36,29 @@ PACOTE_CPF = 26
 
 # Teto de requisicoes por segundo da cpfcnpj.com.br. Cada consulta abre um
 # HTTPClient novo, entao o limitador precisa ser compartilhado por todas as
-# instancias/chamadas: sem isso, consultas concorrentes somariam limitadores
-# independentes e poderiam ultrapassar o teto, recebendo o erro 1007 (HTTP 429).
-# A maioria dos pacotes (CPF/CNPJ/IE) segue 20 req/s. Os pacotes de NF-e/NFC-e
-# por chave (100/102) tem teto proprio de 2 req/s por conta na documentacao do
-# provedor; ultrapassar devolve HTTP 429 + erroCodigo 1007 (sem cobrar credito).
+# instancias/chamadas do mesmo event loop: sem isso, consultas concorrentes
+# somariam limitadores independentes e poderiam ultrapassar o teto, recebendo o
+# erro 1007 (HTTP 429). A maioria dos pacotes (CPF/CNPJ/IE) segue 20 req/s. Os
+# pacotes de NF-e/NFC-e por chave (100/102) tem teto proprio de 2 req/s por conta
+# na documentacao do provedor; ultrapassar devolve HTTP 429 + erroCodigo 1007
+# (sem cobrar credito).
 CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO = 20
 CPFCNPJ_NFE_MAX_REQUISICOES_POR_SEGUNDO = 2
 
 # Pacotes com teto reduzido de requisicoes por segundo.
 PACOTES_LIMITE_REDUZIDO = frozenset({PACOTE_NFE, PACOTE_NFCE})
 
-_limiter_padrao: AsyncLimiter | None = None
-_limiter_nfe: AsyncLimiter | None = None
+# Limitadores por (event loop em execucao, grupo de req/s). O aiolimiter amarra o
+# AsyncLimiter ao event loop corrente (usa call_later/eventos do loop ao adquirir),
+# entao reusar o mesmo objeto entre loops quebra: consultar_cpf_sync/consultar_cnpj_sync
+# do SDK chamam asyncio.run, abrindo um loop novo a cada chamada. Guardar um
+# limitador por loop, com WeakKeyDictionary, deixa o GC recolher a entrada quando o
+# loop e coletado, sem vazar limitadores de loops mortos. Fora de um loop em
+# execucao (construcao sincrona, ex.: testes), cai no conjunto de fallback de modulo.
+_limiters_por_loop: weakref.WeakKeyDictionary[
+    asyncio.AbstractEventLoop, dict[int, AsyncLimiter]
+] = weakref.WeakKeyDictionary()
+_limiters_sem_loop: dict[int, AsyncLimiter] = {}
 
 
 def _rate_limit_para(pacote: int) -> int:
@@ -57,25 +69,27 @@ def _rate_limit_para(pacote: int) -> int:
 
 
 def _get_limiter(pacote: int) -> AsyncLimiter:
-    """Retorna o limitador (singleton de modulo) do pacote.
+    """Retorna o limitador do grupo do pacote para o event loop em execucao.
 
-    Os pacotes 100/102 compartilham um limitador de 2 req/s entre si; todos os
-    demais compartilham o limitador de 20 req/s. Cada limitador e criado uma vez.
+    Pacotes 100/102 compartilham um limitador de 2 req/s; os demais, um de 20 req/s.
+    Cada event loop tem o seu proprio conjunto: o AsyncLimiter nao pode ser reusado
+    entre loops (o aiolimiter o amarra ao loop corrente), entao dentro de um mesmo
+    loop o mesmo grupo devolve o mesmo objeto, e loops distintos recebem objetos
+    distintos. Sem loop em execucao, usa um conjunto de fallback de modulo.
     """
-    global _limiter_padrao, _limiter_nfe
-    if pacote in PACOTES_LIMITE_REDUZIDO:
-        if _limiter_nfe is None:
-            _limiter_nfe = AsyncLimiter(
-                CPFCNPJ_NFE_MAX_REQUISICOES_POR_SEGUNDO,
-                CPFCNPJ_NFE_MAX_REQUISICOES_POR_SEGUNDO,
-            )
-        return _limiter_nfe
-    if _limiter_padrao is None:
-        _limiter_padrao = AsyncLimiter(
-            CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO,
-            CPFCNPJ_MAX_REQUISICOES_POR_SEGUNDO,
-        )
-    return _limiter_padrao
+    grupo = _rate_limit_para(pacote)
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        por_grupo = _limiters_sem_loop
+    else:
+        por_grupo = _limiters_por_loop.setdefault(loop, {})
+
+    limiter = por_grupo.get(grupo)
+    if limiter is None:
+        limiter = AsyncLimiter(grupo, grupo)
+        por_grupo[grupo] = limiter
+    return limiter
 
 
 def provedor_configurado() -> bool:
@@ -133,7 +147,10 @@ async def consultar(pacote: int, documento: str) -> dict[str, Any]:
         raise FiscalHTTPError(
             f"cpfcnpj.com.br retornou erro: {mensagem}",
             status_code=int(codigo) if isinstance(codigo, int) else 0,
-            url=f"{settings.cpfcnpj_base_url}/***/{pacote}/{documento}",
+            # Mascara o token (1o segmento) e tambem o documento (ultimo segmento):
+            # a url viaja para access log/trace/proxy e nao pode expor o CPF/CNPJ/chave
+            # consultado. A url real da requisicao (path acima) nao e alterada.
+            url=f"{settings.cpfcnpj_base_url}/***/{pacote}/***",
             detail={"erro": mensagem, "erroCodigo": codigo},
         )
 

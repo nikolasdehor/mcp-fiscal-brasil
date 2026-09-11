@@ -5,6 +5,7 @@ das respostas de CNPJ (pacote 6) e de NF-e/NFC-e por chave (pacotes 100/102) e a
 garantia de que, sem token configurado, o comportamento gratuito padrao nao muda.
 """
 
+import asyncio
 from typing import Any, ClassVar
 
 import httpx
@@ -172,6 +173,21 @@ async def test_transporte_erro_status_0(provedor_habilitado: None) -> None:
     assert "CNPJ inválido" in str(exc_info.value)
 
 
+async def test_erro_provedor_nao_expoe_documento(provedor_habilitado: None) -> None:
+    # A url da excecao viaja para access log/trace/proxy: o documento consultado nao
+    # pode vazar. Mascarado como .../***/{pacote}/*** (token e documento ocultos).
+    documento = "11144477735"
+    _FakeHTTPClient.payload = {"status": 0, "erro": "Consulta sem sucesso.", "erroCodigo": 300}
+    with pytest.raises(FiscalHTTPError) as exc_info:
+        await cpfcnpj_provider.consultar(26, documento)
+    erro = exc_info.value
+    assert documento not in str(erro)
+    assert documento not in repr(erro)
+    assert documento not in str(erro.url)
+    assert documento not in str(erro.detail)
+    assert erro.url.endswith("/***/26/***")
+
+
 def test_parse_cnpj_pacote_6_mapeia_campos() -> None:
     resposta = CNPJClient()._parse_cpfcnpj(CNPJ_6_SAMPLE, "00000000000191")
 
@@ -300,13 +316,39 @@ async def test_cnpj_alfanumerico_usa_provedor(provedor_habilitado: None) -> None
 
 
 def test_limitador_cpfcnpj_compartilhado() -> None:
-    # Duas instancias/chamadas do mesmo pacote compartilham o AsyncLimiter (singleton).
+    # Fora de um event loop em execucao (construcao sincrona), o mesmo grupo de req/s
+    # devolve o mesmo AsyncLimiter, via o conjunto de fallback de modulo. Pacotes 6 e 26
+    # sao do mesmo grupo (20 req/s), entao compartilham o limitador.
     limitador = cpfcnpj_provider._get_limiter(6)
     assert limitador is cpfcnpj_provider._get_limiter(6)
     cliente_a = cpfcnpj_provider._http_client(6)
     cliente_b = cpfcnpj_provider._http_client(26)
     assert cliente_a._limiter is cliente_b._limiter
     assert cliente_a._limiter is limitador
+
+
+def test_limitador_cpfcnpj_por_event_loop() -> None:
+    # Cada event loop tem o seu proprio limitador: dois asyncio.run consecutivos (como
+    # consultar_cpf_sync/consultar_cnpj_sync do SDK) NAO reusam o AsyncLimiter, que o
+    # aiolimiter amarra ao loop corrente. Dentro do mesmo loop, o mesmo grupo devolve o
+    # mesmo objeto, e grupos distintos (padrao x NF-e) permanecem separados.
+    async def _limitadores() -> tuple[Any, Any, Any]:
+        return (
+            cpfcnpj_provider._get_limiter(6),
+            cpfcnpj_provider._get_limiter(26),
+            cpfcnpj_provider._get_limiter(100),
+        )
+
+    a_padrao, a_padrao_26, a_nfe = asyncio.run(_limitadores())
+    b_padrao, _b_padrao_26, b_nfe = asyncio.run(_limitadores())
+
+    # Mesmo loop, mesmo grupo -> mesmo objeto.
+    assert a_padrao is a_padrao_26
+    # Mesmo loop, grupos distintos (20 req/s x 2 req/s) -> objetos distintos.
+    assert a_padrao is not a_nfe
+    # Loops distintos -> limitadores distintos, sem reuso entre loops.
+    assert a_padrao is not b_padrao
+    assert a_nfe is not b_nfe
 
 
 def test_limitador_nfe_separado_dos_demais() -> None:

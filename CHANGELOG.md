@@ -34,7 +34,8 @@ portadas seletivamente para o repositório canônico.
   só quando Regular), valida o dígito verificador antes de gastar crédito, mascara o
   CPF em todo log e não expõe campos operacionais do provedor. Pacote configurável por
   `CPFCNPJ_CPF_PACKET` (`26` padrão, `8`, `3` ou `1`). Exposta também no endpoint REST
-  `GET /v1/cpf/{cpf}/cadastro` e no SDK (`consultar_cpf` / `consultar_cpf_sync`)
+  `POST /v1/cpf/cadastro` (CPF no corpo JSON, fora do path) e no SDK
+  (`consultar_cpf` / `consultar_cpf_sync`)
 * consulta real de status da SEFAZ via NfeStatusServico4 (mTLS), substituindo
   o antigo proxy da BrasilAPI que retornava 404 para toda UF
 * endpoint `GET /v1/fiscal/certificado/status` informa apenas

@@ -153,20 +153,25 @@ async def cpf_validate(cpf: str) -> dict[str, Any]:
     return resultado.model_dump(mode="json", exclude_none=True)
 
 
-@app.get(
-    "/v1/cpf/{cpf}/cadastro",
+class CPFCadastroRequest(BaseModel):
+    cpf: str = Field(description="CPF com ou sem máscara (ex.: '123.456.789-09').")
+
+
+@app.post(
+    "/v1/cpf/cadastro",
     tags=["cpf"],
     summary="Situacao cadastral do CPF (premium, opt-in)",
 )
-async def cpf_cadastro(cpf: str) -> dict[str, Any]:
+async def cpf_cadastro(req: CPFCadastroRequest) -> dict[str, Any]:
     """Consulta a situacao cadastral do CPF via provedor premium opcional cpfcnpj.com.br.
 
-    Valida o digito verificador (HTTP 400 se invalido) antes de consultar. Requer
-    CPFCNPJ_TOKEN; sem token ou com CPF inexistente na Receita, responde 502 com a
-    mensagem do provedor.
+    O CPF vai no corpo JSON (``{"cpf": "..."}``), nunca no path: assim o numero
+    completo nao aparece em log de acesso, trace ou proxy. Valida o digito verificador
+    (HTTP 400 se invalido) antes de consultar. Requer CPFCNPJ_TOKEN; sem token ou com
+    CPF inexistente na Receita, responde 502 com a mensagem do provedor.
     """
     try:
-        resultado = await consultar_cpf_tool(_validated_cpf(cpf))
+        resultado = await consultar_cpf_tool(_validated_cpf(req.cpf))
     except FiscalError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     return resultado.model_dump(mode="json", exclude_none=True)

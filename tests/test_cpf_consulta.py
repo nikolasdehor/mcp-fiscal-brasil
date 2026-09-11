@@ -371,9 +371,16 @@ _api_client = TestClient(app)
 
 
 def test_api_cpf_cadastro_rejeita_dv_invalido() -> None:
-    response = _api_client.get("/v1/cpf/12345678900/cadastro")
+    # CPF no corpo JSON (nunca no path): evita vazar o numero em access log/trace/proxy.
+    response = _api_client.post("/v1/cpf/cadastro", json={"cpf": "12345678900"})
     assert response.status_code == 400
     assert response.json()["detail"] == "CPF inválido"
+
+
+def test_api_cpf_cadastro_nao_expoe_cpf_no_path() -> None:
+    # A rota antiga com o CPF no path deixou de existir (transporte por corpo JSON).
+    response = _api_client.get(f"/v1/cpf/{CPF_TESTE}/cadastro")
+    assert response.status_code == 404
 
 
 def test_api_cpf_cadastro_sucesso(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -382,7 +389,7 @@ def test_api_cpf_cadastro_sucesso(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cpfcnpj_provider, "HTTPClient", _FakeHTTPClient)
     _FakeHTTPClient.payload = CPF_26_SAMPLE
 
-    response = _api_client.get(f"/v1/cpf/{CPF_TESTE}/cadastro")
+    response = _api_client.post("/v1/cpf/cadastro", json={"cpf": CPF_TESTE})
     assert response.status_code == 200
     data = response.json()
     assert data["cpf"] == "***.***.***-35"
@@ -393,7 +400,7 @@ def test_api_cpf_cadastro_sucesso(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_api_cpf_cadastro_sem_token_responde_502(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(settings, "cpfcnpj_token", "", raising=False)
-    response = _api_client.get(f"/v1/cpf/{CPF_TESTE}/cadastro")
+    response = _api_client.post("/v1/cpf/cadastro", json={"cpf": CPF_TESTE})
     assert response.status_code == 502
     assert "CPFCNPJ_TOKEN" in response.json()["detail"]
 

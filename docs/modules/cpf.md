@@ -30,12 +30,13 @@ antes de qualquer chamada, para não gastar crédito com CPF malformado.
 from mcp_fiscal_brasil.cpf.tools import consultar_cpf_tool
 
 cadastro = await consultar_cpf_tool("123.456.789-09")
-print(cadastro.situacao.descricao)  # ex.: "Regular"
+# situacao so vem nos pacotes 26 e 8; nos pacotes 1 e 3 fica None.
+print(cadastro.situacao.descricao if cadastro.situacao else None)  # ex.: "Regular"
 print(cadastro.apto_emissao)        # True apenas quando a situação é Regular
 ```
 
 O pacote é definido por `CPFCNPJ_CPF_PACKET`: `26` (padrão: nome, nascimento e situação),
-`8` (situação com motivo, ano de óbito e PDF do comprovante), `3` (nome, nascimento,
+`8` (situação com motivo, ano de óbito, número e PDF do comprovante), `3` (nome, nascimento,
 gênero e endereço) ou `1` (só o nome). Situações reconhecidas (código oficial da Receita):
 `00` Regular, `02` Suspensa, `03` Titular Falecido, `04` Pendente de Regularização, `05`
 Cancelada por Multiplicidade, `08` Nula, `09` Cancelada de Ofício.

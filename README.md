@@ -223,7 +223,7 @@ Funcionam 100% sem chaves de API. Instale e use imediatamente.
 | NFe | `baixar_nfe_distribuicao` | Baixa documentos via NFeDistribuicaoDFe (requer cert A1 local) | SEFAZ (mTLS) |
 | NFe | `manifestar_nfe` | Manifesta destinatario em NF-e via NFeRecepcaoEvento (requer cert A1) | SEFAZ (mTLS) |
 | CPF | `validar_cpf` | Validação de dígito verificador | Offline |
-| CPF | `consultar_cpf` | Situação cadastral do titular (Regular/Suspensa/Cancelada/Titular Falecido) para emissão a pessoa física | cpfcnpj.com.br (premium, opt-in) |
+| CPF | `consultar_cpf` | Situação cadastral do titular (Regular, Suspensa, Titular Falecido, Pendente de Regularização, Cancelada por Multiplicidade, Nula, Cancelada de Ofício) para emissão a pessoa física | cpfcnpj.com.br (premium, opt-in) |
 | SPED | `analisar_sped` | Analisa arquivo EFD/ECD/ECF: período, empresa, erros | Offline |
 | SPED | `listar_registros_sped` | Filtra registros por tipo (C100, E110, etc.) | Offline |
 | eSocial | `listar_eventos_esocial` | Catálogo de eventos filtrável por grupo | Offline |
